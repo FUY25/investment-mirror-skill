@@ -1,0 +1,24 @@
+{
+  "name": "investment-mirror-skill",
+  "version": "0.2.0",
+  "private": true,
+  "type": "module",
+  "description": "Local-first Codex skill product for investment decision profiling, thesis linting, and decision memory.",
+  "scripts": {
+    "im": "tsx skills/investment-mirror/scripts/investment_mirror_cli.ts",
+    "generate:masters": "tsx tools/generate_master_corpus.ts",
+    "validate:skill": "python3 /Users/fuyuming/.codex/skills/.system/skill-creator/scripts/quick_validate.py skills/investment-mirror",
+    "validate:registry": "tsx skills/investment-mirror/scripts/validate_investment_mirror.ts",
+    "test": "node --import tsx --test tests/*.test.ts",
+    "eval": "tsx evals/run_evals.ts",
+    "validate": "npm run validate:skill && npm run validate:registry && npm test && npm run eval"
+  },
+  "dependencies": {
+    "tsx": "^4.20.3",
+    "typescript": "^5.8.3",
+    "yaml": "^2.7.1"
+  },
+  "engines": {
+    "node": ">=22"
+  }
+}

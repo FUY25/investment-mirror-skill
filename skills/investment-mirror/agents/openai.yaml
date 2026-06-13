@@ -1,0 +1,4 @@
+interface:
+  display_name: "Investment Mirror"
+  short_description: "Local investment decision mirror and thesis linter"
+  default_prompt: "Use $investment-mirror to initialize my local investor profile and lint a thesis without giving buy or sell advice."
