@@ -1,0 +1,1396 @@
+version: "0.2"
+active_master_count: 30
+future_masters_excluded_from_v0_2_gate: true
+masters:
+  - id: benjamin_graham
+    display_name: Benjamin Graham
+    region: United States
+    tier: canonical
+    category: Value / margin of safety
+    style_tags:
+      - value
+      - margin_of_safety
+      - mr_market
+      - security_analysis
+    asset_path: assets/masters/benjamin_graham.svg
+    wikipedia_url: https://en.wikipedia.org/wiki/Benjamin_Graham
+    primary_sources:
+      - https://en.wikipedia.org/wiki/The_Intelligent_Investor
+      - https://en.wikipedia.org/wiki/Security_Analysis_(book)
+      - https://business.columbia.edu/heilbrunn/resources/graham-and-doddsville-newsletter
+    secondary_sources:
+      - https://en.wikipedia.org/wiki/Benjamin_Graham
+    source_quality_notes:
+      - url: https://en.wikipedia.org/wiki/Benjamin_Graham
+        source_type: biography
+        source_quality_tier: medium_high
+      - url: https://en.wikipedia.org/wiki/The_Intelligent_Investor
+        source_type: book
+        source_quality_tier: medium_high
+      - url: https://en.wikipedia.org/wiki/Security_Analysis_(book)
+        source_type: book
+        source_quality_tier: medium_high
+      - url: https://business.columbia.edu/heilbrunn/resources/graham-and-doddsville-newsletter
+        source_type: research
+        source_quality_tier: high
+    teaches:
+      - margin of safety
+      - Mr. Market discipline
+      - separate price from value
+      - process before excitement
+    common_misreadings:
+      - deep value is not automatic cheapness
+      - margin of safety is not a slogan
+      - net-net discipline does not remove business risk
+    bio_summary: Benjamin Graham was a Columbia professor, author, and investor associated with security analysis, value investing, and the margin-of-safety concept.
+    investment_style: Fundamental value investing that starts with business value, balance-sheet evidence, and a gap between price and conservative appraisal.
+    notable_results_summary: His notable contribution is the intellectual foundation of value investing through Security Analysis and The Intelligent Investor, plus his influence on later investors.
+    read_more_url: https://business.columbia.edu/heilbrunn/resources/graham-and-doddsville-newsletter
+    guardrail_relevance:
+      - valuation_expectation_missing
+      - evidence_basis_missing
+      - authority_anchor
+      - downside_protocol_missing
+    html_card_role: best-fit master card or learning reference card
+  - id: warren_buffett
+    display_name: Warren Buffett
+    region: United States
+    tier: canonical
+    category: Value / margin of safety
+    style_tags:
+      - quality_value
+      - capital_allocation
+      - long_term_ownership
+      - business_quality
+    asset_path: assets/masters/warren_buffett.svg
+    wikipedia_url: https://en.wikipedia.org/wiki/Warren_Buffett
+    primary_sources:
+      - https://www.berkshirehathaway.com/letters/letters.html
+      - https://www.berkshirehathaway.com/reports.html
+    secondary_sources:
+      - https://en.wikipedia.org/wiki/Warren_Buffett
+      - https://www.dataroma.com/m/managers.php
+    source_quality_notes:
+      - url: https://www.berkshirehathaway.com/letters/letters.html
+        source_type: primary
+        source_quality_tier: high
+      - url: https://en.wikipedia.org/wiki/Warren_Buffett
+        source_type: biography
+        source_quality_tier: medium_high
+      - url: https://www.berkshirehathaway.com/reports.html
+        source_type: primary
+        source_quality_tier: high
+      - url: https://www.dataroma.com/m/managers.php
+        source_type: portfolio_tracker
+        source_quality_tier: context_only
+    teaches:
+      - owner mindset
+      - business quality
+      - capital allocation
+      - circle of competence
+      - patience
+    common_misreadings:
+      - quality does not mean any price
+      - long term does not mean never revisiting thesis
+      - copying holdings is not copying process
+    bio_summary: Warren Buffett is the chair and CEO of Berkshire Hathaway and is known for owner-oriented investing, business-quality analysis, and plain-language shareholder letters.
+    investment_style: Quality-aware value investing focused on durable economics, capable management, capital allocation, and long holding periods.
+    notable_results_summary: Berkshire Hathaway's long public record and shareholder letters provide source-backed context for Buffett's investment approach without needing unsupported rankings.
+    read_more_url: https://www.berkshirehathaway.com/letters/letters.html
+    guardrail_relevance:
+      - valuation_expectation_missing
+      - quality_without_price
+      - authority_anchor
+      - time_horizon_missing
+    html_card_role: best-fit master card or learning reference card
+  - id: charlie_munger
+    display_name: Charlie Munger
+    region: United States
+    tier: canonical
+    category: Value / margin of safety
+    style_tags:
+      - mental_models
+      - quality
+      - incentives
+      - inversion
+    asset_path: assets/masters/charlie_munger.svg
+    wikipedia_url: https://en.wikipedia.org/wiki/Charlie_Munger
+    primary_sources:
+      - https://www.berkshirehathaway.com/letters/letters.html
+      - https://en.wikipedia.org/wiki/Poor_Charlie%27s_Almanack
+      - https://business.columbia.edu/heilbrunn/resources/graham-and-doddsville-newsletter
+    secondary_sources:
+      - https://en.wikipedia.org/wiki/Charlie_Munger
+    source_quality_notes:
+      - url: https://www.berkshirehathaway.com/letters/letters.html
+        source_type: primary
+        source_quality_tier: high
+      - url: https://en.wikipedia.org/wiki/Charlie_Munger
+        source_type: biography
+        source_quality_tier: medium_high
+      - url: https://en.wikipedia.org/wiki/Poor_Charlie%27s_Almanack
+        source_type: book
+        source_quality_tier: medium_high
+      - url: https://business.columbia.edu/heilbrunn/resources/graham-and-doddsville-newsletter
+        source_type: research
+        source_quality_tier: high
+    teaches:
+      - inversion
+      - incentives
+      - avoid stupidity
+      - multidisciplinary mental models
+      - quality threshold
+    common_misreadings:
+      - mental models are not decorative quotes
+      - concentration requires exceptional standards
+      - inversion is a test, not a vibe
+    bio_summary: Charlie Munger was Berkshire Hathaway's vice chairman and a long-time advocate of multidisciplinary thinking, incentives analysis, and inversion.
+    investment_style: Quality-oriented value investing with a high bar for business quality, incentives, management behavior, and avoidable error.
+    notable_results_summary: "His public record is most useful as process evidence: Berkshire letters, speeches, and Poor Charlie's Almanack document his mental-model approach."
+    read_more_url: https://www.berkshirehathaway.com/letters/letters.html
+    guardrail_relevance:
+      - falsification_missing
+      - management_shortcut
+      - authority_anchor
+      - downside_protocol_missing
+    html_card_role: best-fit master card or learning reference card
+  - id: walter_schloss
+    display_name: Walter Schloss
+    region: United States
+    tier: extended
+    category: Value / margin of safety
+    style_tags:
+      - deep_value
+      - diversification
+      - balance_sheet
+      - simple_process
+    asset_path: assets/masters/walter_schloss.svg
+    wikipedia_url: https://en.wikipedia.org/wiki/Walter_Schloss
+    primary_sources:
+      - https://business.columbia.edu/heilbrunn/resources/graham-and-doddsville-newsletter
+      - https://www8.gsb.columbia.edu/sites/valueinvesting/files/files/Buffett1984.pdf
+    secondary_sources:
+      - https://en.wikipedia.org/wiki/Walter_Schloss
+      - https://www.dataroma.com/m/managers.php
+    source_quality_notes:
+      - url: https://en.wikipedia.org/wiki/Walter_Schloss
+        source_type: biography
+        source_quality_tier: medium_high
+      - url: https://business.columbia.edu/heilbrunn/resources/graham-and-doddsville-newsletter
+        source_type: research
+        source_quality_tier: high
+      - url: https://www.dataroma.com/m/managers.php
+        source_type: portfolio_tracker
+        source_quality_tier: context_only
+      - url: https://www8.gsb.columbia.edu/sites/valueinvesting/files/files/Buffett1984.pdf
+        source_type: primary
+        source_quality_tier: high
+    teaches:
+      - simple valuation discipline
+      - diversified cheapness
+      - balance-sheet checks
+      - avoid complexity
+    common_misreadings:
+      - simple is not shallow
+      - diversification is not lack of conviction
+      - cheapness still needs solvency checks
+    bio_summary: Walter Schloss was a Graham-influenced value investor known for a simple, price-focused, diversified approach to undervalued securities.
+    investment_style: Deep value investing with emphasis on price, asset value, balance-sheet evidence, and diversification rather than elaborate forecasts.
+    notable_results_summary: Public discussions emphasize his long practice of Graham-style value investing and his reputation for simple discipline.
+    read_more_url: https://www8.gsb.columbia.edu/sites/valueinvesting/files/files/Buffett1984.pdf
+    guardrail_relevance:
+      - valuation_expectation_missing
+      - single_metric_overweight
+      - evidence_basis_missing
+    html_card_role: best-fit master card or learning reference card
+  - id: seth_klarman
+    display_name: Seth Klarman
+    region: United States
+    tier: canonical
+    category: Value / margin of safety
+    style_tags:
+      - value
+      - risk
+      - margin_of_safety
+      - downside_first
+    asset_path: assets/masters/seth_klarman.svg
+    wikipedia_url: https://en.wikipedia.org/wiki/Seth_Klarman
+    primary_sources:
+      - https://en.wikipedia.org/wiki/Margin_of_Safety_(book)
+      - https://business.columbia.edu/heilbrunn/resources/graham-and-doddsville-newsletter
+    secondary_sources:
+      - https://en.wikipedia.org/wiki/Seth_Klarman
+      - https://www.dataroma.com/m/managers.php
+    source_quality_notes:
+      - url: https://en.wikipedia.org/wiki/Seth_Klarman
+        source_type: biography
+        source_quality_tier: medium_high
+      - url: https://en.wikipedia.org/wiki/Margin_of_Safety_(book)
+        source_type: book
+        source_quality_tier: medium_high
+      - url: https://business.columbia.edu/heilbrunn/resources/graham-and-doddsville-newsletter
+        source_type: research
+        source_quality_tier: high
+      - url: https://www.dataroma.com/m/managers.php
+        source_type: portfolio_tracker
+        source_quality_tier: context_only
+    teaches:
+      - risk before return
+      - margin of safety
+      - liquidity awareness
+      - patience under uncertainty
+    common_misreadings:
+      - cash and caution are process choices, not fear
+      - margin of safety is not only low multiples
+      - distressed value requires legal and capital-structure work
+    bio_summary: Seth Klarman is the CEO of Baupost Group and author of Margin of Safety, publicly associated with risk-aware value investing.
+    investment_style: Downside-first value investing that emphasizes margin of safety, patience, liquidity, and skepticism toward crowd behavior.
+    notable_results_summary: Public source value is strongest for his risk framing and margin-of-safety philosophy rather than for precise performance claims.
+    read_more_url: https://business.columbia.edu/heilbrunn/resources/graham-and-doddsville-newsletter
+    guardrail_relevance:
+      - downside_protocol_missing
+      - valuation_expectation_missing
+      - source_quality_weak
+      - scenario_absent
+    html_card_role: best-fit master card or learning reference card
+  - id: li_lu
+    display_name: Li Lu / 李录
+    region: United States / China
+    tier: canonical
+    category: Value / margin of safety
+    style_tags:
+      - value_investing
+      - long_term_compounders
+      - accurate_information
+      - owner_mindset
+    asset_path: assets/masters/li_lu.svg
+    wikipedia_url: https://en.wikipedia.org/wiki/Li_Lu
+    primary_sources:
+      - https://www.himcap.com/
+      - https://business.columbia.edu/heilbrunn/resources/graham-and-doddsville-newsletter
+    secondary_sources:
+      - https://en.wikipedia.org/wiki/Li_Lu
+      - https://www.dataroma.com/m/managers.php
+    source_quality_notes:
+      - url: https://en.wikipedia.org/wiki/Li_Lu
+        source_type: biography
+        source_quality_tier: medium_high
+      - url: https://www.himcap.com/
+        source_type: official
+        source_quality_tier: high
+      - url: https://business.columbia.edu/heilbrunn/resources/graham-and-doddsville-newsletter
+        source_type: research
+        source_quality_tier: high
+      - url: https://www.dataroma.com/m/managers.php
+        source_type: portfolio_tracker
+        source_quality_tier: context_only
+    teaches:
+      - accurate and complete information
+      - owner mindset
+      - long-term compounding
+      - intellectual honesty
+    common_misreadings:
+      - China focus is not a shortcut to edge
+      - long-term holding requires high information quality
+      - borrowed conviction is not owner mindset
+    bio_summary: Li Lu is the founder and chairman of Himalaya Capital and is associated publicly with long-term value investing and owner-oriented research.
+    investment_style: Long-term value investing that combines business quality, accurate information, patience, and an owner mindset.
+    notable_results_summary: Publicly available sources are most useful for his stated principles, Himalaya context, and reputation in value-investing circles.
+    read_more_url: https://www.himcap.com/
+    guardrail_relevance:
+      - source_quality_weak
+      - authority_anchor
+      - valuation_expectation_missing
+      - evidence_basis_missing
+    html_card_role: best-fit master card or learning reference card
+  - id: duan_yongping
+    display_name: Duan Yongping / 段永平
+    region: China / United States
+    tier: modern_case
+    category: Quality growth / compounders
+    style_tags:
+      - entrepreneur_investor
+      - business_quality
+      - common_sense
+      - long_term_ownership
+    asset_path: assets/masters/duan_yongping.svg
+    wikipedia_url: https://en.wikipedia.org/wiki/Duan_Yongping
+    primary_sources: []
+    secondary_sources:
+      - https://en.wikipedia.org/wiki/Duan_Yongping
+      - https://en.wikipedia.org/wiki/BBK_Electronics
+      - https://en.wikipedia.org/wiki/NetEase
+      - https://www.dataroma.com/m/managers.php
+    source_quality_notes:
+      - url: https://en.wikipedia.org/wiki/Duan_Yongping
+        source_type: biography
+        source_quality_tier: medium_high
+      - url: https://en.wikipedia.org/wiki/BBK_Electronics
+        source_type: reliable_secondary
+        source_quality_tier: medium_high
+      - url: https://en.wikipedia.org/wiki/NetEase
+        source_type: reliable_secondary
+        source_quality_tier: medium_high
+      - url: https://www.dataroma.com/m/managers.php
+        source_type: portfolio_tracker
+        source_quality_tier: context_only
+    teaches:
+      - business common sense
+      - owner/operator lens
+      - good business vs good product
+      - patience
+    common_misreadings:
+      - a good product is not automatically a good stock
+      - operator intuition still needs price and governance checks
+      - public forum summaries need source caution
+    bio_summary: Duan Yongping is an entrepreneur and investor associated with BBK-related businesses and a public reputation for common-sense business-quality investing.
+    investment_style: Owner-oriented quality investing informed by operating experience, business durability, and common-sense economics.
+    notable_results_summary: Use his public biography and operating history as style context; avoid unsupported claims from reposted forum material.
+    read_more_url: https://en.wikipedia.org/wiki/Duan_Yongping
+    guardrail_relevance:
+      - product_quality_overweight
+      - value_capture_missing
+      - valuation_expectation_missing
+      - source_quality_weak
+    html_card_role: best-fit master card or learning reference card
+  - id: philip_fisher
+    display_name: Philip Fisher
+    region: United States
+    tier: canonical
+    category: Quality growth / compounders
+    style_tags:
+      - scuttlebutt
+      - growth
+      - quality
+      - management_quality
+    asset_path: assets/masters/philip_fisher.svg
+    wikipedia_url: https://en.wikipedia.org/wiki/Philip_Arthur_Fisher
+    primary_sources:
+      - https://en.wikipedia.org/wiki/Common_Stocks_and_Uncommon_Profits
+      - https://business.columbia.edu/heilbrunn/resources/graham-and-doddsville-newsletter
+    secondary_sources:
+      - https://en.wikipedia.org/wiki/Philip_Arthur_Fisher
+    source_quality_notes:
+      - url: https://en.wikipedia.org/wiki/Philip_Arthur_Fisher
+        source_type: biography
+        source_quality_tier: medium_high
+      - url: https://en.wikipedia.org/wiki/Common_Stocks_and_Uncommon_Profits
+        source_type: book
+        source_quality_tier: medium_high
+      - url: https://business.columbia.edu/heilbrunn/resources/graham-and-doddsville-newsletter
+        source_type: research
+        source_quality_tier: high
+    teaches:
+      - scuttlebutt
+      - qualitative business research
+      - management quality
+      - long-term growth durability
+    common_misreadings:
+      - qualitative conviction is not evidence-free conviction
+      - growth quality still needs expectations discipline
+      - talking to sources is not the same as verification
+    bio_summary: Philip Fisher was a growth investor and author known for qualitative business research and the scuttlebutt method.
+    investment_style: Long-horizon quality-growth investing focused on management, innovation, sales potential, and qualitative evidence gathered from business networks.
+    notable_results_summary: His book Common Stocks and Uncommon Profits is a durable source for the qualitative growth-investing process associated with his name.
+    read_more_url: https://en.wikipedia.org/wiki/Common_Stocks_and_Uncommon_Profits
+    guardrail_relevance:
+      - valuation_expectation_missing
+      - falsification_missing
+      - value_capture_missing
+      - management_shortcut
+    html_card_role: best-fit master card or learning reference card
+  - id: t_rowe_price_jr
+    display_name: T. Rowe Price Jr.
+    region: United States
+    tier: extended
+    category: Quality growth / compounders
+    style_tags:
+      - growth_investing
+      - long_term_growth
+      - business_lifecycle
+    asset_path: assets/masters/t_rowe_price_jr.svg
+    wikipedia_url: https://en.wikipedia.org/wiki/Thomas_Rowe_Price_Jr.
+    primary_sources:
+      - https://www.troweprice.com/corporate/us/en/what-we-do/history.html
+    secondary_sources:
+      - https://en.wikipedia.org/wiki/Thomas_Rowe_Price_Jr.
+      - https://en.wikipedia.org/wiki/T._Rowe_Price
+    source_quality_notes:
+      - url: https://en.wikipedia.org/wiki/Thomas_Rowe_Price_Jr.
+        source_type: biography
+        source_quality_tier: medium_high
+      - url: https://www.troweprice.com/corporate/us/en/what-we-do/history.html
+        source_type: official
+        source_quality_tier: high
+      - url: https://en.wikipedia.org/wiki/T._Rowe_Price
+        source_type: reliable_secondary
+        source_quality_tier: medium_high
+    teaches:
+      - growth durability
+      - business lifecycle
+      - compounder patience
+      - earnings power over time
+    common_misreadings:
+      - growth is not momentum by another name
+      - long-run durability still needs price expectations
+      - institutional history is not a stock thesis
+    bio_summary: T. Rowe Price Jr. founded the investment firm bearing his name and is associated with growth-stock investing and long-term business lifecycle analysis.
+    investment_style: Long-term growth investing focused on companies with durable expansion potential and compounding earnings power.
+    notable_results_summary: His significance is primarily as an early architect of growth-investing practice and the founder of T. Rowe Price.
+    read_more_url: https://www.troweprice.com/corporate/us/en/what-we-do/history.html
+    guardrail_relevance:
+      - valuation_expectation_missing
+      - time_horizon_missing
+      - scenario_absent
+    html_card_role: best-fit master card or learning reference card
+  - id: peter_lynch
+    display_name: Peter Lynch
+    region: United States
+    tier: canonical
+    category: Quality growth / compounders
+    style_tags:
+      - garp
+      - know_what_you_own
+      - consumer_insight
+      - simple_thesis
+    asset_path: assets/masters/peter_lynch.svg
+    wikipedia_url: https://en.wikipedia.org/wiki/Peter_Lynch
+    primary_sources:
+      - https://en.wikipedia.org/wiki/One_Up_on_Wall_Street
+      - https://en.wikipedia.org/wiki/Beating_the_Street
+    secondary_sources:
+      - https://en.wikipedia.org/wiki/Peter_Lynch
+    source_quality_notes:
+      - url: https://en.wikipedia.org/wiki/Peter_Lynch
+        source_type: biography
+        source_quality_tier: medium_high
+      - url: https://en.wikipedia.org/wiki/One_Up_on_Wall_Street
+        source_type: book
+        source_quality_tier: medium_high
+      - url: https://en.wikipedia.org/wiki/Beating_the_Street
+        source_type: book
+        source_quality_tier: medium_high
+    teaches:
+      - know what you own
+      - simple thesis language
+      - consumer observation
+      - growth at a reasonable price
+    common_misreadings:
+      - liking a product is not enough
+      - simple thesis is not shallow thesis
+      - consumer familiarity still needs financial evidence
+    bio_summary: Peter Lynch is a former Fidelity Magellan Fund manager and author known for GARP, consumer observation, and clear thesis language.
+    investment_style: Growth at a reasonable price with emphasis on understandable businesses, company categories, simple thesis articulation, and fundamental follow-through.
+    notable_results_summary: His public profile is tied to the Magellan Fund era and widely read books about individual-investor research process.
+    read_more_url: https://en.wikipedia.org/wiki/Peter_Lynch
+    guardrail_relevance:
+      - product_quality_overweight
+      - valuation_expectation_missing
+      - single_metric_overweight
+      - wording_vague
+    html_card_role: best-fit master card or learning reference card
+  - id: terry_smith
+    display_name: Terry Smith
+    region: United Kingdom
+    tier: modern_case
+    category: Quality growth / compounders
+    style_tags:
+      - quality_compounders
+      - buy_good_companies
+      - long_term_ownership
+    asset_path: assets/masters/terry_smith.svg
+    wikipedia_url: https://en.wikipedia.org/wiki/Terry_Smith_(fund_manager)
+    primary_sources:
+      - https://www.fundsmith.co.uk/fundsmith-equity-fund/fundsmith-equity-fund-owner-s-manual/
+      - https://www.fundsmith.co.uk/fundsmith-equity-fund/documents/
+    secondary_sources:
+      - https://en.wikipedia.org/wiki/Terry_Smith_(fund_manager)
+    source_quality_notes:
+      - url: https://en.wikipedia.org/wiki/Terry_Smith_(fund_manager)
+        source_type: biography
+        source_quality_tier: medium_high
+      - url: https://www.fundsmith.co.uk/fundsmith-equity-fund/fundsmith-equity-fund-owner-s-manual/
+        source_type: primary
+        source_quality_tier: high
+      - url: https://www.fundsmith.co.uk/fundsmith-equity-fund/documents/
+        source_type: primary
+        source_quality_tier: high
+    teaches:
+      - quality filters
+      - do not overtrade
+      - free cash flow focus
+      - quality versus valuation tension
+    common_misreadings:
+      - quality company is not any-price security
+      - low turnover is not refusal to revisit
+      - brand quality still needs return math
+    bio_summary: Terry Smith is a UK fund manager associated with Fundsmith and a quality-compounder philosophy summarized as buying good companies and holding them.
+    investment_style: Quality-compounder investing emphasizing resilient businesses, high returns on capital, cash generation, and low turnover.
+    notable_results_summary: Fundsmith documents and owner manuals provide source-backed material for the stated process and quality criteria.
+    read_more_url: https://www.fundsmith.co.uk/
+    guardrail_relevance:
+      - quality_without_price
+      - valuation_expectation_missing
+      - scenario_absent
+    html_card_role: best-fit master card or learning reference card
+  - id: howard_marks
+    display_name: Howard Marks
+    region: United States
+    tier: canonical
+    category: Contrarian / risk / cycles
+    style_tags:
+      - second_level_thinking
+      - risk_cycles
+      - credit
+      - contrarian_risk_awareness
+    asset_path: assets/masters/howard_marks.svg
+    wikipedia_url: https://en.wikipedia.org/wiki/Howard_Marks_(investor)
+    primary_sources:
+      - https://www.oaktreecapital.com/insights/memo
+      - https://en.wikipedia.org/wiki/The_Most_Important_Thing_(book)
+    secondary_sources:
+      - https://en.wikipedia.org/wiki/Howard_Marks_(investor)
+    source_quality_notes:
+      - url: https://www.oaktreecapital.com/insights/memo
+        source_type: memo
+        source_quality_tier: high
+      - url: https://en.wikipedia.org/wiki/Howard_Marks_(investor)
+        source_type: biography
+        source_quality_tier: medium_high
+      - url: https://en.wikipedia.org/wiki/The_Most_Important_Thing_(book)
+        source_type: book
+        source_quality_tier: medium_high
+    teaches:
+      - second-level thinking
+      - risk is not volatility alone
+      - cycle awareness
+      - prepare rather than predict
+    common_misreadings:
+      - being contrarian is not enough
+      - risk language is not bearishness
+      - cycle awareness is not macro certainty
+    bio_summary: Howard Marks is co-founder of Oaktree Capital Management and is known for memos about risk, cycles, and second-level thinking.
+    investment_style: Risk-aware credit and value investing focused on cycles, price, consensus expectations, and asymmetric risk/reward.
+    notable_results_summary: Oaktree memos are a durable primary source for Marks's process language around risk, cycles, and market psychology.
+    read_more_url: https://www.oaktreecapital.com/insights/memo
+    guardrail_relevance:
+      - consensus_gap_missing
+      - cyclicality_ignored
+      - macro_certainty
+      - downside_protocol_missing
+    html_card_role: best-fit master card or learning reference card
+  - id: john_templeton
+    display_name: John Templeton
+    region: United States / United Kingdom
+    tier: canonical
+    category: Contrarian / risk / cycles
+    style_tags:
+      - global_contrarian
+      - peak_pessimism
+      - value
+      - international
+    asset_path: assets/masters/john_templeton.svg
+    wikipedia_url: https://en.wikipedia.org/wiki/John_Templeton
+    primary_sources:
+      - https://www.templeton.org/about/sir-john
+      - https://www.franklintempleton.com/about-us/company-profile
+    secondary_sources:
+      - https://en.wikipedia.org/wiki/John_Templeton
+    source_quality_notes:
+      - url: https://en.wikipedia.org/wiki/John_Templeton
+        source_type: biography
+        source_quality_tier: medium_high
+      - url: https://www.templeton.org/about/sir-john
+        source_type: official
+        source_quality_tier: high
+      - url: https://www.franklintempleton.com/about-us/company-profile
+        source_type: official
+        source_quality_tier: high
+    teaches:
+      - global opportunity set
+      - peak pessimism
+      - contrarian discipline
+      - valuation across borders
+    common_misreadings:
+      - pessimism alone is not margin of safety
+      - foreign market cheapness needs governance and currency checks
+      - contrarian does not mean reflexively opposite
+    bio_summary: John Templeton was a global investor and philanthropist associated with contrarian investing and looking for value in neglected markets.
+    investment_style: Global contrarian value investing that seeks pessimism-driven mispricing while maintaining valuation and diversification discipline.
+    notable_results_summary: Public sources emphasize Templeton's role in globalizing value investing and his peak-pessimism framing.
+    read_more_url: https://www.templeton.org/about/sir-john
+    guardrail_relevance:
+      - consensus_gap_missing
+      - cyclicality_ignored
+      - source_quality_weak
+    html_card_role: best-fit master card or learning reference card
+  - id: jeremy_grantham
+    display_name: Jeremy Grantham
+    region: United Kingdom / United States
+    tier: modern_case
+    category: Contrarian / risk / cycles
+    style_tags:
+      - bubbles
+      - long_term_valuation
+      - mean_reversion
+      - regime_caution
+    asset_path: assets/masters/jeremy_grantham.svg
+    wikipedia_url: https://en.wikipedia.org/wiki/Jeremy_Grantham
+    primary_sources:
+      - https://www.gmo.com/americas/research-library/
+      - https://www.gmo.com/americas/research-library/gmo-7-year-asset-class-forecast/
+    secondary_sources:
+      - https://en.wikipedia.org/wiki/Jeremy_Grantham
+    source_quality_notes:
+      - url: https://en.wikipedia.org/wiki/Jeremy_Grantham
+        source_type: biography
+        source_quality_tier: medium_high
+      - url: https://www.gmo.com/americas/research-library/
+        source_type: primary
+        source_quality_tier: high
+      - url: https://www.gmo.com/americas/research-library/gmo-7-year-asset-class-forecast/
+        source_type: research
+        source_quality_tier: high
+    teaches:
+      - bubble detection
+      - mean reversion
+      - long-term valuation
+      - regime caution
+    common_misreadings:
+      - bubble risk does not specify timing
+      - valuation forecasts are not trade signals
+      - being early can be a process problem
+    bio_summary: Jeremy Grantham is co-founder of GMO and is publicly associated with long-term valuation, bubbles, and mean-reversion warnings.
+    investment_style: Valuation-driven, contrarian, long-horizon asset-class and market-cycle thinking with emphasis on bubbles and mean reversion.
+    notable_results_summary: GMO letters and research provide source-backed process context for valuation discipline and bubble-risk framing.
+    read_more_url: https://www.gmo.com/americas/research-library/
+    guardrail_relevance:
+      - macro_story_overreach
+      - cyclicality_ignored
+      - valuation_expectation_missing
+      - time_horizon_missing
+    html_card_role: best-fit master card or learning reference card
+  - id: michael_burry
+    display_name: Michael Burry
+    region: United States
+    tier: controversial_case
+    category: Contrarian / risk / cycles
+    style_tags:
+      - contrarian
+      - deep_research
+      - asymmetric_bets
+      - short_selling
+    asset_path: assets/masters/michael_burry.svg
+    wikipedia_url: https://en.wikipedia.org/wiki/Michael_Burry
+    primary_sources:
+      - https://www.sec.gov/edgar/browse/?CIK=1649339
+      - https://en.wikipedia.org/wiki/The_Big_Short
+    secondary_sources:
+      - https://en.wikipedia.org/wiki/Michael_Burry
+    source_quality_notes:
+      - url: https://en.wikipedia.org/wiki/Michael_Burry
+        source_type: biography
+        source_quality_tier: medium_high
+      - url: https://www.sec.gov/edgar/browse/?CIK=1649339
+        source_type: public_record
+        source_quality_tier: high
+      - url: https://en.wikipedia.org/wiki/The_Big_Short
+        source_type: book
+        source_quality_tier: medium_high
+    teaches:
+      - variant perception
+      - asymmetric payoff
+      - deep document research
+      - evidence against consensus
+    common_misreadings:
+      - dramatic short calls are not a reusable process
+      - being early can be costly
+      - public tweets are not research
+    bio_summary: Michael Burry is a physician-turned-investor known publicly for contrarian research and his role in the subprime mortgage short thesis.
+    investment_style: Contrarian, evidence-heavy, sometimes concentrated investing that seeks asymmetric setups where consensus appears materially wrong.
+    notable_results_summary: His best-known public case is the subprime mortgage thesis; use it as a process case, not a template for current decisions.
+    read_more_url: https://en.wikipedia.org/wiki/Michael_Burry
+    guardrail_relevance:
+      - consensus_gap_missing
+      - downside_protocol_missing
+      - authority_anchor
+      - source_quality_weak
+    html_card_role: best-fit master card or learning reference card
+  - id: george_soros
+    display_name: George Soros
+    region: United States / Hungary
+    tier: canonical
+    category: Macro / trading / reflexivity
+    style_tags:
+      - reflexivity
+      - macro
+      - asymmetric_bets
+      - fallibility
+    asset_path: assets/masters/george_soros.svg
+    wikipedia_url: https://en.wikipedia.org/wiki/George_Soros
+    primary_sources:
+      - https://en.wikipedia.org/wiki/The_Alchemy_of_Finance
+      - https://www.opensocietyfoundations.org/george-soros
+    secondary_sources:
+      - https://en.wikipedia.org/wiki/George_Soros
+    source_quality_notes:
+      - url: https://en.wikipedia.org/wiki/George_Soros
+        source_type: biography
+        source_quality_tier: medium_high
+      - url: https://en.wikipedia.org/wiki/The_Alchemy_of_Finance
+        source_type: book
+        source_quality_tier: medium_high
+      - url: https://www.opensocietyfoundations.org/george-soros
+        source_type: official
+        source_quality_tier: high
+    teaches:
+      - reflexivity
+      - fallibility
+      - macro feedback loops
+      - asymmetric positioning
+    common_misreadings:
+      - reflexivity is not license for vague macro stories
+      - large macro bets require risk controls
+      - fallibility means revising, not just predicting
+    bio_summary: George Soros is an investor and philanthropist associated with macro investing, reflexivity theory, and the Quantum Fund era.
+    investment_style: Discretionary global macro investing focused on reflexive feedback loops, changing expectations, and asymmetric opportunities.
+    notable_results_summary: Public sources are most useful for reflexivity and macro process context rather than for copying specific trades.
+    read_more_url: https://www.opensocietyfoundations.org/george-soros
+    guardrail_relevance:
+      - macro_story_overreach
+      - falsification_missing
+      - downside_protocol_missing
+      - scenario_absent
+    html_card_role: best-fit master card or learning reference card
+  - id: stanley_druckenmiller
+    display_name: Stanley Druckenmiller
+    region: United States
+    tier: canonical
+    category: Macro / trading / reflexivity
+    style_tags:
+      - macro
+      - concentrated_bets
+      - risk_management
+      - liquidity
+    asset_path: assets/masters/stanley_druckenmiller.svg
+    wikipedia_url: https://en.wikipedia.org/wiki/Stanley_Druckenmiller
+    primary_sources:
+      - https://www.sec.gov/edgar/browse/?CIK=1536411
+      - https://en.wikipedia.org/wiki/Market_Wizards
+    secondary_sources:
+      - https://en.wikipedia.org/wiki/Stanley_Druckenmiller
+    source_quality_notes:
+      - url: https://en.wikipedia.org/wiki/Stanley_Druckenmiller
+        source_type: biography
+        source_quality_tier: medium_high
+      - url: https://www.sec.gov/edgar/browse/?CIK=1536411
+        source_type: public_record
+        source_quality_tier: high
+      - url: https://en.wikipedia.org/wiki/Market_Wizards
+        source_type: book
+        source_quality_tier: medium_high
+    teaches:
+      - risk management
+      - concentrate when evidence is strong
+      - liquidity awareness
+      - change mind quickly
+    common_misreadings:
+      - concentration is not bravado
+      - macro conviction still needs invalidation
+      - public 13F data is incomplete for macro process
+    bio_summary: Stanley Druckenmiller is a macro investor known for Duquesne Capital and for public discussions of concentrated, risk-managed investing.
+    investment_style: Discretionary macro investing that combines concentrated conviction with strict attention to liquidity, risk, and changing evidence.
+    notable_results_summary: Public biography, interviews, and filings provide process context; the skill avoids precise performance claims.
+    read_more_url: https://en.wikipedia.org/wiki/Stanley_Druckenmiller
+    guardrail_relevance:
+      - downside_protocol_missing
+      - macro_story_overreach
+      - falsification_missing
+      - position_protocol_missing
+    html_card_role: best-fit master card or learning reference card
+  - id: paul_tudor_jones
+    display_name: Paul Tudor Jones
+    region: United States
+    tier: canonical
+    category: Macro / trading / reflexivity
+    style_tags:
+      - trading
+      - macro
+      - risk_control
+      - loss_control
+    asset_path: assets/masters/paul_tudor_jones.svg
+    wikipedia_url: https://en.wikipedia.org/wiki/Paul_Tudor_Jones
+    primary_sources:
+      - https://www.tudor.com/
+      - https://en.wikipedia.org/wiki/Market_Wizards
+    secondary_sources:
+      - https://en.wikipedia.org/wiki/Paul_Tudor_Jones
+    source_quality_notes:
+      - url: https://en.wikipedia.org/wiki/Paul_Tudor_Jones
+        source_type: biography
+        source_quality_tier: medium_high
+      - url: https://www.tudor.com/
+        source_type: official
+        source_quality_tier: high
+      - url: https://en.wikipedia.org/wiki/Market_Wizards
+        source_type: book
+        source_quality_tier: medium_high
+    teaches:
+      - loss control
+      - timing discipline
+      - trading risk boundaries
+      - humility under uncertainty
+    common_misreadings:
+      - trading skill does not translate to casual timing
+      - stop-loss language is not a substitute for thesis
+      - macro view needs execution discipline
+    bio_summary: Paul Tudor Jones is a trader and macro investor associated with Tudor Investment Corporation and public emphasis on risk control.
+    investment_style: Macro and trading-oriented investing with strong emphasis on loss control, timing, and disciplined risk management.
+    notable_results_summary: Public sources are most useful for process ideas around risk, trading discipline, and drawdown control.
+    read_more_url: https://www.tudor.com/
+    guardrail_relevance:
+      - downside_protocol_missing
+      - time_horizon_missing
+      - macro_story_overreach
+    html_card_role: best-fit master card or learning reference card
+  - id: jesse_livermore
+    display_name: Jesse Livermore
+    region: United States
+    tier: controversial_case
+    category: Macro / trading / reflexivity
+    style_tags:
+      - speculation
+      - tape_reading
+      - risk
+      - cautionary_archetype
+    asset_path: assets/masters/jesse_livermore.svg
+    wikipedia_url: https://en.wikipedia.org/wiki/Jesse_Livermore
+    primary_sources:
+      - https://en.wikipedia.org/wiki/Reminiscences_of_a_Stock_Operator
+      - https://en.wikipedia.org/wiki/Jesse_Livermore#Books
+    secondary_sources:
+      - https://en.wikipedia.org/wiki/Jesse_Livermore
+    source_quality_notes:
+      - url: https://en.wikipedia.org/wiki/Jesse_Livermore
+        source_type: biography
+        source_quality_tier: medium_high
+      - url: https://en.wikipedia.org/wiki/Reminiscences_of_a_Stock_Operator
+        source_type: book
+        source_quality_tier: medium_high
+      - url: https://en.wikipedia.org/wiki/Jesse_Livermore#Books
+        source_type: book
+        source_quality_tier: medium_high
+    teaches:
+      - speculation caution
+      - risk of leverage
+      - price action discipline
+      - psychological fragility
+    common_misreadings:
+      - legendary trades do not make a risk process
+      - tape reading is not investment research
+      - cautionary cases are not avatars to emulate
+    bio_summary: Jesse Livermore was a famous speculator whose life is often used as both a trading psychology case and a cautionary risk story.
+    investment_style: Speculative trading archetype centered on price action, timing, and crowd behavior, best used in this product as a warning lens.
+    notable_results_summary: His public significance is as a historical trading figure and cautionary case about speculation, leverage, and psychology.
+    read_more_url: https://en.wikipedia.org/wiki/Jesse_Livermore
+    guardrail_relevance:
+      - downside_protocol_missing
+      - narrative_to_action_jump
+      - time_horizon_missing
+    html_card_role: best-fit master card or learning reference card
+  - id: ray_dalio
+    display_name: Ray Dalio
+    region: United States
+    tier: canonical
+    category: Macro / trading / reflexivity
+    style_tags:
+      - macro
+      - risk_parity
+      - principles
+      - regime_map
+    asset_path: assets/masters/ray_dalio.svg
+    wikipedia_url: https://en.wikipedia.org/wiki/Ray_Dalio
+    primary_sources:
+      - https://www.bridgewater.com/research-and-insights
+      - https://en.wikipedia.org/wiki/Principles_(book)
+    secondary_sources:
+      - https://en.wikipedia.org/wiki/Ray_Dalio
+    source_quality_notes:
+      - url: https://en.wikipedia.org/wiki/Ray_Dalio
+        source_type: biography
+        source_quality_tier: medium_high
+      - url: https://www.bridgewater.com/research-and-insights
+        source_type: primary
+        source_quality_tier: high
+      - url: https://en.wikipedia.org/wiki/Principles_(book)
+        source_type: book
+        source_quality_tier: medium_high
+    teaches:
+      - regime mapping
+      - diversification
+      - principles
+      - economic machine framing
+    common_misreadings:
+      - principles are not automatic truth
+      - macro frameworks can over-explain
+      - diversification is not a personal allocation recommendation
+    bio_summary: Ray Dalio founded Bridgewater Associates and is associated with macro frameworks, risk parity, and principles-based process.
+    investment_style: Macro and portfolio-process investing that emphasizes economic regimes, diversification, systematic principles, and scenario thinking.
+    notable_results_summary: Bridgewater research and Dalio's public writing are useful for macro-regime and process language, not for personalized allocation advice.
+    read_more_url: https://www.bridgewater.com/research-and-insights
+    guardrail_relevance:
+      - macro_story_overreach
+      - scenario_absent
+      - cycle_regime_guardrail
+    html_card_role: best-fit master card or learning reference card
+  - id: john_bogle
+    display_name: John C. Bogle
+    region: United States
+    tier: canonical
+    category: Systematic / quant / passive
+    style_tags:
+      - indexing
+      - low_cost
+      - passive_investing
+      - humility
+    asset_path: assets/masters/john_bogle.svg
+    wikipedia_url: https://en.wikipedia.org/wiki/John_C._Bogle
+    primary_sources:
+      - https://corporate.vanguard.com/content/corporatesite/us/en/corp/who-we-are/sets-us-apart/indexing-history.html
+    secondary_sources:
+      - https://en.wikipedia.org/wiki/John_C._Bogle
+      - https://www.bogleheads.org/wiki/Bogleheads%C2%AE_investment_philosophy
+    source_quality_notes:
+      - url: https://en.wikipedia.org/wiki/John_C._Bogle
+        source_type: biography
+        source_quality_tier: medium_high
+      - url: https://corporate.vanguard.com/content/corporatesite/us/en/corp/who-we-are/sets-us-apart/indexing-history.html
+        source_type: official
+        source_quality_tier: high
+      - url: https://www.bogleheads.org/wiki/Bogleheads%C2%AE_investment_philosophy
+        source_type: reliable_secondary
+        source_quality_tier: medium_high
+    teaches:
+      - cost discipline
+      - market humility
+      - indexing
+      - avoid unnecessary complexity
+    common_misreadings:
+      - humility is not apathy
+      - passive principles are not a stock-picking thesis
+      - low cost does not eliminate risk
+    bio_summary: John C. Bogle founded Vanguard and is associated with low-cost index investing and investor-cost discipline.
+    investment_style: Passive, low-cost, broad-market investing philosophy centered on humility, costs, diversification, and long-term compounding.
+    notable_results_summary: His historical importance is the popularization of low-cost indexing and the investor-first mutual fund structure at Vanguard.
+    read_more_url: https://corporate.vanguard.com/content/corporatesite/us/en/corp/who-we-are/sets-us-apart/indexing-history.html
+    guardrail_relevance:
+      - authority_anchor
+      - source_quality_weak
+      - evidence_basis_missing
+    html_card_role: best-fit master card or learning reference card
+  - id: jim_simons
+    display_name: Jim Simons
+    region: United States
+    tier: canonical
+    category: Systematic / quant / passive
+    style_tags:
+      - quant
+      - systematic
+      - data
+      - statistical_edge
+    asset_path: assets/masters/jim_simons.svg
+    wikipedia_url: https://en.wikipedia.org/wiki/Jim_Simons_(mathematician)
+    primary_sources:
+      - https://www.simonsfoundation.org/people/james-h-simons/
+    secondary_sources:
+      - https://en.wikipedia.org/wiki/Jim_Simons_(mathematician)
+      - https://en.wikipedia.org/wiki/Renaissance_Technologies
+    source_quality_notes:
+      - url: https://en.wikipedia.org/wiki/Jim_Simons_(mathematician)
+        source_type: biography
+        source_quality_tier: medium_high
+      - url: https://en.wikipedia.org/wiki/Renaissance_Technologies
+        source_type: reliable_secondary
+        source_quality_tier: medium_high
+      - url: https://www.simonsfoundation.org/people/james-h-simons/
+        source_type: official
+        source_quality_tier: high
+    teaches:
+      - statistical edge
+      - systems over stories
+      - data quality
+      - team science
+    common_misreadings:
+      - quant success is not spreadsheet curve-fitting
+      - public data is not necessarily edge
+      - black-box mystique is not a process
+    bio_summary: Jim Simons was a mathematician, founder of Renaissance Technologies, and philanthropist associated with systematic quantitative investing.
+    investment_style: Systematic quantitative investing based on statistical signals, data infrastructure, modeling, and rigorous research culture.
+    notable_results_summary: Public sources support his role as a leading quant pioneer; precise fund records should be handled cautiously and not used as ranking claims.
+    read_more_url: https://www.simonsfoundation.org/people/james-h-simons/
+    guardrail_relevance:
+      - single_metric_overweight
+      - source_quality_weak
+      - evidence_basis_missing
+    html_card_role: best-fit master card or learning reference card
+  - id: edward_thorp
+    display_name: Edward O. Thorp
+    region: United States
+    tier: canonical
+    category: Systematic / quant / passive
+    style_tags:
+      - probability
+      - arbitrage
+      - quant
+      - risk_control
+    asset_path: assets/masters/edward_thorp.svg
+    wikipedia_url: https://en.wikipedia.org/wiki/Edward_O._Thorp
+    primary_sources:
+      - https://en.wikipedia.org/wiki/A_Man_for_All_Markets
+      - https://en.wikipedia.org/wiki/Beat_the_Dealer
+    secondary_sources:
+      - https://en.wikipedia.org/wiki/Edward_O._Thorp
+    source_quality_notes:
+      - url: https://en.wikipedia.org/wiki/Edward_O._Thorp
+        source_type: biography
+        source_quality_tier: medium_high
+      - url: https://en.wikipedia.org/wiki/A_Man_for_All_Markets
+        source_type: book
+        source_quality_tier: medium_high
+      - url: https://en.wikipedia.org/wiki/Beat_the_Dealer
+        source_type: book
+        source_quality_tier: medium_high
+    teaches:
+      - probabilistic thinking
+      - edge measurement
+      - risk of ruin
+      - arbitrage logic
+    common_misreadings:
+      - probability language is not certainty
+      - edge disappears when crowded
+      - small samples do not prove a system
+    bio_summary: Edward O. Thorp is a mathematician, author, and investor associated with card counting, probability, arbitrage, and quantitative finance.
+    investment_style: Quantitative and probabilistic investing focused on measurable edge, arbitrage logic, and risk-of-ruin discipline.
+    notable_results_summary: His books and public biography provide source-backed context for applying probability and edge measurement to markets.
+    read_more_url: https://en.wikipedia.org/wiki/Edward_O._Thorp
+    guardrail_relevance:
+      - evidence_basis_missing
+      - single_metric_overweight
+      - downside_protocol_missing
+    html_card_role: best-fit master card or learning reference card
+  - id: cliff_asness
+    display_name: Cliff Asness
+    region: United States
+    tier: modern_case
+    category: Systematic / quant / passive
+    style_tags:
+      - factor_investing
+      - value_momentum
+      - quant
+      - anti_story
+    asset_path: assets/masters/cliff_asness.svg
+    wikipedia_url: https://en.wikipedia.org/wiki/Cliff_Asness
+    primary_sources:
+      - https://www.aqr.com/Insights/Research
+      - https://www.aqr.com/Insights/Perspectives
+    secondary_sources:
+      - https://en.wikipedia.org/wiki/Cliff_Asness
+    source_quality_notes:
+      - url: https://en.wikipedia.org/wiki/Cliff_Asness
+        source_type: biography
+        source_quality_tier: medium_high
+      - url: https://www.aqr.com/Insights/Research
+        source_type: research
+        source_quality_tier: high
+      - url: https://www.aqr.com/Insights/Perspectives
+        source_type: research
+        source_quality_tier: high
+    teaches:
+      - factor discipline
+      - anti-story evidence
+      - value and momentum
+      - long-horizon process pain
+    common_misreadings:
+      - factor labels are not magic words
+      - underperformance does not instantly falsify a long-horizon factor
+      - statistics still need implementation discipline
+    bio_summary: Cliff Asness is co-founder of AQR Capital Management and is associated with systematic factor investing and quantitative research.
+    investment_style: Systematic factor investing that emphasizes evidence, diversification across signals, value, momentum, and disciplined implementation.
+    notable_results_summary: AQR research is a primary source for his public process language around factors and systematic investing.
+    read_more_url: https://www.aqr.com/Insights/Research
+    guardrail_relevance:
+      - source_quality_weak
+      - single_metric_overweight
+      - scenario_absent
+    html_card_role: best-fit master card or learning reference card
+  - id: eugene_fama
+    display_name: Eugene Fama
+    region: United States
+    tier: canonical
+    category: Systematic / quant / passive
+    style_tags:
+      - efficient_markets
+      - factor_research
+      - academic_finance
+      - market_humility
+    asset_path: assets/masters/eugene_fama.svg
+    wikipedia_url: https://en.wikipedia.org/wiki/Eugene_Fama
+    primary_sources:
+      - https://mba.tuck.dartmouth.edu/pages/faculty/ken.french/data_library.html
+      - https://www.nobelprize.org/prizes/economic-sciences/2013/fama/facts/
+    secondary_sources:
+      - https://en.wikipedia.org/wiki/Eugene_Fama
+    source_quality_notes:
+      - url: https://en.wikipedia.org/wiki/Eugene_Fama
+        source_type: biography
+        source_quality_tier: medium_high
+      - url: https://mba.tuck.dartmouth.edu/pages/faculty/ken.french/data_library.html
+        source_type: research
+        source_quality_tier: high
+      - url: https://www.nobelprize.org/prizes/economic-sciences/2013/fama/facts/
+        source_type: official
+        source_quality_tier: high
+    teaches:
+      - market efficiency discipline
+      - base rates
+      - factor evidence
+      - humility about edge
+    common_misreadings:
+      - efficient markets are not perfectly priced markets
+      - factor evidence is not security-specific advice
+      - academic evidence needs implementation context
+    bio_summary: Eugene Fama is an economist associated with efficient market research and factor models in empirical asset pricing.
+    investment_style: Academic, evidence-first market-efficiency lens that pushes investors to justify active edge and separate risk factors from stories.
+    notable_results_summary: His Nobel-recognized research and factor work provide source-backed context for market-efficiency guardrails.
+    read_more_url: https://www.nobelprize.org/prizes/economic-sciences/2013/fama/facts/
+    guardrail_relevance:
+      - evidence_basis_missing
+      - authority_anchor
+      - source_quality_weak
+    html_card_role: best-fit master card or learning reference card
+  - id: carl_icahn
+    display_name: Carl Icahn
+    region: United States
+    tier: canonical
+    category: Activist / special situations
+    style_tags:
+      - activist
+      - corporate_control
+      - governance
+      - catalyst
+    asset_path: assets/masters/carl_icahn.svg
+    wikipedia_url: https://en.wikipedia.org/wiki/Carl_Icahn
+    primary_sources:
+      - https://www.ielp.com/
+      - https://www.sec.gov/edgar/browse/?CIK=921669
+    secondary_sources:
+      - https://en.wikipedia.org/wiki/Carl_Icahn
+    source_quality_notes:
+      - url: https://en.wikipedia.org/wiki/Carl_Icahn
+        source_type: biography
+        source_quality_tier: medium_high
+      - url: https://www.ielp.com/
+        source_type: official
+        source_quality_tier: high
+      - url: https://www.sec.gov/edgar/browse/?CIK=921669
+        source_type: public_record
+        source_quality_tier: high
+    teaches:
+      - catalyst definition
+      - governance pressure
+      - corporate control
+      - shareholder rights
+    common_misreadings:
+      - activism is not just complaining
+      - catalyst requires power and process
+      - public campaigns carry reputational and execution risk
+    bio_summary: Carl Icahn is an activist investor associated with corporate control, governance campaigns, and public shareholder activism.
+    investment_style: Activist and special-situation investing that seeks value realization through governance pressure, capital allocation changes, or corporate actions.
+    notable_results_summary: His public significance is the development of high-profile activist campaigns and corporate-control investing.
+    read_more_url: https://www.ielp.com/
+    guardrail_relevance:
+      - catalyst_missing
+      - consensus_gap_missing
+      - downside_protocol_missing
+    html_card_role: best-fit master card or learning reference card
+  - id: bill_ackman
+    display_name: Bill Ackman
+    region: United States
+    tier: modern_case
+    category: Activist / special situations
+    style_tags:
+      - activist
+      - concentrated
+      - public_campaigns
+      - thesis_clarity
+    asset_path: assets/masters/bill_ackman.svg
+    wikipedia_url: https://en.wikipedia.org/wiki/Bill_Ackman
+    primary_sources:
+      - https://pershingsquareholdings.com/company-reports/letters-to-shareholders/
+      - https://pershingsquareholdings.com/company-reports/financial-statements/
+    secondary_sources:
+      - https://en.wikipedia.org/wiki/Bill_Ackman
+    source_quality_notes:
+      - url: https://en.wikipedia.org/wiki/Bill_Ackman
+        source_type: biography
+        source_quality_tier: medium_high
+      - url: https://pershingsquareholdings.com/company-reports/letters-to-shareholders/
+        source_type: primary
+        source_quality_tier: high
+      - url: https://pershingsquareholdings.com/company-reports/financial-statements/
+        source_type: primary
+        source_quality_tier: high
+    teaches:
+      - public thesis clarity
+      - activist catalysts
+      - concentration
+      - reputational risk
+    common_misreadings:
+      - confidence and presentation do not equal truth
+      - public thesis can become identity risk
+      - activism requires specific levers
+    bio_summary: Bill Ackman is founder and CEO of Pershing Square Capital Management and is associated with concentrated activist and public-campaign investing.
+    investment_style: Concentrated activist and public-equity investing with strong emphasis on thesis articulation, catalysts, governance, and portfolio-level conviction.
+    notable_results_summary: Pershing Square reports and letters offer source-backed examples of public thesis framing and activist-style communication.
+    read_more_url: https://pershingsquareholdings.com/company-reports/letters-to-shareholders/
+    guardrail_relevance:
+      - catalyst_missing
+      - falsification_missing
+      - authority_anchor
+      - downside_protocol_missing
+    html_card_role: best-fit master card or learning reference card
+  - id: joel_greenblatt
+    display_name: Joel Greenblatt
+    region: United States
+    tier: canonical
+    category: Activist / special situations
+    style_tags:
+      - special_situations
+      - magic_formula
+      - value
+      - simple_rules
+    asset_path: assets/masters/joel_greenblatt.svg
+    wikipedia_url: https://en.wikipedia.org/wiki/Joel_Greenblatt
+    primary_sources:
+      - https://en.wikipedia.org/wiki/Joel_Greenblatt#Bibliography
+      - https://en.wikipedia.org/wiki/The_Little_Book_That_Beats_the_Market
+    secondary_sources:
+      - https://en.wikipedia.org/wiki/Joel_Greenblatt
+    source_quality_notes:
+      - url: https://en.wikipedia.org/wiki/Joel_Greenblatt
+        source_type: biography
+        source_quality_tier: medium_high
+      - url: https://en.wikipedia.org/wiki/Joel_Greenblatt#Bibliography
+        source_type: book
+        source_quality_tier: medium_high
+      - url: https://en.wikipedia.org/wiki/The_Little_Book_That_Beats_the_Market
+        source_type: book
+        source_quality_tier: medium_high
+    teaches:
+      - special situations
+      - simple rules
+      - return on capital and earnings yield
+      - spin-offs and catalysts
+    common_misreadings:
+      - magic formula is not magic
+      - special situations need event mechanics
+      - simple rules still need implementation discipline
+    bio_summary: Joel Greenblatt is an investor, professor, and author associated with special situations and simple quality-value frameworks.
+    investment_style: Value and special-situation investing that combines simple quantitative rules with event-driven opportunity analysis.
+    notable_results_summary: His books are useful source material for special-situation thinking and simple-rule value frameworks.
+    read_more_url: https://en.wikipedia.org/wiki/Joel_Greenblatt
+    guardrail_relevance:
+      - catalyst_missing
+      - single_metric_overweight
+      - valuation_expectation_missing
+    html_card_role: best-fit master card or learning reference card
+  - id: bill_gross
+    display_name: Bill Gross
+    region: United States
+    tier: canonical
+    category: Credit / bonds / endowment
+    style_tags:
+      - bonds
+      - duration
+      - fixed_income
+      - rates
+    asset_path: assets/masters/bill_gross.svg
+    wikipedia_url: https://en.wikipedia.org/wiki/Bill_Gross
+    primary_sources:
+      - https://www.pimco.com/us/en/insights
+      - https://www.pimco.com/us/en/about-us
+    secondary_sources:
+      - https://en.wikipedia.org/wiki/Bill_Gross
+    source_quality_notes:
+      - url: https://en.wikipedia.org/wiki/Bill_Gross
+        source_type: biography
+        source_quality_tier: medium_high
+      - url: https://www.pimco.com/us/en/insights
+        source_type: primary
+        source_quality_tier: high
+      - url: https://www.pimco.com/us/en/about-us
+        source_type: official
+        source_quality_tier: high
+    teaches:
+      - duration awareness
+      - fixed-income risk
+      - rate sensitivity
+      - income versus capital risk
+    common_misreadings:
+      - bonds are not risk-free
+      - yield is not total return
+      - duration can dominate narrative
+    bio_summary: Bill Gross co-founded PIMCO and is publicly associated with fixed-income investing and bond-market commentary.
+    investment_style: Fixed-income and macro investing focused on rates, duration, credit quality, yield, and bond-market structure.
+    notable_results_summary: His public role is most useful for teaching rate and duration awareness rather than for equity-style thesis matching.
+    read_more_url: https://www.pimco.com/us/en/insights
+    guardrail_relevance:
+      - cycle_regime_guardrail
+      - macro_story_overreach
+      - downside_protocol_missing
+    html_card_role: best-fit master card or learning reference card
+  - id: david_swensen
+    display_name: David Swensen
+    region: United States
+    tier: canonical
+    category: Credit / bonds / endowment
+    style_tags:
+      - endowment_model
+      - asset_allocation
+      - manager_selection
+      - illiquidity
+    asset_path: assets/masters/david_swensen.svg
+    wikipedia_url: https://en.wikipedia.org/wiki/David_F._Swensen
+    primary_sources:
+      - https://investments.yale.edu/
+      - https://en.wikipedia.org/wiki/David_F._Swensen#Works
+    secondary_sources:
+      - https://en.wikipedia.org/wiki/David_F._Swensen
+    source_quality_notes:
+      - url: https://en.wikipedia.org/wiki/David_F._Swensen
+        source_type: biography
+        source_quality_tier: medium_high
+      - url: https://investments.yale.edu/
+        source_type: official
+        source_quality_tier: high
+      - url: https://en.wikipedia.org/wiki/David_F._Swensen#Works
+        source_type: book
+        source_quality_tier: medium_high
+    teaches:
+      - portfolio construction
+      - manager selection
+      - illiquidity tradeoffs
+      - long horizon governance
+    common_misreadings:
+      - endowment model is not simple retail asset allocation
+      - illiquidity requires governance and time horizon
+      - manager access is part of the model
+    bio_summary: David Swensen was Yale's chief investment officer and is associated with the endowment model, portfolio construction, and alternative assets.
+    investment_style: Institutional portfolio construction emphasizing asset allocation, manager selection, illiquidity premiums, and long-horizon governance.
+    notable_results_summary: Public material is strongest for endowment-model principles and institutional process, not for personal allocation recommendations.
+    read_more_url: https://investments.yale.edu/
+    guardrail_relevance:
+      - portfolio_context_missing
+      - time_horizon_missing
+      - downside_protocol_missing
+    html_card_role: best-fit master card or learning reference card

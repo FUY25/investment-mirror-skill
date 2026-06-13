@@ -1,0 +1,67 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 220 260" role="img" aria-labelledby="stanley_druckenmiller-title stanley_druckenmiller-desc">
+  <title id="stanley_druckenmiller-title">Stanley Druckenmiller original line-art portrait</title>
+  <desc id="stanley_druckenmiller-desc">Original local SVG portrait asset for Investment Mirror master profile cards.</desc>
+  <rect width="220" height="260" rx="10" fill="#f7f3ee"/>
+  <path d="M18 214 C58 196 162 198 202 215 L202 242 L18 242 Z" fill="#efe4d7" stroke="#2d2926" stroke-width="1.5"/>
+  <g opacity="0.85">
+    <circle cx="33" cy="31" r="1.02" fill="#b96b2f" opacity="0.25"/>
+    <circle cx="50" cy="60" r="1.24" fill="#b96b2f" opacity="0.28"/>
+    <circle cx="67" cy="89" r="1.46" fill="#b96b2f" opacity="0.14"/>
+    <circle cx="84" cy="118" r="0.80" fill="#b96b2f" opacity="0.18"/>
+    <circle cx="101" cy="147" r="1.02" fill="#b96b2f" opacity="0.21"/>
+    <circle cx="118" cy="34" r="1.24" fill="#b96b2f" opacity="0.25"/>
+    <circle cx="135" cy="63" r="1.46" fill="#b96b2f" opacity="0.28"/>
+    <circle cx="152" cy="92" r="0.80" fill="#b96b2f" opacity="0.14"/>
+    <circle cx="169" cy="121" r="1.02" fill="#b96b2f" opacity="0.18"/>
+    <circle cx="30" cy="150" r="1.24" fill="#b96b2f" opacity="0.21"/>
+    <circle cx="47" cy="37" r="1.46" fill="#b96b2f" opacity="0.25"/>
+    <circle cx="64" cy="66" r="0.80" fill="#b96b2f" opacity="0.28"/>
+    <circle cx="81" cy="95" r="1.02" fill="#b96b2f" opacity="0.14"/>
+    <circle cx="98" cy="124" r="1.24" fill="#b96b2f" opacity="0.18"/>
+    <circle cx="115" cy="153" r="1.46" fill="#b96b2f" opacity="0.21"/>
+    <circle cx="132" cy="40" r="0.80" fill="#b96b2f" opacity="0.25"/>
+    <circle cx="149" cy="69" r="1.02" fill="#b96b2f" opacity="0.28"/>
+    <circle cx="166" cy="98" r="1.24" fill="#b96b2f" opacity="0.14"/>
+    <circle cx="27" cy="127" r="1.46" fill="#b96b2f" opacity="0.18"/>
+    <circle cx="44" cy="156" r="0.80" fill="#b96b2f" opacity="0.21"/>
+    <circle cx="61" cy="43" r="1.02" fill="#b96b2f" opacity="0.25"/>
+    <circle cx="78" cy="72" r="1.24" fill="#b96b2f" opacity="0.28"/>
+    <circle cx="95" cy="101" r="1.46" fill="#b96b2f" opacity="0.14"/>
+    <circle cx="112" cy="130" r="0.80" fill="#b96b2f" opacity="0.18"/>
+    <circle cx="129" cy="159" r="1.02" fill="#b96b2f" opacity="0.21"/>
+    <circle cx="146" cy="46" r="1.24" fill="#b96b2f" opacity="0.25"/>
+    <circle cx="163" cy="75" r="1.46" fill="#b96b2f" opacity="0.28"/>
+    <circle cx="24" cy="104" r="0.80" fill="#b96b2f" opacity="0.14"/>
+    <circle cx="41" cy="133" r="1.02" fill="#b96b2f" opacity="0.18"/>
+    <circle cx="58" cy="162" r="1.24" fill="#b96b2f" opacity="0.21"/>
+    <circle cx="75" cy="49" r="1.46" fill="#b96b2f" opacity="0.25"/>
+    <circle cx="92" cy="78" r="0.80" fill="#b96b2f" opacity="0.28"/>
+    <circle cx="109" cy="107" r="1.02" fill="#b96b2f" opacity="0.14"/>
+    <circle cx="126" cy="136" r="1.24" fill="#b96b2f" opacity="0.18"/>
+    <circle cx="143" cy="165" r="1.46" fill="#b96b2f" opacity="0.21"/>
+    <circle cx="160" cy="52" r="0.80" fill="#b96b2f" opacity="0.25"/>
+    <circle cx="177" cy="81" r="1.02" fill="#b96b2f" opacity="0.28"/>
+    <circle cx="38" cy="110" r="1.24" fill="#b96b2f" opacity="0.14"/>
+    <circle cx="55" cy="139" r="1.46" fill="#b96b2f" opacity="0.18"/>
+    <circle cx="72" cy="26" r="0.80" fill="#b96b2f" opacity="0.21"/>
+    <circle cx="89" cy="55" r="1.02" fill="#b96b2f" opacity="0.25"/>
+    <circle cx="106" cy="84" r="1.24" fill="#b96b2f" opacity="0.28"/>
+    <circle cx="123" cy="113" r="1.46" fill="#b96b2f" opacity="0.14"/>
+    <circle cx="140" cy="142" r="0.80" fill="#b96b2f" opacity="0.18"/>
+    <circle cx="157" cy="29" r="1.02" fill="#b96b2f" opacity="0.21"/>
+    <circle cx="174" cy="58" r="1.24" fill="#b96b2f" opacity="0.25"/>
+    <circle cx="35" cy="87" r="1.46" fill="#b96b2f" opacity="0.28"/>
+    <circle cx="52" cy="116" r="0.80" fill="#b96b2f" opacity="0.14"/>
+  </g>
+  <path d="M57.5 206 C72 178 148 178 162.5 206" fill="none" stroke="#2d2926" stroke-width="3" stroke-linecap="round"/>
+  <path d="M64 52 C78 22 139 17 156 59 C177 67 169 134 148 160 C132 180 92 180 73 158 C54 136 48 71 64 52 Z" fill="#fffaf4" stroke="#2d2926" stroke-width="2.5"/>
+  <path d="M64 56 C83 36 136 34 158 64 C145 59 124 60 105 57 C87 54 75 60 64 56 Z" fill="#2d2926" opacity="0.08" stroke="#2d2926" stroke-width="1.2"/>
+  <path d="M82 104 C91 100 99 101 106 106" fill="none" stroke="#2d2926" stroke-width="2" stroke-linecap="round"/>
+  <path d="M121 106 C130 101 139 100 148 104" fill="none" stroke="#2d2926" stroke-width="2" stroke-linecap="round"/>
+  <path d="M111 111 C108 124 108 132 115 136" fill="none" stroke="#2d2926" stroke-width="1.6" stroke-linecap="round"/>
+  <path d="M91 152 C105 160 128 160 142 152" fill="none" stroke="#2d2926" stroke-width="2" stroke-linecap="round"/>
+  <path d="M48 30 L174 218" stroke="#b96b2f" stroke-width="1" opacity="0.42"/>
+  <path d="M174 30 L48 218" stroke="#b96b2f" stroke-width="1" opacity="0.18"/>
+  <rect x="20" y="18" width="180" height="222" rx="8" fill="none" stroke="#2d2926" stroke-width="1.2" opacity="0.28"/>
+  <text x="110" y="235" text-anchor="middle" font-family="Georgia, 'Times New Roman', serif" font-size="17" fill="#2d2926" letter-spacing="1.5">SD</text>
+</svg>

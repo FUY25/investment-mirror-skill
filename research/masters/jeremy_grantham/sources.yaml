@@ -1,0 +1,23 @@
+id: jeremy_grantham
+display_name: Jeremy Grantham
+source_quality_policy: Use source-backed biography, style, and track-record context only. Do not infer annualized returns or performance rankings.
+sources:
+  - title: Jeremy Grantham biography
+    url: https://en.wikipedia.org/wiki/Jeremy_Grantham
+    source_type: biography
+    source_quality: biography
+    source_quality_tier: medium_high
+    notes: Biography and GMO context.
+  - title: GMO research library
+    url: https://www.gmo.com/americas/research-library/
+    source_type: primary
+    source_quality: primary
+    source_quality_tier: high
+    notes: Primary firm research and letters.
+  - title: GMO asset class forecasts
+    url: https://www.gmo.com/americas/research-library/gmo-7-year-asset-class-forecast/
+    source_type: research
+    source_quality: research
+    source_quality_tier: high
+    notes: Useful for valuation and mean-reversion process context; forecasts are not advice for this skill.
+read_more_url: https://www.gmo.com/americas/research-library/

@@ -1,0 +1,23 @@
+id: edward_thorp
+display_name: Edward O. Thorp
+source_quality_policy: Use source-backed biography, style, and track-record context only. Do not infer annualized returns or performance rankings.
+sources:
+  - title: Edward O. Thorp biography
+    url: https://en.wikipedia.org/wiki/Edward_O._Thorp
+    source_type: biography
+    source_quality: biography
+    source_quality_tier: medium_high
+    notes: Biography and blackjack/quant finance context.
+  - title: A Man for All Markets
+    url: https://en.wikipedia.org/wiki/A_Man_for_All_Markets
+    source_type: book
+    source_quality: book
+    source_quality_tier: medium_high
+    notes: Autobiographical source for probability, arbitrage, and risk thinking.
+  - title: Beat the Dealer
+    url: https://en.wikipedia.org/wiki/Beat_the_Dealer
+    source_type: book
+    source_quality: book
+    source_quality_tier: medium_high
+    notes: Book context for probabilistic edge.
+read_more_url: https://en.wikipedia.org/wiki/Edward_O._Thorp

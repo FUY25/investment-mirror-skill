@@ -1,0 +1,23 @@
+id: george_soros
+display_name: George Soros
+source_quality_policy: Use source-backed biography, style, and track-record context only. Do not infer annualized returns or performance rankings.
+sources:
+  - title: George Soros biography
+    url: https://en.wikipedia.org/wiki/George_Soros
+    source_type: biography
+    source_quality: biography
+    source_quality_tier: medium_high
+    notes: Biography and Quantum Fund context.
+  - title: The Alchemy of Finance
+    url: https://en.wikipedia.org/wiki/The_Alchemy_of_Finance
+    source_type: book
+    source_quality: book
+    source_quality_tier: medium_high
+    notes: Book context for reflexivity and fallibility.
+  - title: Open Society Foundations biography
+    url: https://www.opensocietyfoundations.org/george-soros
+    source_type: official
+    source_quality: official
+    source_quality_tier: high
+    notes: Official biographical source.
+read_more_url: https://www.opensocietyfoundations.org/george-soros

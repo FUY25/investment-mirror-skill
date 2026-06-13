@@ -1,0 +1,109 @@
+version: "0.2"
+policy:
+  status_labels_are_process_only: true
+  forbidden_status_labels:
+    - buy
+    - sell
+    - hold
+    - strong buy
+    - strong sell
+  severity_meaning:
+    P0: "Blocker issue; the thesis is not research-ready until addressed."
+    P1: "Important unresolved assumption."
+    P2: "Clarity or process improvement."
+issues:
+  P0:
+    thesis_missing:
+      title: "Thesis is not stated clearly"
+      typical_trigger: "User only says a security looks good or is interesting."
+      pass_condition: "A one-sentence thesis names the asset, expected mechanism, and user-defined horizon."
+    decision_type_missing:
+      title: "Decision type unclear"
+      typical_trigger: "Buy, sell, add, trim, avoid, watchlist, or research-only intent is ambiguous."
+      pass_condition: "User selects a process decision type."
+    time_horizon_missing:
+      title: "Time horizon missing"
+      typical_trigger: "No 6 month, 2 year, 5 year, or other explicit horizon."
+      pass_condition: "User names the horizon over which evidence and outcomes should be judged."
+    falsification_missing:
+      title: "No disconfirming evidence defined"
+      typical_trigger: "The thesis cannot be proven wrong by any named evidence."
+      pass_condition: "User defines concrete evidence that would weaken or falsify the thesis."
+    valuation_expectation_missing:
+      title: "Valuation expectation not checked"
+      typical_trigger: "Growth or quality thesis without price, valuation, or reverse-expectation work."
+      pass_condition: "User defines what current price appears to assume or performs a reverse expectation check."
+    value_capture_missing:
+      title: "Trend-to-shareholder-value bridge missing"
+      typical_trigger: "AI, TAM, platform, robotaxi, cloud, or network-effect thesis without capture analysis."
+      pass_condition: "User states who captures value and why shareholders benefit."
+    downside_protocol_missing:
+      title: "Downside protocol missing"
+      typical_trigger: "Action language appears without a risk boundary or user-defined protocol."
+      pass_condition: "User states observation, initial, confirmed, reject, or review conditions without receiving position-size advice."
+    evidence_basis_missing:
+      title: "Evidence basis missing"
+      typical_trigger: "Thesis rests on pure narrative, authority, or unsourced impressions."
+      pass_condition: "User lists evidence sources and ranks them by quality."
+  P1:
+    narrative_to_action_jump:
+      title: "Narrative-to-action jump"
+      typical_trigger: "A broad trend becomes an investable security before valuation and capture are checked."
+      pass_condition: "User inserts valuation, value-capture, and falsification checks before action."
+    consensus_gap_missing:
+      title: "Consensus gap missing"
+      typical_trigger: "User says the market is missing something without defining consensus."
+      pass_condition: "User states current consensus and the specific disagreement."
+    competition_ignored:
+      title: "Competitive response not addressed"
+      typical_trigger: "Moat or growth thesis omits competitors, substitutes, or customer bargaining power."
+      pass_condition: "User names likely competitive responses and their effect on the thesis."
+    cyclicality_ignored:
+      title: "Cycle or regime not addressed"
+      typical_trigger: "Semiconductors, commodities, housing, banks, rates, or macro-sensitive asset lacks cycle map."
+      pass_condition: "User names the relevant cycle variable and evidence that would change the cycle view."
+    authority_anchor:
+      title: "Authority anchor"
+      typical_trigger: "Famous investor, analyst, founder, or social account stands in for independent thesis."
+      pass_condition: "User rewrites the thesis without authority references."
+    single_metric_overweight:
+      title: "Single metric overweight"
+      typical_trigger: "One metric dominates reasoning without context or cross-checks."
+      pass_condition: "User adds at least two independent checks and states why the metric matters."
+    management_shortcut:
+      title: "Management quality shortcut"
+      typical_trigger: "Founder charisma or management reputation bridges an unresolved business question."
+      pass_condition: "User turns management quality into observable execution evidence."
+    catalyst_missing:
+      title: "Catalyst missing"
+      typical_trigger: "Value, contrarian, activist, or special-situation idea lacks realization mechanism."
+      pass_condition: "User names a credible mechanism or marks the thesis as long-duration/no-catalyst."
+    source_quality_weak:
+      title: "Weak evidence hierarchy"
+      typical_trigger: "Social media, headlines, or secondhand summaries outweigh primary filings/data."
+      pass_condition: "User adds higher-quality sources or marks the claim low confidence."
+    scenario_absent:
+      title: "No bull/base/bear scenario"
+      typical_trigger: "Binary thesis lacks scenario range."
+      pass_condition: "User states bull, base, and bear variants and the evidence separating them."
+  P2:
+    wording_vague:
+      title: "Thesis wording too broad"
+      typical_trigger: "Words like good, massive, obvious, long-term, or cheap appear without measurable meaning."
+      pass_condition: "User replaces vague wording with concrete assumptions."
+    monitoring_items_missing:
+      title: "Monitoring items missing"
+      typical_trigger: "No next-quarter or next-review watch items."
+      pass_condition: "User names evidence to review and timing."
+    reading_path_available:
+      title: "Relevant learning lens available"
+      typical_trigger: "A matched master or source could clarify the process issue."
+      pass_condition: "User adds the learning prompt or reading path to the decision log."
+    prompt_pack_recommended:
+      title: "Personalized prompt would help"
+      typical_trigger: "A recurring user pattern appears in the thesis."
+      pass_condition: "User runs or saves the relevant prompt."
+    decision_log_incomplete:
+      title: "Decision log missing final user choice"
+      typical_trigger: "User stops after review without recording the process status."
+      pass_condition: "User records decision status or explicitly abandons the draft."

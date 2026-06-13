@@ -1,0 +1,46 @@
+version: "0.2"
+patterns:
+  thesis_first_reasoning:
+    description: "User starts with a big idea before checking data."
+    investing_risk: "Confirmation risk."
+    typical_guardrail: "evidence checklist"
+  narrative_to_action_jump:
+    description: "User moves from trend to security too quickly."
+    investing_risk: "Overpaying for good stories."
+    typical_guardrail: "reverse expectation check"
+  research_loop_extension:
+    description: "User keeps adding research instead of decision rules."
+    investing_risk: "Analysis paralysis."
+    typical_guardrail: "three-variable decision rule"
+  contrarian_impulse:
+    description: "User likes market-is-wrong framing."
+    investing_risk: "Being different for its own sake."
+    typical_guardrail: "consensus gap check"
+  product_quality_overweight:
+    description: "User equates good product with good stock."
+    investing_risk: "Good company, bad stock."
+    typical_guardrail: "value capture check"
+  macro_story_overreach:
+    description: "User explains securities through macro narrative alone."
+    investing_risk: "Right macro, wrong asset."
+    typical_guardrail: "asset sensitivity map"
+  authority_anchor:
+    description: "User leans on famous investors, founders, analysts, or social accounts."
+    investing_risk: "Borrowed conviction."
+    typical_guardrail: "independent thesis statement"
+  valuation_avoidance:
+    description: "User delays price and expectation analysis."
+    investing_risk: "Return compression."
+    typical_guardrail: "valuation floor guardrail"
+  falsification_avoidance:
+    description: "User avoids clear tests that would prove the thesis wrong."
+    investing_risk: "Belief hardening."
+    typical_guardrail: "disconfirmation rule"
+  scope_expansion_under_uncertainty:
+    description: "User keeps expanding problem scope when uncertain."
+    investing_risk: "Slow convergence."
+    typical_guardrail: "scope freeze plus criteria"
+  framework_over_action:
+    description: "User creates elegant frameworks but delays decision boundaries."
+    investing_risk: "Intellectualization."
+    typical_guardrail: "decision boundary prompt"

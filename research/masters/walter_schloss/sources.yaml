@@ -1,0 +1,29 @@
+id: walter_schloss
+display_name: Walter Schloss
+source_quality_policy: Use source-backed biography, style, and track-record context only. Do not infer annualized returns or performance rankings.
+sources:
+  - title: Walter Schloss biography
+    url: https://en.wikipedia.org/wiki/Walter_Schloss
+    source_type: biography
+    source_quality: biography
+    source_quality_tier: medium_high
+    notes: Biography and style overview.
+  - title: Columbia Heilbrunn Center Graham & Doddsville
+    url: https://business.columbia.edu/heilbrunn/resources/graham-and-doddsville-newsletter
+    source_type: research
+    source_quality: research
+    source_quality_tier: high
+    notes: Practitioner interviews and value-investing education source; useful for style and process context.
+  - title: Dataroma superinvestor manager index
+    url: https://www.dataroma.com/m/managers.php
+    source_type: portfolio_tracker
+    source_quality: portfolio_tracker
+    source_quality_tier: context_only
+    notes: Useful as public 13F context where applicable; not a complete record of private holdings or short books.
+  - title: The Superinvestors of Graham-and-Doddsville
+    url: https://www8.gsb.columbia.edu/sites/valueinvesting/files/files/Buffett1984.pdf
+    source_type: primary
+    source_quality: primary
+    source_quality_tier: high
+    notes: Buffett essay naming Schloss as a Graham-and-Doddsville example; use as style context, not standalone performance ranking.
+read_more_url: https://www8.gsb.columbia.edu/sites/valueinvesting/files/files/Buffett1984.pdf

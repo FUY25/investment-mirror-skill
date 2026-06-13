@@ -1,0 +1,23 @@
+id: eugene_fama
+display_name: Eugene Fama
+source_quality_policy: Use source-backed biography, style, and track-record context only. Do not infer annualized returns or performance rankings.
+sources:
+  - title: Eugene Fama biography
+    url: https://en.wikipedia.org/wiki/Eugene_Fama
+    source_type: biography
+    source_quality: biography
+    source_quality_tier: medium_high
+    notes: Biography and Nobel Prize context.
+  - title: Fama-French research library
+    url: https://mba.tuck.dartmouth.edu/pages/faculty/ken.french/data_library.html
+    source_type: research
+    source_quality: research
+    source_quality_tier: high
+    notes: Research data library associated with factor research.
+  - title: Nobel Prize biography
+    url: https://www.nobelprize.org/prizes/economic-sciences/2013/fama/facts/
+    source_type: official
+    source_quality: official
+    source_quality_tier: high
+    notes: Official Nobel source for research contribution context.
+read_more_url: https://www.nobelprize.org/prizes/economic-sciences/2013/fama/facts/

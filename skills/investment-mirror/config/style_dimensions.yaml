@@ -1,0 +1,77 @@
+version: "0.2"
+dimensions:
+  - id: narrative_sensitivity
+    label: Narrative sensitivity
+    low_end: Data-first
+    high_end: Story-first
+    score_scale: 0-100
+  - id: valuation_discipline
+    label: Valuation discipline
+    low_end: Price-light
+    high_end: Price-first
+    score_scale: 0-100
+  - id: evidence_threshold
+    label: Evidence threshold
+    low_end: Loose evidence
+    high_end: Strict evidence
+    score_scale: 0-100
+  - id: falsifiability_discipline
+    label: Falsifiability discipline
+    low_end: Belief-like
+    high_end: Testable
+    score_scale: 0-100
+  - id: time_horizon_clarity
+    label: Time horizon clarity
+    low_end: Vague
+    high_end: Explicit
+    score_scale: 0-100
+  - id: research_loop_tendency
+    label: Research-loop tendency
+    low_end: Action-biased
+    high_end: Research-looped
+    score_scale: 0-100
+  - id: contrarian_impulse
+    label: Contrarian impulse
+    low_end: Consensus-aligned
+    high_end: Contrarian
+    score_scale: 0-100
+  - id: product_founder_bias
+    label: Product/founder bias
+    low_end: Financial-first
+    high_end: Product/founder-first
+    score_scale: 0-100
+  - id: downside_first_thinking
+    label: Downside-first thinking
+    low_end: Upside-first
+    high_end: Downside-first
+    score_scale: 0-100
+  - id: catalyst_dependence
+    label: Catalyst dependence
+    low_end: Compounder
+    high_end: Catalyst-driven
+    score_scale: 0-100
+  - id: cycle_regime_sensitivity
+    label: Cycle/regime sensitivity
+    low_end: Micro-only
+    high_end: Macro/regime-aware
+    score_scale: 0-100
+  - id: systematic_vs_discretionary
+    label: Systematic vs discretionary
+    low_end: Discretionary
+    high_end: Rule/system-based
+    score_scale: 0-100
+  - id: concentration_comfort
+    label: Concentration comfort
+    low_end: Diversified
+    high_end: Concentrated
+    score_scale: 0-100
+  - id: authority_reliance
+    label: Authority reliance
+    low_end: Independent
+    high_end: Authority-anchored
+    score_scale: 0-100
+  - id: value_capture_clarity
+    label: Value capture clarity
+    low_end: TAM-focused
+    high_end: Capture-focused
+    score_scale: 0-100

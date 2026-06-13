@@ -1,0 +1,120 @@
+version: "0.2"
+guardrails:
+  reverse_expectation_check_before_thematic_growth:
+    name: "Reverse expectation guardrail"
+    trigger_patterns:
+      - narrative_to_action_jump
+      - valuation_avoidance
+      - thematic_growth
+    trigger_issue_codes:
+      - valuation_expectation_missing
+      - narrative_to_action_jump
+    required_questions:
+      - "What does the current price already assume?"
+      - "What revenue growth, margin, and multiple assumptions must be true for the thesis to work?"
+      - "What happens if the theme is real but already priced in?"
+    appears_in_decision: "P0 or P1 issue requiring reverse-expectation notes before the thesis is marked research-ready."
+  value_capture_check_before_platform_thesis:
+    name: "Value capture guardrail"
+    trigger_patterns:
+      - product_quality_overweight
+      - thesis_first_reasoning
+      - technology_platform_thesis
+    trigger_issue_codes:
+      - value_capture_missing
+      - competition_ignored
+    required_questions:
+      - "Who captures the value: company, suppliers, customers, competitors, regulators, or employees?"
+      - "What evidence shows shareholder value capture rather than only product usefulness?"
+      - "What would prove the company has a weak capture position?"
+    appears_in_decision: "P0 issue for TAM, AI, robotaxi, platform, and network-effect theses until capture is explicit."
+  falsification_condition_before_position:
+    name: "Falsification guardrail"
+    trigger_patterns:
+      - falsification_avoidance
+      - thesis_first_reasoning
+    trigger_issue_codes:
+      - falsification_missing
+    required_questions:
+      - "What would make you admit this thesis is wrong?"
+      - "Which evidence should arrive within the stated horizon?"
+      - "What would change your mind before price action forces the question?"
+    appears_in_decision: "P0 issue until the user names disconfirming evidence."
+  consensus_gap_check_before_contrarian_thesis:
+    name: "Consensus gap guardrail"
+    trigger_patterns:
+      - contrarian_impulse
+      - macro_story_overreach
+    trigger_issue_codes:
+      - consensus_gap_missing
+      - authority_anchor
+    required_questions:
+      - "What exactly is consensus?"
+      - "What exactly do you disagree with?"
+      - "What evidence would show consensus is right?"
+    appears_in_decision: "P1 issue that prevents vague market-is-wrong framing."
+  research_loop_breaker_three_variable_rule:
+    name: "Research-loop breaker"
+    trigger_patterns:
+      - research_loop_extension
+      - scope_expansion_under_uncertainty
+      - framework_over_action
+    trigger_issue_codes:
+      - scenario_absent
+      - monitoring_items_missing
+    required_questions:
+      - "What are the three variables that determine buy, wait, or reject?"
+      - "What evidence is decision-relevant rather than merely interesting?"
+      - "What will you stop researching after this review?"
+    appears_in_decision: "P1 or P2 process guardrail that turns research into decision criteria."
+  good_company_bad_stock_check:
+    name: "Good-company-bad-stock guardrail"
+    trigger_patterns:
+      - product_quality_overweight
+      - quality_without_price
+    trigger_issue_codes:
+      - valuation_expectation_missing
+      - single_metric_overweight
+    required_questions:
+      - "How could this be a great company but a poor investment from here?"
+      - "Which part of the quality story is already priced in?"
+      - "What would make returns disappoint despite business success?"
+    appears_in_decision: "P0 or P1 issue for product-quality, founder-quality, or quality-compounder theses."
+  cycle_regime_guardrail:
+    name: "Cycle/regime guardrail"
+    trigger_patterns:
+      - macro_story_overreach
+      - cycle_regime_dependency
+    trigger_issue_codes:
+      - cyclicality_ignored
+    required_questions:
+      - "Where are we in the relevant cycle?"
+      - "What variable would change the cycle view?"
+      - "How sensitive is the asset to rates, credit, commodity prices, demand cycles, or liquidity?"
+    appears_in_decision: "P1 issue when macro-sensitive sectors are discussed without a cycle map."
+  user_defined_position_protocol:
+    name: "Position protocol guardrail"
+    trigger_patterns:
+      - action_language_without_boundary
+      - downside_protocol_missing
+    trigger_issue_codes:
+      - downside_protocol_missing
+      - decision_type_missing
+    required_questions:
+      - "Is this observation, research-only, initial, confirmed, reject, or review?"
+      - "What user-defined rule changes the status?"
+      - "What is the next review condition?"
+    appears_in_decision: "P0 issue when action language appears without user-defined risk protocol. The skill must not recommend sizing."
+  matched_master_blind_spot_check:
+    name: "Matched-master blind-spot guardrail"
+    trigger_patterns:
+      - master_match_overidentification
+      - authority_anchor
+    trigger_issue_codes:
+      - authority_anchor
+      - reading_path_available
+    required_questions:
+      - "Which strength of the matched master is actually supported by your evidence?"
+      - "Which blind spot should you explicitly avoid copying?"
+      - "What guardrail keeps the useful style while limiting the blind spot?"
+    appears_in_decision: "P2 learning lens or P1 authority issue, depending on whether the user is copying a master rather than applying a process."

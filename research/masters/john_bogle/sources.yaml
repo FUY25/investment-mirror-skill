@@ -1,0 +1,23 @@
+id: john_bogle
+display_name: John C. Bogle
+source_quality_policy: Use source-backed biography, style, and track-record context only. Do not infer annualized returns or performance rankings.
+sources:
+  - title: John C. Bogle biography
+    url: https://en.wikipedia.org/wiki/John_C._Bogle
+    source_type: biography
+    source_quality: biography
+    source_quality_tier: medium_high
+    notes: Biography and Vanguard context.
+  - title: Vanguard Bogle history
+    url: https://corporate.vanguard.com/content/corporatesite/us/en/corp/who-we-are/sets-us-apart/indexing-history.html
+    source_type: official
+    source_quality: official
+    source_quality_tier: high
+    notes: Official Vanguard source for index-fund history.
+  - title: Bogleheads investment philosophy
+    url: https://www.bogleheads.org/wiki/Bogleheads%C2%AE_investment_philosophy
+    source_type: reliable_secondary
+    source_quality: reliable_secondary
+    source_quality_tier: medium_high
+    notes: Community educational summary; not primary but useful for philosophy framing.
+read_more_url: https://corporate.vanguard.com/content/corporatesite/us/en/corp/who-we-are/sets-us-apart/indexing-history.html

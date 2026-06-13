@@ -1,0 +1,29 @@
+id: benjamin_graham
+display_name: Benjamin Graham
+source_quality_policy: Use source-backed biography, style, and track-record context only. Do not infer annualized returns or performance rankings.
+sources:
+  - title: Benjamin Graham biography
+    url: https://en.wikipedia.org/wiki/Benjamin_Graham
+    source_type: biography
+    source_quality: biography
+    source_quality_tier: medium_high
+    notes: Baseline biography and publication context.
+  - title: The Intelligent Investor
+    url: https://en.wikipedia.org/wiki/The_Intelligent_Investor
+    source_type: book
+    source_quality: book
+    source_quality_tier: medium_high
+    notes: Book context for margin of safety and investor temperament.
+  - title: Security Analysis
+    url: https://en.wikipedia.org/wiki/Security_Analysis_(book)
+    source_type: book
+    source_quality: book
+    source_quality_tier: medium_high
+    notes: Book context for fundamental security analysis.
+  - title: Columbia Heilbrunn Center Graham & Doddsville
+    url: https://business.columbia.edu/heilbrunn/resources/graham-and-doddsville-newsletter
+    source_type: research
+    source_quality: research
+    source_quality_tier: high
+    notes: Practitioner interviews and value-investing education source; useful for style and process context.
+read_more_url: https://business.columbia.edu/heilbrunn/resources/graham-and-doddsville-newsletter

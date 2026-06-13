@@ -1,0 +1,23 @@
+id: carl_icahn
+display_name: Carl Icahn
+source_quality_policy: Use source-backed biography, style, and track-record context only. Do not infer annualized returns or performance rankings.
+sources:
+  - title: Carl Icahn biography
+    url: https://en.wikipedia.org/wiki/Carl_Icahn
+    source_type: biography
+    source_quality: biography
+    source_quality_tier: medium_high
+    notes: Biography and activism context.
+  - title: Icahn Enterprises
+    url: https://www.ielp.com/
+    source_type: official
+    source_quality: official
+    source_quality_tier: high
+    notes: Official company context.
+  - title: Icahn SEC filings
+    url: https://www.sec.gov/edgar/browse/?CIK=921669
+    source_type: public_record
+    source_quality: public_record
+    source_quality_tier: high
+    notes: Public filings context.
+read_more_url: https://www.ielp.com/

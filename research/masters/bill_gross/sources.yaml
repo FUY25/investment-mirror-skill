@@ -1,0 +1,23 @@
+id: bill_gross
+display_name: Bill Gross
+source_quality_policy: Use source-backed biography, style, and track-record context only. Do not infer annualized returns or performance rankings.
+sources:
+  - title: Bill Gross biography
+    url: https://en.wikipedia.org/wiki/Bill_Gross
+    source_type: biography
+    source_quality: biography
+    source_quality_tier: medium_high
+    notes: Biography and PIMCO context.
+  - title: PIMCO insights
+    url: https://www.pimco.com/us/en/insights
+    source_type: primary
+    source_quality: primary
+    source_quality_tier: high
+    notes: Firm research context for fixed income and macro.
+  - title: PIMCO history
+    url: https://www.pimco.com/us/en/about-us
+    source_type: official
+    source_quality: official
+    source_quality_tier: high
+    notes: Official firm context.
+read_more_url: https://www.pimco.com/us/en/insights

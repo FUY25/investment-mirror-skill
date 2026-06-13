@@ -1,0 +1,23 @@
+id: philip_fisher
+display_name: Philip Fisher
+source_quality_policy: Use source-backed biography, style, and track-record context only. Do not infer annualized returns or performance rankings.
+sources:
+  - title: Philip Fisher biography
+    url: https://en.wikipedia.org/wiki/Philip_Arthur_Fisher
+    source_type: biography
+    source_quality: biography
+    source_quality_tier: medium_high
+    notes: Biography and book context.
+  - title: Common Stocks and Uncommon Profits
+    url: https://en.wikipedia.org/wiki/Common_Stocks_and_Uncommon_Profits
+    source_type: book
+    source_quality: book
+    source_quality_tier: medium_high
+    notes: Book context for scuttlebutt and growth-company analysis.
+  - title: Columbia Heilbrunn Center Graham & Doddsville
+    url: https://business.columbia.edu/heilbrunn/resources/graham-and-doddsville-newsletter
+    source_type: research
+    source_quality: research
+    source_quality_tier: high
+    notes: Practitioner interviews and value-investing education source; useful for style and process context.
+read_more_url: https://en.wikipedia.org/wiki/Common_Stocks_and_Uncommon_Profits

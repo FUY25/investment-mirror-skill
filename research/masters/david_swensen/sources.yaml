@@ -1,0 +1,23 @@
+id: david_swensen
+display_name: David Swensen
+source_quality_policy: Use source-backed biography, style, and track-record context only. Do not infer annualized returns or performance rankings.
+sources:
+  - title: David Swensen biography
+    url: https://en.wikipedia.org/wiki/David_F._Swensen
+    source_type: biography
+    source_quality: biography
+    source_quality_tier: medium_high
+    notes: Biography and Yale endowment context.
+  - title: Yale Investments Office
+    url: https://investments.yale.edu/
+    source_type: official
+    source_quality: official
+    source_quality_tier: high
+    notes: Official endowment source.
+  - title: Pioneering Portfolio Management
+    url: https://en.wikipedia.org/wiki/David_F._Swensen#Works
+    source_type: book
+    source_quality: book
+    source_quality_tier: medium_high
+    notes: Book context for endowment model and portfolio process.
+read_more_url: https://investments.yale.edu/

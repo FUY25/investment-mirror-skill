@@ -1,0 +1,26 @@
+version: "0.2"
+prompts:
+  anti_narrative:
+    title: "Anti-narrative prompt"
+    body: "Help me separate a true story from an investable security. Name the story, the security-specific bridge, the price expectations, and the evidence that would disconfirm my view. Do not tell me whether to buy."
+  valuation_discipline:
+    title: "Valuation discipline prompt"
+    body: "Run a reverse-expectation check on this thesis. What must the current price already assume, and what would have to be true for expected return to be attractive? Do not provide a recommendation."
+  falsification:
+    title: "Falsification prompt"
+    body: "Turn my thesis into testable claims. For each claim, list evidence that would weaken it within my stated horizon."
+  consensus_gap:
+    title: "Consensus gap prompt"
+    body: "Define market consensus for this idea, then define exactly where my view differs. List the evidence that would prove consensus right."
+  research_loop_breaker:
+    title: "Research-loop breaker prompt"
+    body: "Reduce this investment idea to three decision variables. For each variable, state pass, fail, and unknown conditions. Stop adding sources unless they change one variable."
+  good_company_bad_stock:
+    title: "Good-company-bad-stock prompt"
+    body: "Assume this is a great company but a poor stock from here. What would make that true? Check valuation, value capture, competition, and expectations."
+  post_decision_review:
+    title: "Post-decision review prompt"
+    body: "Review this logged decision without judging the outcome. Which assumptions were explicit, which were missing, and which guardrail would have improved the process?"
+  best_fit_master_learning:
+    title: "Best-fit master learning prompt"
+    body: "Based on my Investment Mirror profile and best-fit master match, first explain what is strong about my approach. Then make the thesis more investable using the master style plus valuation, value capture, and falsification guardrails. Do not tell me whether to buy."

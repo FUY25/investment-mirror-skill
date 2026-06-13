@@ -1,0 +1,23 @@
+id: howard_marks
+display_name: Howard Marks
+source_quality_policy: Use source-backed biography, style, and track-record context only. Do not infer annualized returns or performance rankings.
+sources:
+  - title: Oaktree memos
+    url: https://www.oaktreecapital.com/insights/memo
+    source_type: memo
+    source_quality: memo
+    source_quality_tier: high
+    notes: Primary practitioner source for risk, cycles, and second-level thinking.
+  - title: Howard Marks biography
+    url: https://en.wikipedia.org/wiki/Howard_Marks_(investor)
+    source_type: biography
+    source_quality: biography
+    source_quality_tier: medium_high
+    notes: Biography and Oaktree context.
+  - title: The Most Important Thing
+    url: https://en.wikipedia.org/wiki/The_Most_Important_Thing_(book)
+    source_type: book
+    source_quality: book
+    source_quality_tier: medium_high
+    notes: Book context for risk and second-level thinking.
+read_more_url: https://www.oaktreecapital.com/insights/memo

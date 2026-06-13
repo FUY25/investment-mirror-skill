@@ -1,85 +1,151 @@
 ---
 name: investment-mirror
-description: [TODO: Complete and informative explanation of what the skill does and when to use it. Include WHEN to use this skill - specific scenarios, file types, or tasks that trigger it.]
+description: Local-first investment decision profiling and thesis-linting skill. Use when the user asks to initialize or update an Investment Mirror profile from Codex/Claude transcripts or notes, lint an investment thesis without buy/sell advice, generate local profile/decision HTML artifacts, query their Investment Mirror memory, or work with /investment-profile-init, /investment-profile-update, /investment-decision, or /investment-mirror-ask workflows.
 ---
 
 # Investment Mirror
 
-## Overview
+Investment Mirror is a local-first investment decision skill. It analyzes local transcripts and notes to build a decision-process profile, maps that profile to source-backed investment-master learning archetypes, installs guardrails, and turns future theses into issues, questions, and decision records.
 
-[TODO: 1-2 sentences explaining what this skill enables]
+The skill must not provide investment, legal, tax, or financial advice. Never recommend buy, sell, hold, allocation, suitability, or position size. Use process statuses, issue severity, guardrails, and research questions.
 
-## Structuring This Skill
+## Commands
 
-[TODO: Choose the structure that best fits this skill's purpose. Common patterns:
+Use the command docs when the user invokes a slash-style workflow:
 
-**1. Workflow-Based** (best for sequential processes)
-- Works well when there are clear step-by-step procedures
-- Example: DOCX skill with "Workflow Decision Tree" -> "Reading" -> "Creating" -> "Editing"
-- Structure: ## Overview -> ## Workflow Decision Tree -> ## Step 1 -> ## Step 2...
+- `/investment-profile-init`: read `commands/investment-profile-init.md`
+- `/investment-profile-update`: read `commands/investment-profile-update.md`
+- `/investment-decision`: read `commands/investment-decision.md`
+- `/investment-mirror-ask`: read `commands/investment-mirror-ask.md`
 
-**2. Task-Based** (best for tool collections)
-- Works well when the skill offers different operations/capabilities
-- Example: PDF skill with "Quick Start" -> "Merge PDFs" -> "Split PDFs" -> "Extract Text"
-- Structure: ## Overview -> ## Quick Start -> ## Task Category 1 -> ## Task Category 2...
+The executable implementation is in `scripts/investment_mirror_cli.ts`.
 
-**3. Reference/Guidelines** (best for standards or specifications)
-- Works well for brand guidelines, coding standards, or requirements
-- Example: Brand styling with "Brand Guidelines" -> "Colors" -> "Typography" -> "Features"
-- Structure: ## Overview -> ## Guidelines -> ## Specifications -> ## Usage...
+```bash
+npm run im -- profile-init --output ~/.investment-mirror
+npm run im -- profile-update --output ~/.investment-mirror
+npm run im -- decision "I want to buy TSLA because robotaxi could unlock a massive new growth curve." --output ~/.investment-mirror
+npm run im -- mirror-ask "Which guardrail do I trigger most often?" --output ~/.investment-mirror
+```
 
-**4. Capabilities-Based** (best for integrated systems)
-- Works well when the skill provides multiple interrelated features
-- Example: Product Management with "Core Capabilities" -> numbered capability list
-- Structure: ## Overview -> ## Core Capabilities -> ### 1. Feature -> ### 2. Feature...
+## Required Framing
 
-Patterns can be mixed and matched as needed. Most skills combine patterns (e.g., start with task-based, add workflow for complex operations).
+- Start profile artifacts with positive recognition and the best-fit master match.
+- Use one primary master match by default; add one secondary affinity only when evidence supports it.
+- Frame guardrails as protocols that make the user's style more investable.
+- Use P0/P1/P2 issue language in `/investment-decision`.
+- Do not expose raw transcripts by default. Use receipt summaries and local source aliases.
+- Distinguish evidence from interpretation.
+- Keep the future 15 masters excluded from the v0.2 completion gate.
 
-Delete this entire "Structuring This Skill" section when done - it's just guidance.]
+## Local Memory
 
-## [TODO: Replace with the first main section based on chosen structure]
+Runtime user memory lives under the output directory, normally `~/.investment-mirror`:
 
-[TODO: Add content here. See examples in existing skills:
-- Code samples for technical skills
-- Decision trees for complex workflows
-- Concrete examples with realistic user requests
-- References to scripts/templates/references as needed]
+- `profile.json`
+- `guardrails.yaml`
+- `prompt_pack.md`
+- `InvestmentMirror.md`
+- `profile.html`
+- `source_index.sqlite`
+- `decision_log.jsonl`
+- `decisions/*.md`, `decisions/*.json`, `decisions/*.html`
+- `profile_history/*`
 
-## Resources (optional)
+Reusable product assets and research live in the repo:
 
-Create only the resource directories this skill actually needs. Delete this section if no resources are required.
+- `config/master_registry.yaml`
+- `config/master_style_vectors.yaml`
+- `config/master_guardrail_rules.yaml`
+- `config/issue_taxonomy.yaml`
+- `config/guardrail_rules.yaml`
+- `research/masters/{master_id}/`
+- `assets/masters/{master_id}.svg`
 
-### scripts/
-Executable code (Python/Bash/etc.) that can be run directly to perform specific operations.
+Generated HTML artifacts must copy only needed master assets beside the artifact, such as `profile.assets/masters/philip_fisher.svg`.
 
-**Examples from other skills:**
-- PDF skill: `fill_fillable_fields.py`, `extract_form_field_info.py` - utilities for PDF manipulation
-- DOCX skill: `document.py`, `utilities.py` - Python modules for document processing
+## Transcript Pipeline
 
-**Appropriate for:** Python scripts, shell scripts, or any executable code that performs automation, data processing, or specific operations.
+For profile initialization and updates, run the local pipeline before model interpretation:
 
-**Note:** Scripts may be executed without loading into context, but can still be read by Codex for patching or environment adjustments.
+1. Discover sources from `~/.codex/sessions/`, `~/.claude/projects/`, and user includes.
+2. Apply excludes.
+3. Build a manifest with hashes, size, mtime, source type, and status.
+4. Parse JSONL, JSON, Markdown, text, and HTML exports.
+5. Redact secrets, emails, API keys, and tokens.
+6. Score spans locally for investment and decision relevance.
+7. Downweight code/tool-output-heavy spans.
+8. Sample across project, month, source type, and span type.
+9. Classify sampled spans into decision episodes.
+10. Aggregate recurring patterns.
+11. Match style vectors to active master profiles.
+12. Generate profile artifacts and SQLite source index.
 
-### references/
-Documentation and reference material intended to be loaded into context to inform Codex's process and thinking.
+Run:
 
-**Examples from other skills:**
-- Product management: `communication.md`, `context_building.md` - detailed workflow guides
-- BigQuery: API reference documentation and query examples
-- Finance: Schema documentation, company policies
+```bash
+npm run im -- profile-init --output ~/.investment-mirror
+```
 
-**Appropriate for:** In-depth documentation, API references, database schemas, comprehensive guides, or any detailed information that Codex should reference while working.
+## Thesis Linting
 
-### assets/
-Files not intended to be loaded into context, but rather used within the output Codex produces.
+For `/investment-decision`, parse the user's thesis, decompose assumptions, generate issues, ask research questions, and write a decision review artifact. If no profile exists, clearly label the run as standalone/generic. If a profile exists, use `profile.json`, `guardrails.yaml`, and the best-fit master lens.
 
-**Examples from other skills:**
-- Brand styling: PowerPoint template files (.pptx), logo files
-- Frontend builder: HTML/React boilerplate project directories
-- Typography: Font files (.ttf, .woff2)
+Allowed process statuses:
 
-**Appropriate for:** Templates, boilerplate code, document templates, images, icons, fonts, or any files meant to be copied or used in the final output.
+- `draft`
+- `needs_clarification`
+- `blocked_by_p0_issues`
+- `needs_research`
+- `ready_for_user_decision`
+- `decision_logged`
+- `follow_up_due`
+- `revisited`
+- `abandoned_by_user`
 
----
+Forbidden as statuses or recommendations:
 
-**Not every skill requires all three types of resources.**
+- `buy`
+- `sell`
+- `hold`
+- `strong buy`
+- `strong sell`
+
+## Master Registry
+
+The active v0.2 registry is exactly 30 masters. Every active master must have:
+
+- `research/masters/{master_id}/profile.md`
+- `research/masters/{master_id}/sources.yaml`
+- `research/masters/{master_id}/style_notes.md`
+- `assets/masters/{master_id}.svg`
+- style vector entries across all profile dimensions
+- guardrail mappings
+- read-more URL
+- source type and source-quality tier metadata
+
+Do not create annualized return claims or performance rankings unless a source file explicitly supports the precise claim. Current implementation intentionally uses broad source-backed track-record context instead.
+
+## HTML Artifact Style
+
+Design static-first report artifacts with light interactions only. Follow the local Taste-Skill-inspired design direction:
+
+- professional private-banking-meets-developer-tool tone;
+- lots of whitespace;
+- crisp report typography;
+- line-art or halftone master portraits;
+- copper/orange accent rules;
+- subtle stacked report-card layout;
+- source/provenance microcopy;
+- no casino/trading-guru aesthetic;
+- no purple AI dashboard;
+- no dense app shell.
+
+## Validation
+
+Before claiming completion, run:
+
+```bash
+npm run validate
+```
+
+This runs skill validation, registry completeness checks, unit/integration tests, and evals.

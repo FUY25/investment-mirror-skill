@@ -1,0 +1,23 @@
+id: ray_dalio
+display_name: Ray Dalio
+source_quality_policy: Use source-backed biography, style, and track-record context only. Do not infer annualized returns or performance rankings.
+sources:
+  - title: Ray Dalio biography
+    url: https://en.wikipedia.org/wiki/Ray_Dalio
+    source_type: biography
+    source_quality: biography
+    source_quality_tier: medium_high
+    notes: Biography and Bridgewater context.
+  - title: Bridgewater research and insights
+    url: https://www.bridgewater.com/research-and-insights
+    source_type: primary
+    source_quality: primary
+    source_quality_tier: high
+    notes: Primary firm source for macro and portfolio principles.
+  - title: Principles
+    url: https://en.wikipedia.org/wiki/Principles_(book)
+    source_type: book
+    source_quality: book
+    source_quality_tier: medium_high
+    notes: Book context for decision principles and process culture.
+read_more_url: https://www.bridgewater.com/research-and-insights

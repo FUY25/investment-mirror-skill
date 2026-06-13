@@ -1,0 +1,29 @@
+id: duan_yongping
+display_name: Duan Yongping / 段永平
+source_quality_policy: Use source-backed biography, style, and track-record context only. Do not infer annualized returns or performance rankings.
+sources:
+  - title: Duan Yongping biography
+    url: https://en.wikipedia.org/wiki/Duan_Yongping
+    source_type: biography
+    source_quality: biography
+    source_quality_tier: medium_high
+    notes: Baseline biography and entrepreneur-investor context.
+  - title: BBK Electronics
+    url: https://en.wikipedia.org/wiki/BBK_Electronics
+    source_type: reliable_secondary
+    source_quality: reliable_secondary
+    source_quality_tier: medium_high
+    notes: Business context for Duan's operating background.
+  - title: NetEase
+    url: https://en.wikipedia.org/wiki/NetEase
+    source_type: reliable_secondary
+    source_quality: reliable_secondary
+    source_quality_tier: medium_high
+    notes: Relevant public company context often associated with Duan's public investing history.
+  - title: Dataroma superinvestor manager index
+    url: https://www.dataroma.com/m/managers.php
+    source_type: portfolio_tracker
+    source_quality: portfolio_tracker
+    source_quality_tier: context_only
+    notes: Useful as public 13F context where applicable; not a complete record of private holdings or short books.
+read_more_url: https://en.wikipedia.org/wiki/Duan_Yongping

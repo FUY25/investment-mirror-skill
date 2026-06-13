@@ -1,0 +1,23 @@
+id: john_templeton
+display_name: John Templeton
+source_quality_policy: Use source-backed biography, style, and track-record context only. Do not infer annualized returns or performance rankings.
+sources:
+  - title: John Templeton biography
+    url: https://en.wikipedia.org/wiki/John_Templeton
+    source_type: biography
+    source_quality: biography
+    source_quality_tier: medium_high
+    notes: Biography and Templeton fund context.
+  - title: Templeton Foundation biography
+    url: https://www.templeton.org/about/sir-john
+    source_type: official
+    source_quality: official
+    source_quality_tier: high
+    notes: Official biographical source.
+  - title: Franklin Templeton history
+    url: https://www.franklintempleton.com/about-us/company-profile
+    source_type: official
+    source_quality: official
+    source_quality_tier: high
+    notes: Firm context for Templeton legacy.
+read_more_url: https://www.templeton.org/about/sir-john

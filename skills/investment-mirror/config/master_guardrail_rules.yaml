@@ -1,0 +1,407 @@
+version: "0.2"
+notes: Map master learning archetypes to guardrail relevance. These are process guardrails, not investment recommendations.
+masters:
+  benjamin_graham:
+    display_name: Benjamin Graham
+    recommended_guardrails:
+      - valuation_expectation_missing
+      - evidence_basis_missing
+      - authority_anchor
+      - downside_protocol_missing
+    what_to_learn:
+      - define value before action
+      - demand a margin of safety
+      - treat market price as an offer, not instruction
+    what_not_to_copy:
+      - do not treat statistical cheapness as sufficient evidence when business quality is deteriorating
+    false_match_warning: A Benjamin Graham match means the user's observed process resembles parts of this learning archetype. It does not mean the user is Benjamin Graham or should copy current holdings.
+  warren_buffett:
+    display_name: Warren Buffett
+    recommended_guardrails:
+      - valuation_expectation_missing
+      - quality_without_price
+      - authority_anchor
+      - time_horizon_missing
+    what_to_learn:
+      - write the owner thesis
+      - stay inside circle of competence
+      - connect business quality to price
+    what_not_to_copy:
+      - do not copy Berkshire holdings without the capital structure, information, tax, and time-horizon context
+    false_match_warning: A Warren Buffett match means the user's observed process resembles parts of this learning archetype. It does not mean the user is Warren Buffett or should copy current holdings.
+  charlie_munger:
+    display_name: Charlie Munger
+    recommended_guardrails:
+      - falsification_missing
+      - management_shortcut
+      - authority_anchor
+      - downside_protocol_missing
+    what_to_learn:
+      - invert the thesis
+      - inspect incentives
+      - use simple mental models to avoid avoidable loss
+    what_not_to_copy:
+      - do not use aphorisms as substitutes for security-specific evidence
+    false_match_warning: A Charlie Munger match means the user's observed process resembles parts of this learning archetype. It does not mean the user is Charlie Munger or should copy current holdings.
+  walter_schloss:
+    display_name: Walter Schloss
+    recommended_guardrails:
+      - valuation_expectation_missing
+      - single_metric_overweight
+      - evidence_basis_missing
+    what_to_learn:
+      - keep the checklist simple
+      - check balance-sheet support
+      - avoid narrative over-elaboration
+    what_not_to_copy:
+      - do not buy weak businesses solely because they screen cheap
+    false_match_warning: A Walter Schloss match means the user's observed process resembles parts of this learning archetype. It does not mean the user is Walter Schloss or should copy current holdings.
+  seth_klarman:
+    display_name: Seth Klarman
+    recommended_guardrails:
+      - downside_protocol_missing
+      - valuation_expectation_missing
+      - source_quality_weak
+      - scenario_absent
+    what_to_learn:
+      - define downside first
+      - separate permanent loss from volatility
+      - wait when evidence is incomplete
+    what_not_to_copy:
+      - do not use caution as an excuse to avoid stating decision criteria
+    false_match_warning: A Seth Klarman match means the user's observed process resembles parts of this learning archetype. It does not mean the user is Seth Klarman or should copy current holdings.
+  li_lu:
+    display_name: Li Lu / 李录
+    recommended_guardrails:
+      - source_quality_weak
+      - authority_anchor
+      - valuation_expectation_missing
+      - evidence_basis_missing
+    what_to_learn:
+      - raise information quality
+      - own the thesis independently
+      - treat understanding as a discipline
+    what_not_to_copy:
+      - do not convert admiration for a company or investor into borrowed conviction
+    false_match_warning: A Li Lu / 李录 match means the user's observed process resembles parts of this learning archetype. It does not mean the user is Li Lu / 李录 or should copy current holdings.
+  duan_yongping:
+    display_name: Duan Yongping / 段永平
+    recommended_guardrails:
+      - product_quality_overweight
+      - value_capture_missing
+      - valuation_expectation_missing
+      - source_quality_weak
+    what_to_learn:
+      - test business common sense
+      - separate product love from economics
+      - think like an owner
+    what_not_to_copy:
+      - do not use operating admiration to skip valuation, competition, and governance analysis
+    false_match_warning: A Duan Yongping / 段永平 match means the user's observed process resembles parts of this learning archetype. It does not mean the user is Duan Yongping / 段永平 or should copy current holdings.
+  philip_fisher:
+    display_name: Philip Fisher
+    recommended_guardrails:
+      - valuation_expectation_missing
+      - falsification_missing
+      - value_capture_missing
+      - management_shortcut
+    what_to_learn:
+      - interview the ecosystem
+      - study business quality before quarterly noise
+      - make qualitative evidence explicit
+    what_not_to_copy:
+      - do not let a compelling business story replace valuation and falsification discipline
+    false_match_warning: A Philip Fisher match means the user's observed process resembles parts of this learning archetype. It does not mean the user is Philip Fisher or should copy current holdings.
+  t_rowe_price_jr:
+    display_name: T. Rowe Price Jr.
+    recommended_guardrails:
+      - valuation_expectation_missing
+      - time_horizon_missing
+      - scenario_absent
+    what_to_learn:
+      - map business lifecycle
+      - ask whether growth can endure
+      - connect growth to expectations
+    what_not_to_copy:
+      - do not assume a growing company is attractive without asking what growth is already priced in
+    false_match_warning: A T. Rowe Price Jr. match means the user's observed process resembles parts of this learning archetype. It does not mean the user is T. Rowe Price Jr. or should copy current holdings.
+  peter_lynch:
+    display_name: Peter Lynch
+    recommended_guardrails:
+      - product_quality_overweight
+      - valuation_expectation_missing
+      - single_metric_overweight
+      - wording_vague
+    what_to_learn:
+      - state the thesis simply
+      - know what would make the story wrong
+      - tie consumer observations to fundamentals
+    what_not_to_copy:
+      - do not buy because a product is familiar before checking economics and valuation
+    false_match_warning: A Peter Lynch match means the user's observed process resembles parts of this learning archetype. It does not mean the user is Peter Lynch or should copy current holdings.
+  terry_smith:
+    display_name: Terry Smith
+    recommended_guardrails:
+      - quality_without_price
+      - valuation_expectation_missing
+      - scenario_absent
+    what_to_learn:
+      - define quality explicitly
+      - watch free cash flow
+      - avoid unnecessary trading
+    what_not_to_copy:
+      - do not make quality a reason to ignore valuation compression risk
+    false_match_warning: A Terry Smith match means the user's observed process resembles parts of this learning archetype. It does not mean the user is Terry Smith or should copy current holdings.
+  howard_marks:
+    display_name: Howard Marks
+    recommended_guardrails:
+      - consensus_gap_missing
+      - cyclicality_ignored
+      - macro_certainty
+      - downside_protocol_missing
+    what_to_learn:
+      - ask what consensus already believes
+      - separate risk from volatility
+      - prepare for multiple states
+    what_not_to_copy:
+      - do not turn cycle caution into unsupported macro prediction
+    false_match_warning: A Howard Marks match means the user's observed process resembles parts of this learning archetype. It does not mean the user is Howard Marks or should copy current holdings.
+  john_templeton:
+    display_name: John Templeton
+    recommended_guardrails:
+      - consensus_gap_missing
+      - cyclicality_ignored
+      - source_quality_weak
+    what_to_learn:
+      - define consensus pessimism
+      - compare globally
+      - demand valuation support
+    what_not_to_copy:
+      - do not buy merely because a country, sector, or stock is disliked
+    false_match_warning: A John Templeton match means the user's observed process resembles parts of this learning archetype. It does not mean the user is John Templeton or should copy current holdings.
+  jeremy_grantham:
+    display_name: Jeremy Grantham
+    recommended_guardrails:
+      - macro_story_overreach
+      - cyclicality_ignored
+      - valuation_expectation_missing
+      - time_horizon_missing
+    what_to_learn:
+      - ask what valuation implies
+      - separate long-term expected return from timing
+      - name bubble risk carefully
+    what_not_to_copy:
+      - do not turn long-term valuation concern into a precise timing claim
+    false_match_warning: A Jeremy Grantham match means the user's observed process resembles parts of this learning archetype. It does not mean the user is Jeremy Grantham or should copy current holdings.
+  michael_burry:
+    display_name: Michael Burry
+    recommended_guardrails:
+      - consensus_gap_missing
+      - downside_protocol_missing
+      - authority_anchor
+      - source_quality_weak
+    what_to_learn:
+      - build evidence against consensus
+      - define payoff asymmetry
+      - read primary documents
+    what_not_to_copy:
+      - do not copy the drama of a contrarian call without the evidence and risk protocol
+    false_match_warning: A Michael Burry match means the user's observed process resembles parts of this learning archetype. It does not mean the user is Michael Burry or should copy current holdings.
+  george_soros:
+    display_name: George Soros
+    recommended_guardrails:
+      - macro_story_overreach
+      - falsification_missing
+      - downside_protocol_missing
+      - scenario_absent
+    what_to_learn:
+      - ask how beliefs change reality
+      - watch feedback loops
+      - stay open to being wrong
+    what_not_to_copy:
+      - do not convert macro narrative into action without falsification and risk boundaries
+    false_match_warning: A George Soros match means the user's observed process resembles parts of this learning archetype. It does not mean the user is George Soros or should copy current holdings.
+  stanley_druckenmiller:
+    display_name: Stanley Druckenmiller
+    recommended_guardrails:
+      - downside_protocol_missing
+      - macro_story_overreach
+      - falsification_missing
+      - position_protocol_missing
+    what_to_learn:
+      - size conviction through process, not excitement
+      - change mind when facts change
+      - make risk explicit
+    what_not_to_copy:
+      - do not imitate concentration without a risk protocol
+    false_match_warning: A Stanley Druckenmiller match means the user's observed process resembles parts of this learning archetype. It does not mean the user is Stanley Druckenmiller or should copy current holdings.
+  paul_tudor_jones:
+    display_name: Paul Tudor Jones
+    recommended_guardrails:
+      - downside_protocol_missing
+      - time_horizon_missing
+      - macro_story_overreach
+    what_to_learn:
+      - predefine loss control
+      - separate thesis from trade timing
+      - respect uncertainty
+    what_not_to_copy:
+      - do not apply trading instincts to long-term investing without a clear process
+    false_match_warning: A Paul Tudor Jones match means the user's observed process resembles parts of this learning archetype. It does not mean the user is Paul Tudor Jones or should copy current holdings.
+  jesse_livermore:
+    display_name: Jesse Livermore
+    recommended_guardrails:
+      - downside_protocol_missing
+      - narrative_to_action_jump
+      - time_horizon_missing
+    what_to_learn:
+      - respect leverage and ruin risk
+      - do not confuse price action with business analysis
+      - define loss boundaries
+    what_not_to_copy:
+      - do not romanticize speculation or ignore life-cycle and leverage risk
+    false_match_warning: A Jesse Livermore match means the user's observed process resembles parts of this learning archetype. It does not mean the user is Jesse Livermore or should copy current holdings.
+  ray_dalio:
+    display_name: Ray Dalio
+    recommended_guardrails:
+      - macro_story_overreach
+      - scenario_absent
+      - cycle_regime_guardrail
+    what_to_learn:
+      - map regimes
+      - write explicit principles
+      - think in scenarios
+    what_not_to_copy:
+      - do not let a macro framework replace asset-specific evidence
+    false_match_warning: A Ray Dalio match means the user's observed process resembles parts of this learning archetype. It does not mean the user is Ray Dalio or should copy current holdings.
+  john_bogle:
+    display_name: John C. Bogle
+    recommended_guardrails:
+      - authority_anchor
+      - source_quality_weak
+      - evidence_basis_missing
+    what_to_learn:
+      - ask whether active edge is real
+      - control costs
+      - prefer simple processes when evidence is weak
+    what_not_to_copy:
+      - do not use passive humility to avoid clarifying an active thesis when you are making one
+    false_match_warning: A John C. Bogle match means the user's observed process resembles parts of this learning archetype. It does not mean the user is John C. Bogle or should copy current holdings.
+  jim_simons:
+    display_name: Jim Simons
+    recommended_guardrails:
+      - single_metric_overweight
+      - source_quality_weak
+      - evidence_basis_missing
+    what_to_learn:
+      - prefer tested signals over stories
+      - respect data quality
+      - separate intuition from measurable edge
+    what_not_to_copy:
+      - do not call a simple backtest a Renaissance-style process
+    false_match_warning: A Jim Simons match means the user's observed process resembles parts of this learning archetype. It does not mean the user is Jim Simons or should copy current holdings.
+  edward_thorp:
+    display_name: Edward O. Thorp
+    recommended_guardrails:
+      - evidence_basis_missing
+      - single_metric_overweight
+      - downside_protocol_missing
+    what_to_learn:
+      - quantify edge
+      - consider risk of ruin
+      - test whether the game is favorable
+    what_not_to_copy:
+      - do not overstate precision from thin evidence
+    false_match_warning: A Edward O. Thorp match means the user's observed process resembles parts of this learning archetype. It does not mean the user is Edward O. Thorp or should copy current holdings.
+  cliff_asness:
+    display_name: Cliff Asness
+    recommended_guardrails:
+      - source_quality_weak
+      - single_metric_overweight
+      - scenario_absent
+    what_to_learn:
+      - ask for base-rate evidence
+      - separate story from factor exposure
+      - prepare for painful tracking error
+    what_not_to_copy:
+      - do not slap factor terms onto discretionary narratives without evidence
+    false_match_warning: A Cliff Asness match means the user's observed process resembles parts of this learning archetype. It does not mean the user is Cliff Asness or should copy current holdings.
+  eugene_fama:
+    display_name: Eugene Fama
+    recommended_guardrails:
+      - evidence_basis_missing
+      - authority_anchor
+      - source_quality_weak
+    what_to_learn:
+      - ask why you have edge
+      - use base rates
+      - separate systematic exposure from skill
+    what_not_to_copy:
+      - do not use market efficiency as a reason to stop thinking about process
+    false_match_warning: A Eugene Fama match means the user's observed process resembles parts of this learning archetype. It does not mean the user is Eugene Fama or should copy current holdings.
+  carl_icahn:
+    display_name: Carl Icahn
+    recommended_guardrails:
+      - catalyst_missing
+      - consensus_gap_missing
+      - downside_protocol_missing
+    what_to_learn:
+      - define the catalyst
+      - map governance power
+      - ask who can force change
+    what_not_to_copy:
+      - do not assume a catalyst exists merely because change would be desirable
+    false_match_warning: A Carl Icahn match means the user's observed process resembles parts of this learning archetype. It does not mean the user is Carl Icahn or should copy current holdings.
+  bill_ackman:
+    display_name: Bill Ackman
+    recommended_guardrails:
+      - catalyst_missing
+      - falsification_missing
+      - authority_anchor
+      - downside_protocol_missing
+    what_to_learn:
+      - write the thesis clearly
+      - state the catalyst
+      - track reputational and identity risk
+    what_not_to_copy:
+      - do not let a public narrative make thesis revision harder
+    false_match_warning: A Bill Ackman match means the user's observed process resembles parts of this learning archetype. It does not mean the user is Bill Ackman or should copy current holdings.
+  joel_greenblatt:
+    display_name: Joel Greenblatt
+    recommended_guardrails:
+      - catalyst_missing
+      - single_metric_overweight
+      - valuation_expectation_missing
+    what_to_learn:
+      - look for event mechanics
+      - use simple ranking rules carefully
+      - connect quality and price
+    what_not_to_copy:
+      - do not treat a formula as a substitute for understanding why the opportunity exists
+    false_match_warning: A Joel Greenblatt match means the user's observed process resembles parts of this learning archetype. It does not mean the user is Joel Greenblatt or should copy current holdings.
+  bill_gross:
+    display_name: Bill Gross
+    recommended_guardrails:
+      - cycle_regime_guardrail
+      - macro_story_overreach
+      - downside_protocol_missing
+    what_to_learn:
+      - measure duration
+      - separate yield from risk
+      - map rate sensitivity
+    what_not_to_copy:
+      - do not import bond-market confidence into equity theses without asset-sensitivity work
+    false_match_warning: A Bill Gross match means the user's observed process resembles parts of this learning archetype. It does not mean the user is Bill Gross or should copy current holdings.
+  david_swensen:
+    display_name: David Swensen
+    recommended_guardrails:
+      - portfolio_context_missing
+      - time_horizon_missing
+      - downside_protocol_missing
+    what_to_learn:
+      - state portfolio role
+      - respect liquidity constraints
+      - separate manager skill from asset exposure
+    what_not_to_copy:
+      - do not copy an endowment model without institutional access, governance, and liquidity context
+    false_match_warning: A David Swensen match means the user's observed process resembles parts of this learning archetype. It does not mean the user is David Swensen or should copy current holdings.

@@ -1,0 +1,23 @@
+id: stanley_druckenmiller
+display_name: Stanley Druckenmiller
+source_quality_policy: Use source-backed biography, style, and track-record context only. Do not infer annualized returns or performance rankings.
+sources:
+  - title: Stanley Druckenmiller biography
+    url: https://en.wikipedia.org/wiki/Stanley_Druckenmiller
+    source_type: biography
+    source_quality: biography
+    source_quality_tier: medium_high
+    notes: Biography and Duquesne context.
+  - title: Duquesne Family Office SEC filings
+    url: https://www.sec.gov/edgar/browse/?CIK=1536411
+    source_type: public_record
+    source_quality: public_record
+    source_quality_tier: high
+    notes: Public filings context; incomplete for macro exposures.
+  - title: The New Market Wizards
+    url: https://en.wikipedia.org/wiki/Market_Wizards
+    source_type: book
+    source_quality: book
+    source_quality_tier: medium_high
+    notes: Interview source family for trading and risk process context.
+read_more_url: https://en.wikipedia.org/wiki/Stanley_Druckenmiller

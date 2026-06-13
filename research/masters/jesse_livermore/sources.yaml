@@ -1,0 +1,23 @@
+id: jesse_livermore
+display_name: Jesse Livermore
+source_quality_policy: Use source-backed biography, style, and track-record context only. Do not infer annualized returns or performance rankings.
+sources:
+  - title: Jesse Livermore biography
+    url: https://en.wikipedia.org/wiki/Jesse_Livermore
+    source_type: biography
+    source_quality: biography
+    source_quality_tier: medium_high
+    notes: Biography and cautionary context.
+  - title: Reminiscences of a Stock Operator
+    url: https://en.wikipedia.org/wiki/Reminiscences_of_a_Stock_Operator
+    source_type: book
+    source_quality: book
+    source_quality_tier: medium_high
+    notes: Fictionalized account often associated with trading psychology; use cautiously.
+  - title: How to Trade in Stocks
+    url: https://en.wikipedia.org/wiki/Jesse_Livermore#Books
+    source_type: book
+    source_quality: book
+    source_quality_tier: medium_high
+    notes: Book context, not a modern recommendation source.
+read_more_url: https://en.wikipedia.org/wiki/Jesse_Livermore

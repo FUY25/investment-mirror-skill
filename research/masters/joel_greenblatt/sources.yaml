@@ -1,0 +1,23 @@
+id: joel_greenblatt
+display_name: Joel Greenblatt
+source_quality_policy: Use source-backed biography, style, and track-record context only. Do not infer annualized returns or performance rankings.
+sources:
+  - title: Joel Greenblatt biography
+    url: https://en.wikipedia.org/wiki/Joel_Greenblatt
+    source_type: biography
+    source_quality: biography
+    source_quality_tier: medium_high
+    notes: Biography and Gotham context.
+  - title: You Can Be a Stock Market Genius
+    url: https://en.wikipedia.org/wiki/Joel_Greenblatt#Bibliography
+    source_type: book
+    source_quality: book
+    source_quality_tier: medium_high
+    notes: Book context for special situations.
+  - title: The Little Book That Beats the Market
+    url: https://en.wikipedia.org/wiki/The_Little_Book_That_Beats_the_Market
+    source_type: book
+    source_quality: book
+    source_quality_tier: medium_high
+    notes: Book context for simple quality/value rules.
+read_more_url: https://en.wikipedia.org/wiki/Joel_Greenblatt

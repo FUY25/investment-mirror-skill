@@ -1,0 +1,23 @@
+id: t_rowe_price_jr
+display_name: T. Rowe Price Jr.
+source_quality_policy: Use source-backed biography, style, and track-record context only. Do not infer annualized returns or performance rankings.
+sources:
+  - title: T. Rowe Price Jr. biography
+    url: https://en.wikipedia.org/wiki/Thomas_Rowe_Price_Jr.
+    source_type: biography
+    source_quality: biography
+    source_quality_tier: medium_high
+    notes: Biography and growth-stock context.
+  - title: T. Rowe Price company history
+    url: https://www.troweprice.com/corporate/us/en/what-we-do/history.html
+    source_type: official
+    source_quality: official
+    source_quality_tier: high
+    notes: Official firm history for founder context.
+  - title: T. Rowe Price mutual fund history
+    url: https://en.wikipedia.org/wiki/T._Rowe_Price
+    source_type: reliable_secondary
+    source_quality: reliable_secondary
+    source_quality_tier: medium_high
+    notes: Firm context and growth-investing heritage.
+read_more_url: https://www.troweprice.com/corporate/us/en/what-we-do/history.html

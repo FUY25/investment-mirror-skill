@@ -1,0 +1,23 @@
+id: terry_smith
+display_name: Terry Smith
+source_quality_policy: Use source-backed biography, style, and track-record context only. Do not infer annualized returns or performance rankings.
+sources:
+  - title: Terry Smith biography
+    url: https://en.wikipedia.org/wiki/Terry_Smith_(fund_manager)
+    source_type: biography
+    source_quality: biography
+    source_quality_tier: medium_high
+    notes: Biography and Fundsmith context.
+  - title: Fundsmith owner manuals and letters
+    url: https://www.fundsmith.co.uk/fundsmith-equity-fund/fundsmith-equity-fund-owner-s-manual/
+    source_type: primary
+    source_quality: primary
+    source_quality_tier: high
+    notes: Primary firm material for quality-compounder philosophy.
+  - title: Fundsmith annual letters
+    url: https://www.fundsmith.co.uk/fundsmith-equity-fund/documents/
+    source_type: primary
+    source_quality: primary
+    source_quality_tier: high
+    notes: Primary fund documents and commentary.
+read_more_url: https://www.fundsmith.co.uk/

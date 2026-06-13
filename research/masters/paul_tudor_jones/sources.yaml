@@ -1,0 +1,23 @@
+id: paul_tudor_jones
+display_name: Paul Tudor Jones
+source_quality_policy: Use source-backed biography, style, and track-record context only. Do not infer annualized returns or performance rankings.
+sources:
+  - title: Paul Tudor Jones biography
+    url: https://en.wikipedia.org/wiki/Paul_Tudor_Jones
+    source_type: biography
+    source_quality: biography
+    source_quality_tier: medium_high
+    notes: Biography and Tudor Investment context.
+  - title: Tudor Investment Corporation
+    url: https://www.tudor.com/
+    source_type: official
+    source_quality: official
+    source_quality_tier: high
+    notes: Official firm context.
+  - title: Market Wizards
+    url: https://en.wikipedia.org/wiki/Market_Wizards
+    source_type: book
+    source_quality: book
+    source_quality_tier: medium_high
+    notes: Interview source family for trading process and loss control.
+read_more_url: https://www.tudor.com/

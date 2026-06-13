@@ -1,0 +1,23 @@
+id: michael_burry
+display_name: Michael Burry
+source_quality_policy: Use source-backed biography, style, and track-record context only. Do not infer annualized returns or performance rankings.
+sources:
+  - title: Michael Burry biography
+    url: https://en.wikipedia.org/wiki/Michael_Burry
+    source_type: biography
+    source_quality: biography
+    source_quality_tier: medium_high
+    notes: Biography and public context around Scion and subprime thesis.
+  - title: Scion Asset Management SEC filings
+    url: https://www.sec.gov/edgar/browse/?CIK=1649339
+    source_type: public_record
+    source_quality: public_record
+    source_quality_tier: high
+    notes: Public filings context; incomplete for full strategy.
+  - title: The Big Short
+    url: https://en.wikipedia.org/wiki/The_Big_Short
+    source_type: book
+    source_quality: book
+    source_quality_tier: medium_high
+    notes: Secondary narrative around subprime thesis; use cautiously for process context.
+read_more_url: https://en.wikipedia.org/wiki/Michael_Burry

@@ -1,0 +1,67 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 220 260" role="img" aria-labelledby="li_lu-title li_lu-desc">
+  <title id="li_lu-title">Li Lu / 李录 original line-art portrait</title>
+  <desc id="li_lu-desc">Original local SVG portrait asset for Investment Mirror master profile cards.</desc>
+  <rect width="220" height="260" rx="10" fill="#f7f3ee"/>
+  <path d="M18 214 C58 196 162 198 202 215 L202 242 L18 242 Z" fill="#efe4d7" stroke="#2d2926" stroke-width="1.5"/>
+  <g opacity="0.85">
+    <circle cx="77" cy="59" r="1.02" fill="#b96b2f" opacity="0.25"/>
+    <circle cx="94" cy="88" r="1.24" fill="#b96b2f" opacity="0.28"/>
+    <circle cx="111" cy="117" r="1.46" fill="#b96b2f" opacity="0.14"/>
+    <circle cx="128" cy="146" r="0.80" fill="#b96b2f" opacity="0.18"/>
+    <circle cx="145" cy="33" r="1.02" fill="#b96b2f" opacity="0.21"/>
+    <circle cx="162" cy="62" r="1.24" fill="#b96b2f" opacity="0.25"/>
+    <circle cx="23" cy="91" r="1.46" fill="#b96b2f" opacity="0.28"/>
+    <circle cx="40" cy="120" r="0.80" fill="#b96b2f" opacity="0.14"/>
+    <circle cx="57" cy="149" r="1.02" fill="#b96b2f" opacity="0.18"/>
+    <circle cx="74" cy="36" r="1.24" fill="#b96b2f" opacity="0.21"/>
+    <circle cx="91" cy="65" r="1.46" fill="#b96b2f" opacity="0.25"/>
+    <circle cx="108" cy="94" r="0.80" fill="#b96b2f" opacity="0.28"/>
+    <circle cx="125" cy="123" r="1.02" fill="#b96b2f" opacity="0.14"/>
+    <circle cx="142" cy="152" r="1.24" fill="#b96b2f" opacity="0.18"/>
+    <circle cx="159" cy="39" r="1.46" fill="#b96b2f" opacity="0.21"/>
+    <circle cx="176" cy="68" r="0.80" fill="#b96b2f" opacity="0.25"/>
+    <circle cx="37" cy="97" r="1.02" fill="#b96b2f" opacity="0.28"/>
+    <circle cx="54" cy="126" r="1.24" fill="#b96b2f" opacity="0.14"/>
+    <circle cx="71" cy="155" r="1.46" fill="#b96b2f" opacity="0.18"/>
+    <circle cx="88" cy="42" r="0.80" fill="#b96b2f" opacity="0.21"/>
+    <circle cx="105" cy="71" r="1.02" fill="#b96b2f" opacity="0.25"/>
+    <circle cx="122" cy="100" r="1.24" fill="#b96b2f" opacity="0.28"/>
+    <circle cx="139" cy="129" r="1.46" fill="#b96b2f" opacity="0.14"/>
+    <circle cx="156" cy="158" r="0.80" fill="#b96b2f" opacity="0.18"/>
+    <circle cx="173" cy="45" r="1.02" fill="#b96b2f" opacity="0.21"/>
+    <circle cx="34" cy="74" r="1.24" fill="#b96b2f" opacity="0.25"/>
+    <circle cx="51" cy="103" r="1.46" fill="#b96b2f" opacity="0.28"/>
+    <circle cx="68" cy="132" r="0.80" fill="#b96b2f" opacity="0.14"/>
+    <circle cx="85" cy="161" r="1.02" fill="#b96b2f" opacity="0.18"/>
+    <circle cx="102" cy="48" r="1.24" fill="#b96b2f" opacity="0.21"/>
+    <circle cx="119" cy="77" r="1.46" fill="#b96b2f" opacity="0.25"/>
+    <circle cx="136" cy="106" r="0.80" fill="#b96b2f" opacity="0.28"/>
+    <circle cx="153" cy="135" r="1.02" fill="#b96b2f" opacity="0.14"/>
+    <circle cx="170" cy="164" r="1.24" fill="#b96b2f" opacity="0.18"/>
+    <circle cx="31" cy="51" r="1.46" fill="#b96b2f" opacity="0.21"/>
+    <circle cx="48" cy="80" r="0.80" fill="#b96b2f" opacity="0.25"/>
+    <circle cx="65" cy="109" r="1.02" fill="#b96b2f" opacity="0.28"/>
+    <circle cx="82" cy="138" r="1.24" fill="#b96b2f" opacity="0.14"/>
+    <circle cx="99" cy="25" r="1.46" fill="#b96b2f" opacity="0.18"/>
+    <circle cx="116" cy="54" r="0.80" fill="#b96b2f" opacity="0.21"/>
+    <circle cx="133" cy="83" r="1.02" fill="#b96b2f" opacity="0.25"/>
+    <circle cx="150" cy="112" r="1.24" fill="#b96b2f" opacity="0.28"/>
+    <circle cx="167" cy="141" r="1.46" fill="#b96b2f" opacity="0.14"/>
+    <circle cx="28" cy="28" r="0.80" fill="#b96b2f" opacity="0.18"/>
+    <circle cx="45" cy="57" r="1.02" fill="#b96b2f" opacity="0.21"/>
+    <circle cx="62" cy="86" r="1.24" fill="#b96b2f" opacity="0.25"/>
+    <circle cx="79" cy="115" r="1.46" fill="#b96b2f" opacity="0.28"/>
+    <circle cx="96" cy="144" r="0.80" fill="#b96b2f" opacity="0.14"/>
+  </g>
+  <path d="M52.5 206 C72 178 148 178 167.5 206" fill="none" stroke="#2d2926" stroke-width="3" stroke-linecap="round"/>
+  <path d="M64 47 C78 22 139 17 156 54 C177 67 169 134 148 160 C132 180 92 180 73 158 C54 136 48 71 64 47 Z" fill="#fffaf4" stroke="#2d2926" stroke-width="2.5"/>
+  <path d="M64 51 C83 31 136 29 158 59 C145 54 124 55 105 52 C87 49 75 55 64 51 Z" fill="#2d2926" opacity="0.08" stroke="#2d2926" stroke-width="1.2"/>
+  <path d="M82 104 C91 100 99 101 106 106" fill="none" stroke="#2d2926" stroke-width="2" stroke-linecap="round"/>
+  <path d="M121 106 C130 101 139 100 148 104" fill="none" stroke="#2d2926" stroke-width="2" stroke-linecap="round"/>
+  <path d="M111 111 C108 124 108 132 115 136" fill="none" stroke="#2d2926" stroke-width="1.6" stroke-linecap="round"/>
+  <path d="M91 157 C105 165 128 165 142 157" fill="none" stroke="#2d2926" stroke-width="2" stroke-linecap="round"/>
+  <path d="M48 30 L174 218" stroke="#b96b2f" stroke-width="1" opacity="0.42"/>
+  <path d="M174 30 L48 218" stroke="#b96b2f" stroke-width="1" opacity="0.18"/>
+  <rect x="20" y="18" width="180" height="222" rx="8" fill="none" stroke="#2d2926" stroke-width="1.2" opacity="0.28"/>
+  <text x="110" y="235" text-anchor="middle" font-family="Georgia, 'Times New Roman', serif" font-size="17" fill="#2d2926" letter-spacing="1.5">LL</text>
+</svg>

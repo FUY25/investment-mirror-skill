@@ -1,0 +1,23 @@
+id: jim_simons
+display_name: Jim Simons
+source_quality_policy: Use source-backed biography, style, and track-record context only. Do not infer annualized returns or performance rankings.
+sources:
+  - title: Jim Simons biography
+    url: https://en.wikipedia.org/wiki/Jim_Simons_(mathematician)
+    source_type: biography
+    source_quality: biography
+    source_quality_tier: medium_high
+    notes: Biography and Renaissance Technologies context.
+  - title: Renaissance Technologies
+    url: https://en.wikipedia.org/wiki/Renaissance_Technologies
+    source_type: reliable_secondary
+    source_quality: reliable_secondary
+    source_quality_tier: medium_high
+    notes: Firm context and public history.
+  - title: Simons Foundation biography
+    url: https://www.simonsfoundation.org/people/james-h-simons/
+    source_type: official
+    source_quality: official
+    source_quality_tier: high
+    notes: Official biography from Simons Foundation.
+read_more_url: https://www.simonsfoundation.org/people/james-h-simons/

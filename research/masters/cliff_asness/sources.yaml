@@ -1,0 +1,23 @@
+id: cliff_asness
+display_name: Cliff Asness
+source_quality_policy: Use source-backed biography, style, and track-record context only. Do not infer annualized returns or performance rankings.
+sources:
+  - title: Cliff Asness biography
+    url: https://en.wikipedia.org/wiki/Cliff_Asness
+    source_type: biography
+    source_quality: biography
+    source_quality_tier: medium_high
+    notes: Biography and AQR context.
+  - title: AQR research library
+    url: https://www.aqr.com/Insights/Research
+    source_type: research
+    source_quality: research
+    source_quality_tier: high
+    notes: Research source for factor investing, value, momentum, and systematic process.
+  - title: AQR Alternative Thinking
+    url: https://www.aqr.com/Insights/Perspectives
+    source_type: research
+    source_quality: research
+    source_quality_tier: high
+    notes: Practitioner perspectives for factor discipline and market commentary.
+read_more_url: https://www.aqr.com/Insights/Research

@@ -1,0 +1,29 @@
+id: warren_buffett
+display_name: Warren Buffett
+source_quality_policy: Use source-backed biography, style, and track-record context only. Do not infer annualized returns or performance rankings.
+sources:
+  - title: Berkshire Hathaway shareholder letters
+    url: https://www.berkshirehathaway.com/letters/letters.html
+    source_type: primary
+    source_quality: primary
+    source_quality_tier: high
+    notes: Primary record for Buffett and Munger owner-oriented language, capital allocation, and business-quality framing.
+  - title: Warren Buffett biography
+    url: https://en.wikipedia.org/wiki/Warren_Buffett
+    source_type: biography
+    source_quality: biography
+    source_quality_tier: medium_high
+    notes: Biography and Berkshire context.
+  - title: Berkshire Hathaway annual reports
+    url: https://www.berkshirehathaway.com/reports.html
+    source_type: primary
+    source_quality: primary
+    source_quality_tier: high
+    notes: Primary company record for Berkshire results and holdings context.
+  - title: Dataroma superinvestor manager index
+    url: https://www.dataroma.com/m/managers.php
+    source_type: portfolio_tracker
+    source_quality: portfolio_tracker
+    source_quality_tier: context_only
+    notes: Useful as public 13F context where applicable; not a complete record of private holdings or short books.
+read_more_url: https://www.berkshirehathaway.com/letters/letters.html

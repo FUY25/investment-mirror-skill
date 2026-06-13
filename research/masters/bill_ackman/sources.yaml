@@ -1,0 +1,23 @@
+id: bill_ackman
+display_name: Bill Ackman
+source_quality_policy: Use source-backed biography, style, and track-record context only. Do not infer annualized returns or performance rankings.
+sources:
+  - title: Bill Ackman biography
+    url: https://en.wikipedia.org/wiki/Bill_Ackman
+    source_type: biography
+    source_quality: biography
+    source_quality_tier: medium_high
+    notes: Biography and Pershing Square context.
+  - title: Pershing Square shareholder letters
+    url: https://pershingsquareholdings.com/company-reports/letters-to-shareholders/
+    source_type: primary
+    source_quality: primary
+    source_quality_tier: high
+    notes: Primary source for public thesis articulation and portfolio commentary.
+  - title: Pershing Square Holdings reports
+    url: https://pershingsquareholdings.com/company-reports/financial-statements/
+    source_type: primary
+    source_quality: primary
+    source_quality_tier: high
+    notes: Public company reports for fund context.
+read_more_url: https://pershingsquareholdings.com/company-reports/letters-to-shareholders/

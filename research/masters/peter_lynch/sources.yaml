@@ -1,0 +1,23 @@
+id: peter_lynch
+display_name: Peter Lynch
+source_quality_policy: Use source-backed biography, style, and track-record context only. Do not infer annualized returns or performance rankings.
+sources:
+  - title: Peter Lynch biography
+    url: https://en.wikipedia.org/wiki/Peter_Lynch
+    source_type: biography
+    source_quality: biography
+    source_quality_tier: medium_high
+    notes: Biography and Magellan Fund context.
+  - title: One Up on Wall Street
+    url: https://en.wikipedia.org/wiki/One_Up_on_Wall_Street
+    source_type: book
+    source_quality: book
+    source_quality_tier: medium_high
+    notes: Book context for knowing what you own and consumer observations.
+  - title: Beating the Street
+    url: https://en.wikipedia.org/wiki/Beating_the_Street
+    source_type: book
+    source_quality: book
+    source_quality_tier: medium_high
+    notes: Book context for thesis articulation and company categories.
+read_more_url: https://en.wikipedia.org/wiki/Peter_Lynch
