@@ -398,8 +398,18 @@ function hashText(text: string) {
   return createHash("sha256").update(text).digest("hex");
 }
 
+// Counts full-file reads done for hashing. Used by tests to verify that an
+// unchanged corpus is not re-hashed on a second discovery run (B4).
+let hashFileReadCount = 0;
 function hashFile(path: string) {
+  hashFileReadCount++;
   return createHash("sha256").update(readFileSync(path)).digest("hex");
+}
+export function __hashFileReadCount() {
+  return hashFileReadCount;
+}
+export function __resetHashFileReadCount() {
+  hashFileReadCount = 0;
 }
 
 function sourceIdFor(path: string) {
@@ -455,25 +465,43 @@ function walkFiles(rootPath: string, exclude: string[], limit = 10000) {
 export function discoverSources(options: ProfileInitOptions = {}): SourceRecord[] {
   const outputDir = defaultOutput(options.output);
   const previousManifest = readJson<Record<string, SourceRecord>>(join(outputDir, ".source_manifest.json"), {});
+  // Self-ingestion guard (B5): never index the IM output dir, the default IM
+  // home, or the skill/repo path, so the profiler cannot eat its own outputs.
+  const selfExcludes = [outputDir, expandHome("~/.investment-mirror"), skillRoot, repoRoot].map((path) => resolve(path));
+  const userExcludes = (options.exclude ?? []).map((path) => resolve(expandHome(path)));
+  const exclude = [...userExcludes, ...selfExcludes];
   const candidates = [
     join(homedir(), ".codex", "sessions"),
     join(homedir(), ".claude", "projects"),
     ...(options.include ?? []).map(expandHome)
   ];
   const unique = [...new Set(candidates.map((candidate) => resolve(candidate)))];
-  const files = [...new Set(unique.flatMap((candidate) => walkFiles(candidate, options.exclude ?? [])))];
+  const files = [...new Set(unique.flatMap((candidate) => walkFiles(candidate, exclude)))];
   return files.map((path) => {
     const stats = statSync(path);
-    const sha256 = hashFile(path);
+    const modified_at = stats.mtime.toISOString();
     const prior = previousManifest[path];
-    const status = options.reindex || !prior ? "new" : prior.sha256 !== sha256 || prior.size_bytes !== stats.size ? "changed" : "unchanged";
+    let sha256: string;
+    let status: SourceRecord["status"];
+    if (options.reindex || !prior) {
+      sha256 = hashFile(path);
+      status = "new";
+    } else if (prior.size_bytes === stats.size && prior.modified_at === modified_at) {
+      // Short-circuit (B4): mtime + size match the prior manifest, so skip the
+      // full read and reuse the stored hash. Headline scalability promise.
+      sha256 = prior.sha256;
+      status = "unchanged";
+    } else {
+      sha256 = hashFile(path);
+      status = prior.sha256 !== sha256 ? "changed" : "unchanged";
+    }
     return {
       source_id: sourceIdFor(path),
       path,
       path_hash: hashText(path),
       source_type: detectSourceType(path)!,
       size_bytes: stats.size,
-      modified_at: stats.mtime.toISOString(),
+      modified_at,
       sha256,
       status
     };
@@ -945,7 +973,7 @@ function writeProfileState(outputDir: string, state: ProfileLifecycleState, now:
       : "Profile finalization state recorded.",
     transitions,
     finalization_contract: {
-      command: "npm run im -- profile-finalize --synthesis synthesized_profile.json --questions interview_questions.json --answers-summary \"...\" --content profile_model_content.json --output ~/.investment-mirror",
+      command: "node scripts/cli.mjs profile-finalize --synthesis synthesized_profile.json --questions interview_questions.json --answers-summary \"...\" --content profile_model_content.json --output ~/.investment-mirror",
       requires_agent_questions: true,
       requires_answer_summary_or_explicit_decline: true,
       requires_llm_synthesized_profile_json: true,
@@ -1500,7 +1528,7 @@ function profileFinalizationSchema() {
   return {
     version: "0.2",
     artifact_kind: "llm_profile_finalization_schema",
-    required_command: "npm run im -- profile-finalize --synthesis synthesized_profile.json --questions interview_questions.json --answers-summary \"...\" --content profile_model_content.json --output ~/.investment-mirror",
+    required_command: "node scripts/cli.mjs profile-finalize --synthesis synthesized_profile.json --questions interview_questions.json --answers-summary \"...\" --content profile_model_content.json --output ~/.investment-mirror",
     required_fields: [
       "profile_id",
       "evidence_summary",

@@ -1,9 +1,13 @@
 import assert from "node:assert/strict";
 import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 import test from "node:test";
 import {
+  __hashFileReadCount,
+  __resetHashFileReadCount,
   buildCandidateSpans,
+  buildSourceManifest,
   classifyDecisionEpisodes,
   collectCandidateEvidenceLedger,
   discoverSources,
@@ -18,7 +22,9 @@ import {
 } from "../skills/investment-mirror/src/core.ts";
 import { ACTIVE_MASTER_IDS } from "../skills/investment-mirror/src/master_data.ts";
 
-const root = resolve(".investment-mirror-test");
+// Fixtures live outside the repo so the discovery self-ingestion guard (which
+// excludes the repo path) does not skip them.
+const root = join(tmpdir(), "investment-mirror-test");
 
 function resetFixture() {
   rmSync(root, { recursive: true, force: true });
@@ -414,6 +420,35 @@ test("mirror ask cites local evidence and avoids raw transcript exposure", () =>
   const raw = mirrorAsk("Show raw local evidence for robotaxi", output);
   assert.equal(raw.raw_transcript_exposed, true);
   assert.ok(raw.evidence.some((item) => item.kind === "redacted_turn"));
+});
+
+test("incremental discovery skips full reads for unchanged files", () => {
+  resetFixture();
+  const output = join(root, "mirror-incremental");
+  const include = [join(root, ".codex", "sessions"), join(root, ".claude", "projects")];
+  const exclude = [join(process.env.HOME ?? "", ".codex"), join(process.env.HOME ?? "", ".claude")];
+  const first = discoverSources({ output, include, exclude, reindex: true });
+  buildSourceManifest(first, output);
+  __resetHashFileReadCount();
+  const second = discoverSources({ output, include, exclude });
+  assert.equal(__hashFileReadCount(), 0, "unchanged corpus must not be re-hashed");
+  assert.ok(second.every((source) => source.status === "unchanged"));
+});
+
+test("discovery never ingests IM output or repo/skill paths", () => {
+  resetFixture();
+  const output = join(root, "mirror-self");
+  // Seed an artifact in the output dir and try to include the output dir + repo.
+  mkdirSync(output, { recursive: true });
+  writeFileSync(join(output, "prior_decision.md"), "I decided to buy NVDA over 2 years.", "utf8");
+  const sources = discoverSources({
+    output,
+    include: [output, resolve("skills", "investment-mirror"), resolve(".")],
+    exclude: [join(process.env.HOME ?? "", ".codex"), join(process.env.HOME ?? "", ".claude")],
+    reindex: true
+  });
+  assert.ok(!sources.some((source) => source.path.startsWith(resolve(output))), "must not ingest IM output dir");
+  assert.ok(!sources.some((source) => source.path.startsWith(resolve("skills", "investment-mirror"))), "must not ingest skill path");
 });
 
 test("decision parser extracts the real ticker, not a leading stop-word", () => {

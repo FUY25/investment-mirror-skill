@@ -6,9 +6,10 @@
   "description": "Local-first Codex skill product for investment decision profiling, thesis linting, and decision memory.",
   "scripts": {
     "im": "tsx skills/investment-mirror/scripts/investment_mirror_cli.ts",
+    "build:cli": "node tools/build_cli.mjs",
     "generate:masters": "tsx tools/generate_master_corpus.ts",
     "generate:master-assets": "python3 tools/build_imagegen_master_assets.py",
-    "validate:skill": "python3 /Users/fuyuming/.codex/skills/.system/skill-creator/scripts/quick_validate.py skills/investment-mirror",
+    "validate:skill": "node tools/validate_skill.mjs skills/investment-mirror",
     "validate:registry": "tsx skills/investment-mirror/scripts/validate_investment_mirror.ts",
     "test": "node --import tsx --test tests/*.test.ts",
     "eval": "tsx evals/run_evals.ts",

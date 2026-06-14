@@ -33,7 +33,7 @@ Forbidden deterministic work:
 
 ## Required Phase Flow
 
-1. **Deterministic discovery**: run `npm run im -- profile-init --output ~/.investment-mirror`.
+1. **Deterministic discovery**: run `node scripts/cli.mjs profile-init --output ~/.investment-mirror`.
 2. **Deterministic source manifest**: discover Codex/Claude/local include paths, apply excludes, hash files, and write source IDs.
 3. **Deterministic redaction**: redact likely secrets and identifiers before indexing or scoring.
 4. **Deterministic local index**: write `source_index.sqlite` for local grep/FTS-style retrieval.

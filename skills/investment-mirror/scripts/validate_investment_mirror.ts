@@ -104,7 +104,8 @@ const commandDocs = [
   "investment-decision.md",
   "investment-mirror-ask.md"
 ];
-for (const doc of commandDocs) assertFile(`skills/investment-mirror/commands/${doc}`, 400);
+// Registered Claude Code plugin commands are the single home for command prose.
+for (const doc of commandDocs) assertFile(`commands/${doc}`, 400);
 
 const requiredScripts = [
   "discover_sources.ts",
@@ -130,6 +131,9 @@ const requiredScripts = [
   "query_source_index.py"
 ];
 for (const script of requiredScripts) assertFile(`skills/investment-mirror/scripts/${script}`, 100);
+
+// The committed plain-node bundle is the runtime entry point (node + python3 only).
+assertFile("skills/investment-mirror/scripts/cli.mjs", 1000);
 
 const skill = assertFile("skills/investment-mirror/SKILL.md", 1000);
 if (/TODO|\[TODO/i.test(skill)) fail("SKILL.md still contains TODO text.");

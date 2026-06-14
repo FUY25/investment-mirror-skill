@@ -1,11 +1,17 @@
+---
+description: Validate, render, and write final Investment Mirror profile.json/profile.html from agent-synthesized JSON + structured content.
+---
+
 # /investment-profile-finalize
 
 Write final Investment Mirror profile artifacts from agent/LLM synthesized JSON plus agent/LLM structured final content. This command validates, renders deterministic static HTML, and writes artifacts; it does not perform synthesis, master matching, or interview formation itself.
 
+First read `skills/investment-mirror/references/profile_lifecycle.md` for the finalization contract.
+
 ## Run
 
 ```bash
-npm run im -- profile-finalize \
+node "${CLAUDE_PLUGIN_ROOT}/skills/investment-mirror/scripts/cli.mjs" profile-finalize \
   --synthesis synthesized_profile.json \
   --questions interview_questions.json \
   --answers-summary "The user clarified risk triggers, horizon, constraints, and evidence threshold." \
@@ -16,7 +22,7 @@ npm run im -- profile-finalize \
 If the user explicitly declines interview calibration:
 
 ```bash
-npm run im -- profile-finalize \
+node "${CLAUDE_PLUGIN_ROOT}/skills/investment-mirror/scripts/cli.mjs" profile-finalize \
   --synthesis synthesized_profile.json \
   --questions interview_questions.json \
   --answers-summary "The user declined calibration after questions were presented." \

@@ -13,23 +13,32 @@ Investment Mirror must not provide investment, legal, tax, or financial advice. 
 
 ## Commands
 
-Read the command doc when the user invokes a workflow:
+The five `/investment-*` workflows are registered as Claude Code plugin commands
+in the repo-root `commands/` directory; that registered command is the single
+home for each workflow's prose. When a user invokes a workflow, follow the
+matching command and the skill references:
 
-- `/investment-profile-init`: read `commands/investment-profile-init.md`, then `references/pipeline_policy.md` and `references/profile_lifecycle.md`.
-- `/investment-profile-finalize`: read `commands/investment-profile-finalize.md` and `references/profile_lifecycle.md`.
-- `/investment-profile-update`: read `commands/investment-profile-update.md`, then `references/pipeline_policy.md` and `references/profile_lifecycle.md`.
-- `/investment-decision`: read `commands/investment-decision.md`.
-- `/investment-mirror-ask`: read `commands/investment-mirror-ask.md` and `references/memory_contract.md`.
+- `/investment-profile-init`: then read `references/pipeline_policy.md` and `references/profile_lifecycle.md`.
+- `/investment-profile-finalize`: then read `references/profile_lifecycle.md`.
+- `/investment-profile-update`: then read `references/pipeline_policy.md` and `references/profile_lifecycle.md`.
+- `/investment-decision`: then apply the Core Boundaries below.
+- `/investment-mirror-ask`: then read `references/memory_contract.md`.
 
-Executable entry point:
+Executable entry point — a committed plain-node ESM bundle, runnable with
+`node` + `python3` only (no `tsx`, no `npm install`, no `node_modules`). Rebuild
+with `npm run build:cli` after editing `scripts/investment_mirror_cli.ts` or
+`src/*.ts`:
 
 ```bash
-npm run im -- profile-init --output ~/.investment-mirror
-npm run im -- profile-finalize --synthesis synthesized_profile.json --questions interview_questions.json --answers-summary "..." --content profile_model_content.json --output ~/.investment-mirror
-npm run im -- profile-update --output ~/.investment-mirror --since 30d
-npm run im -- decision "I want to buy TSLA because robotaxi could unlock a massive new growth curve." --output ~/.investment-mirror
-npm run im -- mirror-ask "Which guardrail do I trigger most often?" --output ~/.investment-mirror
+node scripts/cli.mjs profile-init --output ~/.investment-mirror
+node scripts/cli.mjs profile-finalize --synthesis synthesized_profile.json --questions interview_questions.json --answers-summary "..." --content profile_model_content.json --output ~/.investment-mirror
+node scripts/cli.mjs profile-update --output ~/.investment-mirror --since 30d
+node scripts/cli.mjs decision "I want to buy TSLA because robotaxi could unlock a massive new growth curve." --output ~/.investment-mirror
+node scripts/cli.mjs mirror-ask "Which guardrail do I trigger most often?" --output ~/.investment-mirror
 ```
+
+Inside a Claude Code plugin command, reference the bundle via
+`node "${CLAUDE_PLUGIN_ROOT}/skills/investment-mirror/scripts/cli.mjs"`.
 
 ## Core Boundaries
 
@@ -81,6 +90,7 @@ The runtime source of truth for active masters is `skills/investment-mirror/src/
 - Pipeline and deterministic-script boundaries: `references/pipeline_policy.md`
 - Profile lifecycle and finalization contract: `references/profile_lifecycle.md`
 - Memory query and privacy contract: `references/memory_contract.md`
+- Per-platform command registration (Claude Code plugin vs Codex): `references/command_registration.md`
 - Master registry source-of-truth contract: `references/master_registry_contract.md`
 - Static HTML artifact style: `references/artifact_style.md`
 - Source quality tiers: `references/source_quality.md`

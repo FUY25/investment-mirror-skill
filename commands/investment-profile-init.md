@@ -1,17 +1,23 @@
+---
+description: Compile local Investment Mirror evidence for the first profile (phase 1; does not write final profile.json/html).
+---
+
 # /investment-profile-init
 
 Compile local Investment Mirror evidence for the first profile. This command is phase 1 of the profile workflow. It does not create a profile draft and does not write final `profile.json` or `profile.html`.
 
+First read the investment-mirror skill references for full policy: `skills/investment-mirror/references/pipeline_policy.md` and `skills/investment-mirror/references/profile_lifecycle.md`.
+
 ## Run
 
 ```bash
-npm run im -- profile-init --output ~/.investment-mirror
+node "${CLAUDE_PLUGIN_ROOT}/skills/investment-mirror/scripts/cli.mjs" profile-init --output ~/.investment-mirror
 ```
 
 Optional:
 
 ```bash
-npm run im -- profile-init \
+node "${CLAUDE_PLUGIN_ROOT}/skills/investment-mirror/scripts/cli.mjs" profile-init \
   --include ~/Obsidian/Investing \
   --exclude ~/private-projects/client-x \
   --output ~/.investment-mirror
@@ -37,6 +43,8 @@ npm run im -- profile-init \
 16. Produce `profile_model_content.json` as structured user-facing final content. Do not hand-write raw HTML.
 17. Run `/investment-profile-finalize --content profile_model_content.json` so the finalizer can render, validate, and write final `profile.json` and `profile.html`.
 
+If discovery reports **0 sources**, the command returns a `needs_sources` state instead of a master suggestion. Tell the user to add `--include` paths or confirm `~/.codex/sessions` / `~/.claude/projects` contain transcripts, then re-run.
+
 ## Outputs
 
 - `profile_candidate_inputs.json`
@@ -53,7 +61,6 @@ npm run im -- profile-init \
 - `source_manifest.json`
 - `profile_history/{date}-profile-candidate-inputs.json`
 - `profile_history/{date}-profile-candidate-report.html`
-- `profile.assets/masters/*.svg`
 
 Not written by this command:
 

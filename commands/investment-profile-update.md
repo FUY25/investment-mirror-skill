@@ -1,17 +1,23 @@
+---
+description: Incrementally update Investment Mirror evidence from new/changed transcripts; preserves the final profile until finalize.
+---
+
 # /investment-profile-update
 
 Incrementally update Investment Mirror evidence. The local program updates candidate inputs and evidence artifacts; the agent/LLM decides whether the user-facing profile interpretation actually changes.
 
+First read `skills/investment-mirror/references/pipeline_policy.md` and `skills/investment-mirror/references/profile_lifecycle.md`.
+
 ## Run
 
 ```bash
-npm run im -- profile-update --output ~/.investment-mirror --since 30d
+node "${CLAUDE_PLUGIN_ROOT}/skills/investment-mirror/scripts/cli.mjs" profile-update --output ~/.investment-mirror --since 30d
 ```
 
 Optional:
 
 ```bash
-npm run im -- profile-update \
+node "${CLAUDE_PLUGIN_ROOT}/skills/investment-mirror/scripts/cli.mjs" profile-update \
   --include ~/new_transcripts \
   --output ~/.investment-mirror
 ```

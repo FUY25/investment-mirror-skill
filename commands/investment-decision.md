@@ -1,17 +1,24 @@
+---
+description: Turn an investment thesis into P0/P1/P2 issues, research questions, guardrails, and a decision review artifact. No buy/sell advice.
+argument-hint: "\"I want to buy TSLA because robotaxi could unlock a massive new growth curve.\""
+---
+
 # /investment-decision
 
 Turn an investment thesis into structured issues, research questions, guardrails, and a decision review artifact.
 
+First read `skills/investment-mirror/commands`-equivalent policy in the skill: `skills/investment-mirror/references/memory_contract.md` (for logging scope) and the skill's Core Boundaries in `skills/investment-mirror/SKILL.md`.
+
 ## Run
 
 ```bash
-npm run im -- decision "I want to buy TSLA because robotaxi could unlock a massive new growth curve." --output ~/.investment-mirror
+node "${CLAUDE_PLUGIN_ROOT}/skills/investment-mirror/scripts/cli.mjs" decision "$ARGUMENTS" --output ~/.investment-mirror
 ```
 
-To append to the local decision log:
+To append to the local decision log (saves the decision into `decisions/` instead of `decisions/drafts/`):
 
 ```bash
-npm run im -- decision "Research-only review of NVDA AI capex risk over 3 years." --output ~/.investment-mirror --write-log
+node "${CLAUDE_PLUGIN_ROOT}/skills/investment-mirror/scripts/cli.mjs" decision "Research-only review of NVDA AI capex risk over 3 years." --output ~/.investment-mirror --write-log
 ```
 
 ## Modes
@@ -28,14 +35,14 @@ npm run im -- decision "Research-only review of NVDA AI capex risk over 3 years.
 5. Trigger personalized guardrails when profile evidence supports them.
 6. As the agent, review the candidate issues and present the result in chat as process feedback.
 7. Ask targeted clarification questions when the thesis lacks horizon, valuation expectations, value-capture logic, falsification conditions, risk preference, or constraints.
-8. Generate `decision_review.html`, `.md`, and `.json`.
-9. Append to `decision_log.jsonl` only when the user requests logging.
+8. Generate the decision review `.html`, `.md`, and `.json` (bare lints go to `decisions/drafts/`; `--write-log` saves to `decisions/`).
+9. Append to `decision_log.jsonl` only when the user requests logging via `--write-log`.
 
 ## Output Rules
 
 Allowed statuses are process labels such as `blocked_by_p0_issues`, `needs_research`, and `ready_for_user_decision`.
 
-Never output a buy, sell, hold, target price, suitability, allocation, or position-size recommendation. The decision type may record the user’s stated intent, but the skill’s status must remain process-only.
+Never output a buy, sell, hold, target price, suitability, allocation, or position-size recommendation. The decision type may record the user's stated intent, but the skill's status must remain process-only.
 
 The model may decide which candidate issues matter most and how to phrase them, but it must keep the output as issues, questions, guardrails, and next research steps. The model must not decide for the user.
 

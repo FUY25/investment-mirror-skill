@@ -1,5 +1,6 @@
 import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
-import { join, resolve } from "node:path";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 import YAML from "yaml";
 import { finalizeProfile, generateInvestorProfile, lintInvestmentDecision, mirrorAsk } from "../skills/investment-mirror/src/core.ts";
 
@@ -20,7 +21,9 @@ type ExtractionEval = {
   }>;
 };
 
-const root = resolve(".investment-mirror-test/evals");
+// Fixtures live outside the repo so the discovery self-ingestion guard (which
+// excludes the repo path) does not skip them.
+const root = join(tmpdir(), "investment-mirror-test", "evals");
 const queryEval = YAML.parse(readFileSync("evals/queries.yaml", "utf8")) as QueryEval;
 const extractionEval = YAML.parse(readFileSync("evals/extraction_golden.yaml", "utf8")) as ExtractionEval;
 

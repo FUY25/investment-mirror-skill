@@ -1,17 +1,24 @@
+---
+description: Answer questions over local Investment Mirror memory (profile, guardrails, decision logs) with cited local evidence. No buy/sell advice.
+argument-hint: "\"Which guardrail do I trigger most often?\""
+---
+
 # /investment-mirror-ask
 
 Answer questions over local Investment Mirror memory.
 
+First read `skills/investment-mirror/references/memory_contract.md` for the retrieval and privacy contract.
+
 ## Run
 
 ```bash
-npm run im -- mirror-ask "Which guardrail do I trigger most often?" --output ~/.investment-mirror
+node "${CLAUDE_PLUGIN_ROOT}/skills/investment-mirror/scripts/cli.mjs" mirror-ask "$ARGUMENTS" --output ~/.investment-mirror
 ```
 
 Chinese questions are allowed:
 
 ```bash
-npm run im -- mirror-ask "我过去所有 AI 相关投资想法里，最常缺失的东西是什么？" --output ~/.investment-mirror
+node "${CLAUDE_PLUGIN_ROOT}/skills/investment-mirror/scripts/cli.mjs" mirror-ask "我过去所有 AI 相关投资想法里，最常缺失的东西是什么？" --output ~/.investment-mirror
 ```
 
 ## Data Scope
@@ -40,7 +47,7 @@ Do not search or expose raw transcript text by default. If the user explicitly r
 
 ## Examples
 
-- “Which guardrail appears most often in my logs?”
-- “Which AI-related decisions were blocked by P0 issues?”
-- “Have my recent logs shown less narrative-to-action jump than last month?”
-- “Which decision IDs had unresolved valuation expectation issues?”
+- "Which guardrail appears most often in my logs?"
+- "Which AI-related decisions were blocked by P0 issues?"
+- "Have my recent logs shown less narrative-to-action jump than last month?"
+- "Which decision IDs had unresolved valuation expectation issues?"

@@ -1,0 +1,17 @@
+{
+  "name": "investment-mirror",
+  "version": "0.2.0",
+  "description": "Local-first investment decision profiling and thesis-linting. Registers the /investment-* slash commands and bundles the investment-mirror skill. No investment advice; process statuses, P0/P1/P2 issues, guardrails, and research questions only.",
+  "author": {
+    "name": "FUY25"
+  },
+  "homepage": "https://github.com/FUY25/investment-mirror-skill",
+  "repository": "https://github.com/FUY25/investment-mirror-skill",
+  "license": "MIT",
+  "keywords": [
+    "investing",
+    "decision-journal",
+    "local-first",
+    "thesis-linter"
+  ]
+}
