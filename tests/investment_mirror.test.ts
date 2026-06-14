@@ -416,6 +416,46 @@ test("mirror ask cites local evidence and avoids raw transcript exposure", () =>
   assert.ok(raw.evidence.some((item) => item.kind === "redacted_turn"));
 });
 
+test("decision parser extracts the real ticker, not a leading stop-word", () => {
+  resetFixture();
+  const output = join(root, "mirror-ticker");
+  const review = lintInvestmentDecision({
+    output,
+    thesis: "I want to buy TSLA because robotaxi could unlock a massive new growth curve.",
+    now: new Date("2026-06-13T12:30:00Z")
+  });
+  assert.equal(review.ticker, "TSLA");
+  assert.notEqual(review.asset_or_theme, "I");
+  assert.match(review.artifact_paths.html, /tsla/);
+  assert.ok(review.decision_id.startsWith("dec_") && /tsla/.test(review.decision_id));
+  const cashtag = lintInvestmentDecision({ output, thesis: "Thinking about $nvda exposure here over 3 years.", now: new Date("2026-06-13T12:31:00Z") });
+  assert.equal(cashtag.ticker, "NVDA");
+  const themed = lintInvestmentDecision({ output, thesis: "I want to invest in the clean energy transition over the next decade.", now: new Date("2026-06-13T12:32:00Z") });
+  assert.equal(themed.ticker, null);
+  assert.notEqual(themed.asset_or_theme, "I");
+});
+
+test("zero discovered sources returns an explicit needs-sources state, not a master suggestion", () => {
+  resetFixture();
+  const output = join(root, "mirror-empty");
+  const emptyDir = join(root, "no-sources-here");
+  mkdirSync(emptyDir, { recursive: true });
+  const result = generateInvestorProfile({
+    output,
+    include: [emptyDir],
+    exclude: [join(process.env.HOME ?? "", ".codex"), join(process.env.HOME ?? "", ".claude")],
+    reindex: true,
+    now: new Date("2026-06-13T12:00:00Z")
+  });
+  assert.equal(result.sources.length, 0);
+  assert.equal(result.profile.profile_state, "needs_sources");
+  assert.equal(result.profile.needs_sources, true);
+  assert.equal(result.profile.best_fit_master_matches.length, 0);
+  assert.match(result.profile.source_guidance ?? "", /0 sources discovered/);
+  const state = JSON.parse(readFileSync(join(output, "profile_state.json"), "utf8"));
+  assert.equal(state.state, "needs_sources");
+});
+
 test("active master registry has 30 complete active IDs", () => {
   assert.equal(ACTIVE_MASTER_IDS.length, 30);
   for (const id of ACTIVE_MASTER_IDS) {

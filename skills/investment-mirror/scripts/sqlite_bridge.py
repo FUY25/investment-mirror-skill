@@ -106,6 +106,34 @@ def main() -> int:
                 ),
             )
 
+        # Incremental reindex is delete-then-insert per source. A changed file may
+        # have shrunk (N -> M turns); INSERT OR REPLACE alone leaves orphaned rows
+        # and stale external-content FTS postings. Clear every source present in
+        # this payload's turns/spans before reinserting so row counts stay exact.
+        affected_sources = set()
+        for turn in payload.get("turns", []):
+            affected_sources.add(turn["source_id"])
+        for span in payload.get("spans", []):
+            affected_sources.add(span["source_id"])
+
+        for source_id in affected_sources:
+            # External-content FTS5 requires an explicit 'delete' (with the old
+            # rowid and text) before the underlying row is removed.
+            for rowid, old_text in cur.execute(
+                "SELECT rowid, text_redacted FROM turns WHERE source_id = ?", (source_id,)
+            ).fetchall():
+                cur.execute(
+                    "INSERT INTO turns_fts(turns_fts, rowid, text_redacted) VALUES('delete', ?, ?)",
+                    (rowid, old_text),
+                )
+            cur.execute("DELETE FROM turns WHERE source_id = ?", (source_id,))
+            cur.execute(
+                "DELETE FROM decision_episodes WHERE span_id IN "
+                "(SELECT span_id FROM candidate_spans WHERE source_id = ?)",
+                (source_id,),
+            )
+            cur.execute("DELETE FROM candidate_spans WHERE source_id = ?", (source_id,))
+
         for turn in payload.get("turns", []):
             cur.execute(
                 """

@@ -77,7 +77,7 @@ export type ProfileMatch = {
   asset_path: string;
 };
 
-export type ProfileLifecycleState = "draft" | "interview_required" | "finalized" | "provisional";
+export type ProfileLifecycleState = "draft" | "interview_required" | "finalized" | "provisional" | "needs_sources";
 
 export type CalibrationQuestionTopic = {
   dimension: string;
@@ -94,6 +94,8 @@ export type InvestorProfile = {
   synthesis_mode: "evidence_only_requires_llm" | "llm_synthesized";
   llm_required: boolean;
   provisional: boolean;
+  needs_sources?: boolean;
+  source_guidance?: string;
   unknown_dimensions: string[];
   candidate_profile_inputs_path?: string;
   profile_evidence_path?: string;
@@ -834,6 +836,14 @@ export function generateInvestorProfile(options: ProfileInitOptions = {}) {
   const existingInputs = readJson<InvestorProfile | null>(join(outputDir, "profile_candidate_inputs.json"), null);
   const sources = discoverSources(options);
   buildSourceManifest(sources, outputDir);
+  if (sources.length === 0) {
+    // No discovered sources: surface an explicit needs-input state rather than
+    // fabricating a master match from an empty vector.
+    const profile = buildNeedsSourcesProfile(now);
+    writeJson(join(outputDir, "profile_candidate_inputs.json"), profile);
+    writeProfileState(outputDir, "needs_sources", now, profile.source_guidance!);
+    return { profile, sources, turns: [], spans: [], episodes: [], outputDir };
+  }
   const changedSources = filterSourcesForProfileRun(sources, options, now);
   if (!options.reindex && existingInputs && changedSources.length === 0) {
     const preservedProfile: InvestorProfile = {
@@ -928,7 +938,9 @@ function writeProfileState(outputDir: string, state: ProfileLifecycleState, now:
     candidate_profile_inputs_path: "profile_candidate_inputs.json",
     final_profile_path: "profile.json",
     final_html_path: "profile.html",
-    required_next_action: state === "interview_required"
+    required_next_action: state === "needs_sources"
+      ? "0 sources discovered. Add --include paths or confirm ~/.codex/sessions / ~/.claude/projects contain transcripts, then re-run /investment-profile-init."
+      : state === "interview_required"
       ? "Agent/LLM must read profile_evidence.json, perform full evidence analysis, ask 2-5 targeted interview questions, synthesize profile JSON, generate final HTML, then run profile-finalize."
       : "Profile finalization state recorded.",
     transitions,
@@ -943,6 +955,46 @@ function writeProfileState(outputDir: string, state: ProfileLifecycleState, now:
     }
   };
   writeJson(join(outputDir, "profile_state.json"), artifact);
+}
+
+function buildNeedsSourcesProfile(now: Date): InvestorProfile {
+  const guidance = "0 sources discovered. Add --include paths to your notes/transcripts, or confirm that ~/.codex/sessions or ~/.claude/projects contain transcript files, then re-run /investment-profile-init.";
+  return {
+    profile_id: `profile_${todayStamp(now).replaceAll("-", "_")}`,
+    artifact_kind: "deterministic_profile_inputs",
+    profile_state: "needs_sources",
+    created_at: iso(now),
+    updated_at: iso(now),
+    synthesis_mode: "evidence_only_requires_llm",
+    llm_required: true,
+    provisional: true,
+    needs_sources: true,
+    source_guidance: guidance,
+    unknown_dimensions: defaultUnknownDimensions(),
+    candidate_profile_inputs_path: "profile_candidate_inputs.json",
+    confidence: 0,
+    primary_patterns: [],
+    best_fit_master_matches: [],
+    match_strengths: [],
+    recommended_guardrails: [],
+    decision_fingerprint: deriveProfileVector([]),
+    default_issue: "No local sources were discovered, so no decision patterns could be derived yet.",
+    active_guardrails: [],
+    source_summary: {
+      conversations_scanned: 0,
+      decision_episodes_found: 0,
+      receipts_used: 0,
+      tier1_investment_episodes: 0,
+      tier2_investment_episodes: 0,
+      tier3_general_decision_episodes: 0,
+      calibration_recommended: false
+    },
+    receipts: [],
+    presentation_next_steps: [
+      guidance,
+      "Re-run /investment-profile-init once at least one source is available."
+    ]
+  };
 }
 
 export function buildProfileFromEpisodes(episodes: DecisionEpisode[], sourceCount: number, now: Date): InvestorProfile {
@@ -1685,7 +1737,11 @@ export function profileUpdate(options: ProfileInitOptions = {}) {
 export function lintInvestmentDecision(options: DecisionOptions): DecisionReview {
   const now = options.now ?? new Date();
   const outputDir = defaultOutput(options.output);
-  ensureDir(join(outputDir, "decisions"));
+  const save = options.writeLog ?? false;
+  // Only saved decisions land in decisions/. Bare lints go to decisions/drafts/
+  // so repeated thesis checks do not clutter the real decision log area.
+  const artifactDir = save ? join(outputDir, "decisions") : join(outputDir, "decisions", "drafts");
+  ensureDir(artifactDir);
   const profile = readJson<InvestorProfile | null>(join(outputDir, "profile.json"), null);
   const parsed = parseDecision(options.thesis);
   const assumptions = decomposeThesis(options.thesis);
@@ -1693,9 +1749,9 @@ export function lintInvestmentDecision(options: DecisionOptions): DecisionReview
   const status = issues.some((issue) => issue.severity === "P0") ? "blocked_by_p0_issues" : issues.length ? "needs_research" : "ready_for_user_decision";
   const slug = slugify(`${parsed.ticker ?? parsed.asset_or_theme} ${options.thesis}`);
   const decisionId = `dec_${todayStamp(now).replaceAll("-", "_")}_${slug.slice(0, 42).replaceAll("-", "_")}`;
-  const htmlPath = join(outputDir, "decisions", `${todayStamp(now)}-${slug}.html`);
-  const mdPath = join(outputDir, "decisions", `${todayStamp(now)}-${slug}.md`);
-  const jsonPath = join(outputDir, "decisions", `${todayStamp(now)}-${slug}.json`);
+  const htmlPath = join(artifactDir, `${todayStamp(now)}-${slug}.html`);
+  const mdPath = join(artifactDir, `${todayStamp(now)}-${slug}.md`);
+  const jsonPath = join(artifactDir, `${todayStamp(now)}-${slug}.json`);
   const triggeredGuardrails = [...new Set(issues.map((issue) => issue.triggered_guardrail).filter(Boolean) as string[])];
   const review: DecisionReview = {
     decision_id: decisionId,
@@ -1718,13 +1774,54 @@ export function lintInvestmentDecision(options: DecisionOptions): DecisionReview
   return review;
 }
 
+// All-caps tokens that look like tickers but are common English/finance words.
+// Keeps the parser from grabbing "I", "A", "AI", "DCF", etc. as a ticker.
+const TICKER_STOPWORDS = new Set([
+  "I", "A", "AN", "AND", "OR", "THE", "TO", "OF", "IN", "ON", "AT", "BY", "IS", "IT", "IF", "SO", "AS", "BE", "DO", "GO", "MY", "WE", "US", "UK", "EU", "USA",
+  "AI", "ML", "LLM", "FSD", "EV", "TAM", "SAM", "DCF", "PE", "PEG", "EPS", "ROE", "ROIC", "ROI", "GDP", "CPI", "CEO", "CFO", "CTO", "COO", "IPO", "ETF", "ESG",
+  "API", "SDK", "FAQ", "OK", "TBD", "FYI", "YOY", "QOQ", "ATH", "ATL", "NAV", "AUM", "REIT", "SPAC", "WACC", "FCF", "GMV", "DAU", "MAU", "ARR", "MRR"
+]);
+
+const ACTION_VERB_RE = /\b(?:buy|buying|sell|selling|add|adding|trim|trimming|hold|holding|short|shorting|long|own|owning|accumulate|accumulating|avoid|avoiding|watch|watching)\b/gi;
+
 function parseDecision(thesis: string) {
   const lower = thesis.toLowerCase();
   const decisionTypes = ["buy", "sell", "add", "trim", "hold", "avoid", "watchlist", "research_only", "portfolio_review"];
   const decision_type = decisionTypes.find((type) => lower.includes(type.replace("_", " "))) ?? (lower.includes("research") ? "research_only" : null);
-  const ticker = thesis.match(/\b[A-Z]{1,5}\b/)?.[0] ?? null;
-  const asset_or_theme = ticker ?? thesis.replace(/\s+/g, " ").slice(0, 80);
+  const ticker = extractTicker(thesis);
+  const asset_or_theme = ticker ?? cleanTheme(thesis);
   return { decision_type, ticker, asset_or_theme };
+}
+
+// Real ticker heuristic. Priority:
+//   1. $CASHTAG (1-5 letters)
+//   2. an all-caps 1-5 letter token immediately after a buy/sell/add/... verb
+//   3. the first all-caps 2-5 letter token that is not a stop-word
+// Falls back to null when no plausible ticker exists, so callers use the theme.
+function extractTicker(thesis: string): string | null {
+  const cashtag = thesis.match(/\$([A-Za-z]{1,5})\b/);
+  if (cashtag) return cashtag[1].toUpperCase();
+
+  ACTION_VERB_RE.lastIndex = 0;
+  let verbMatch: RegExpExecArray | null;
+  while ((verbMatch = ACTION_VERB_RE.exec(thesis))) {
+    const rest = thesis.slice(verbMatch.index + verbMatch[0].length);
+    const after = rest.match(/^\s+(?:into\s+|some\s+|more\s+|the\s+)?([A-Z]{1,5})\b/);
+    if (after && !TICKER_STOPWORDS.has(after[1])) return after[1];
+  }
+
+  const allCaps = thesis.match(/\b[A-Z]{2,5}\b/g) ?? [];
+  const candidate = allCaps.find((token) => !TICKER_STOPWORDS.has(token));
+  return candidate ?? null;
+}
+
+// Cleaned theme phrase used when no ticker is detected. Strips leading
+// first-person filler ("I want to buy ...") so the artifact <h1> reads as a topic.
+function cleanTheme(thesis: string): string {
+  const normalized = thesis.replace(/\s+/g, " ").trim();
+  const stripped = normalized.replace(/^(?:i\s+(?:want|would like|am thinking|plan|intend|wish)\s+(?:to\s+)?(?:buy|sell|add|trim|hold|invest in|get into)?\s*)/i, "").trim();
+  const theme = stripped.length >= 4 ? stripped : normalized;
+  return theme.slice(0, 80);
 }
 
 function decomposeThesis(thesis: string) {
