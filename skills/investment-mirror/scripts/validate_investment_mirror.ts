@@ -2,7 +2,7 @@
 import { existsSync, readFileSync, statSync } from "node:fs";
 import { join } from "node:path";
 import YAML from "yaml";
-import { ACTIVE_MASTER_IDS, FUTURE_MASTER_IDS, STYLE_DIMENSIONS } from "../src/master_data.ts";
+import { ACTIVE_MASTER_IDS, FUTURE_MASTER_IDS, MASTER_RECORDS, STYLE_DIMENSIONS } from "../src/master_data.ts";
 
 const root = process.cwd();
 const errors: string[] = [];
@@ -32,6 +32,7 @@ const guardrails = readYaml("skills/investment-mirror/config/master_guardrail_ru
 const rootPhotoSources = readYaml("assets/masters/photo_sources.yaml");
 const skillPhotoSources = readYaml("skills/investment-mirror/assets/masters/photo_sources.yaml");
 const registryIds = registry.masters.map((master: any) => master.id);
+const runtimeById = new Map(MASTER_RECORDS.map((master) => [master.id, master]));
 const rootPhotoSourceIds = new Set((rootPhotoSources.masters ?? []).map((source: any) => source.master_id));
 const skillPhotoSourceIds = new Set((skillPhotoSources.masters ?? []).map((source: any) => source.master_id));
 if (rootPhotoSources.asset_kind !== "imagegen_line_art") fail("Root photo_sources.yaml does not describe imagegen line-art assets.");
@@ -52,14 +53,20 @@ const requiredImagegenSheets = [
 if (registry.active_master_count !== 30) fail(`Expected active_master_count 30, got ${registry.active_master_count}`);
 if (registryIds.length !== 30) fail(`Expected 30 registry masters, got ${registryIds.length}`);
 if (new Set(registryIds).size !== registryIds.length) fail("Duplicate master IDs in registry.");
+if (ACTIVE_MASTER_IDS.join(",") !== registryIds.join(",")) fail("master_data.ts ACTIVE_MASTER_IDS and config/master_registry.yaml order diverged; runtime master_data.ts is the source of truth.");
 
 for (const id of ACTIVE_MASTER_IDS) {
+  const runtime = runtimeById.get(id);
+  const registryMaster = (registry.masters ?? []).find((master: any) => master.id === id);
+  if (!runtime) fail(`Runtime master missing: ${id}`);
+  if (runtime && registryMaster?.display_name !== runtime.displayName) fail(`Registry display_name diverged from runtime master_data.ts for ${id}`);
   if (!registryIds.includes(id)) fail(`Active master missing from registry: ${id}`);
   if (!vectors.masters[id]) fail(`Style vector missing: ${id}`);
   if (!guardrails.masters[id]) fail(`Guardrail mapping missing: ${id}`);
   for (const dimension of STYLE_DIMENSIONS) {
     const value = vectors.masters[id]?.[dimension.id];
     if (typeof value !== "number" || value < 0 || value > 100) fail(`Invalid vector ${id}.${dimension.id}: ${value}`);
+    if (runtime && value !== runtime.vector[dimension.id]) fail(`Style vector diverged from runtime master_data.ts for ${id}.${dimension.id}: ${value} !== ${runtime.vector[dimension.id]}`);
   }
   const profile = assertFile(`research/masters/${id}/profile.md`, 800);
   const style = assertFile(`research/masters/${id}/style_notes.md`, 600);
@@ -92,6 +99,7 @@ for (const id of FUTURE_MASTER_IDS) {
 
 const commandDocs = [
   "investment-profile-init.md",
+  "investment-profile-finalize.md",
   "investment-profile-update.md",
   "investment-decision.md",
   "investment-mirror-ask.md"
@@ -105,11 +113,12 @@ const requiredScripts = [
   "redact_sensitive.ts",
   "build_transcript_index.ts",
   "score_decision_spans.ts",
-  "sample_candidate_episodes.ts",
+  "collect_candidate_ledger.ts",
   "classify_decision_episodes.ts",
   "aggregate_decision_patterns.ts",
   "match_master_styles.ts",
   "run_calibration_interview.ts",
+  "finalize_profile.ts",
   "generate_investor_profile.ts",
   "lint_investment_decision.ts",
   "generate_prompt_pack.ts",
@@ -117,12 +126,14 @@ const requiredScripts = [
   "render_profile_html.ts",
   "render_decision_html.ts",
   "investment_mirror_cli.ts",
-  "sqlite_bridge.py"
+  "sqlite_bridge.py",
+  "query_source_index.py"
 ];
 for (const script of requiredScripts) assertFile(`skills/investment-mirror/scripts/${script}`, 100);
 
 const skill = assertFile("skills/investment-mirror/SKILL.md", 1000);
 if (/TODO|\[TODO/i.test(skill)) fail("SKILL.md still contains TODO text.");
+if (!skill.includes("runtime source of truth")) fail("SKILL.md must state the runtime source of truth contract.");
 
 for (const sheet of requiredImagegenSheets) assertFile(`assets/masters/imagegen_sheets/${sheet}`, 100000);
 

@@ -63,7 +63,7 @@ def main() -> int:
               span_type TEXT,
               score REAL,
               reason_codes TEXT,
-              sampled INTEGER DEFAULT 0
+              analysis_scope TEXT DEFAULT 'full_candidate_ledger'
             );
 
             CREATE TABLE IF NOT EXISTS decision_episodes (
@@ -81,6 +81,9 @@ def main() -> int:
 
         indexed_at = payload.get("indexedAt") or payload.get("generated_at")
         parser_version = payload.get("parserVersion") or "unknown"
+        span_columns = [row[1] for row in cur.execute("PRAGMA table_info(candidate_spans)").fetchall()]
+        if "analysis_scope" not in span_columns:
+            cur.execute("ALTER TABLE candidate_spans ADD COLUMN analysis_scope TEXT DEFAULT 'full_candidate_ledger'")
 
         for source in payload.get("sources", []):
             cur.execute(
@@ -131,7 +134,7 @@ def main() -> int:
             cur.execute(
                 """
                 INSERT OR REPLACE INTO candidate_spans (
-                  span_id, source_id, start_turn, end_turn, span_type, score, reason_codes, sampled
+                  span_id, source_id, start_turn, end_turn, span_type, score, reason_codes, analysis_scope
                 ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
                 """,
                 (
@@ -142,7 +145,7 @@ def main() -> int:
                     span["span_type"],
                     span["score"],
                     json.dumps(span.get("reason_codes", [])),
-                    1 if span.get("sampled") else 0,
+                    span.get("analysis_scope", "full_candidate_ledger"),
                 ),
             )
 

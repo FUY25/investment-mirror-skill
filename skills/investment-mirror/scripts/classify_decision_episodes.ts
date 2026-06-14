@@ -1,8 +1,13 @@
 #!/usr/bin/env node
-import { buildCandidateSpans, classifyDecisionEpisodes, discoverSources, parseSource, sampleCandidateEpisodes } from "../src/core.ts";
+import { buildCandidateSpans, classifyDecisionEpisodes, collectCandidateEvidenceLedger, discoverSources, parseSource } from "../src/core.ts";
 
 const sources = discoverSources({ reindex: true });
 const turns = sources.flatMap(parseSource);
-const sampled = sampleCandidateEpisodes(buildCandidateSpans(turns), sources);
-const episodes = classifyDecisionEpisodes(sampled, turns, sources);
-process.stdout.write(`${JSON.stringify({ episode_count: episodes.length, episodes }, null, 2)}\n`);
+const ledger = collectCandidateEvidenceLedger(buildCandidateSpans(turns));
+const episodes = classifyDecisionEpisodes(ledger, turns, sources);
+process.stdout.write(`${JSON.stringify({
+  artifact_kind: "candidate_decision_episodes",
+  warning: "Heuristic extraction from the full candidate ledger only; agent/LLM must interpret receipts before profile synthesis.",
+  candidate_episode_count: episodes.length,
+  candidate_episodes: episodes
+}, null, 2)}\n`);

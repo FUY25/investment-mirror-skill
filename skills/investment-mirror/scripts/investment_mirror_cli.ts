@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 import { existsSync } from "node:fs";
-import { generateInvestorProfile, lintInvestmentDecision, mirrorAsk, profileUpdate, discoverSources, buildSourceManifest } from "../src/core.ts";
+import { generateInvestorProfile, lintInvestmentDecision, mirrorAsk, profileUpdate, discoverSources, buildSourceManifest, finalizeProfile } from "../src/core.ts";
 
 type ParsedArgs = {
   command: string;
@@ -10,11 +10,18 @@ type ParsedArgs = {
   exclude: string[];
   reindex: boolean;
   writeLog: boolean;
+  since?: string;
+  synthesis?: string;
+  html?: string;
+  questions?: string;
+  answersSummary?: string;
+  provisional: boolean;
+  declinedInterview: boolean;
 };
 
 function parseArgs(argv: string[]): ParsedArgs {
   const [command = "help", ...rest] = argv;
-  const parsed: ParsedArgs = { command, values: [], include: [], exclude: [], reindex: false, writeLog: false };
+  const parsed: ParsedArgs = { command, values: [], include: [], exclude: [], reindex: false, writeLog: false, provisional: false, declinedInterview: false };
   for (let index = 0; index < rest.length; index += 1) {
     const arg = rest[index];
     if (arg === "--output") parsed.output = rest[++index];
@@ -22,7 +29,13 @@ function parseArgs(argv: string[]): ParsedArgs {
     else if (arg === "--exclude") parsed.exclude.push(rest[++index]);
     else if (arg === "--reindex") parsed.reindex = true;
     else if (arg === "--write-log" || arg === "--write") parsed.writeLog = true;
-    else if (arg === "--since") index += 1;
+    else if (arg === "--since") parsed.since = rest[++index];
+    else if (arg === "--synthesis") parsed.synthesis = rest[++index];
+    else if (arg === "--html") parsed.html = rest[++index];
+    else if (arg === "--questions") parsed.questions = rest[++index];
+    else if (arg === "--answers-summary") parsed.answersSummary = rest[++index];
+    else if (arg === "--provisional") parsed.provisional = true;
+    else if (arg === "--declined-interview") parsed.declinedInterview = true;
     else parsed.values.push(arg);
   }
   return parsed;
@@ -40,6 +53,7 @@ export function main(argv = process.argv.slice(2)) {
 Commands:
   profile-init [--output PATH] [--include PATH] [--exclude PATH] [--reindex]
   profile-update [--output PATH] [--include PATH] [--exclude PATH] [--since 30d]
+  profile-finalize --synthesis PATH --questions PATH --answers-summary TEXT --html PATH [--provisional] [--output PATH]
   decision "thesis text" [--output PATH] [--write-log]
   mirror-ask "question" [--output PATH]
   discover-sources [--output PATH] [--include PATH] [--exclude PATH]
@@ -61,22 +75,24 @@ Commands:
   }
 
   if (args.command === "profile-init" || args.command === "investment-profile-init") {
-    const result = generateInvestorProfile({ output: args.output, include: args.include, exclude: args.exclude, reindex: args.reindex });
+    const result = generateInvestorProfile({ output: args.output, include: args.include, exclude: args.exclude, reindex: args.reindex, since: args.since });
     print({
-      profile_path: `${result.outputDir}/profile.json`,
+      candidate_inputs_path: `${result.outputDir}/${result.profile.candidate_profile_inputs_path ?? "profile_candidate_inputs.json"}`,
       synthesis_mode: result.profile.synthesis_mode,
       llm_required: result.profile.llm_required,
       evidence_path: `${result.outputDir}/${result.profile.profile_evidence_path ?? "profile_evidence.json"}`,
       synthesis_prompt_path: `${result.outputDir}/${result.profile.profile_synthesis_prompt_path ?? "profile_synthesis_prompt.md"}`,
+      finalization_schema_path: `${result.outputDir}/${result.profile.profile_finalization_schema_path ?? "profile_finalization_schema.json"}`,
       report_template_path: `${result.outputDir}/${result.profile.profile_report_template_path ?? "profile_report_template.html"}`,
-      draft_html_path: `${result.outputDir}/${result.profile.deterministic_draft_html_path ?? "profile_draft.html"}`,
-      final_model_html_path: `${result.outputDir}/${result.profile.final_model_html_path ?? "profile.html"}`,
+      candidate_report_path: `${result.outputDir}/${result.profile.candidate_report_html_path ?? "profile_candidate_report.html"}`,
+      final_profile_path_pending: `${result.outputDir}/profile.json`,
+      final_model_html_path_pending: `${result.outputDir}/${result.profile.final_model_html_path ?? "profile.html"}`,
       guardrails_path: `${result.outputDir}/guardrails.yaml`,
       prompt_pack_path: `${result.outputDir}/prompt_pack.md`,
       source_index_path: `${result.outputDir}/source_index.sqlite`,
       source_count: result.sources.length,
       decision_episodes_found: result.profile.source_summary.decision_episodes_found,
-      best_fit_master_matches: result.profile.best_fit_master_matches.map((match) => ({ master_id: match.master_id, similarity: match.similarity })),
+      candidate_master_suggestions: result.profile.best_fit_master_matches.map((match) => ({ master_id: match.master_id, similarity: match.similarity })),
       calibration_recommended: result.profile.source_summary.calibration_recommended,
       required_interview_questions: result.profile.interview_question_count ?? { min: 2, max: 5 },
       calibration_question_topics: result.profile.calibration_question_topics ?? [],
@@ -86,11 +102,33 @@ Commands:
   }
 
   if (args.command === "profile-update" || args.command === "investment-profile-update") {
-    const result = profileUpdate({ output: args.output, include: args.include, exclude: args.exclude, reindex: args.reindex });
+    const result = profileUpdate({ output: args.output, include: args.include, exclude: args.exclude, reindex: args.reindex, since: args.since });
+    print({
+      candidate_inputs_path: `${result.outputDir}/${result.profile.candidate_profile_inputs_path ?? "profile_candidate_inputs.json"}`,
+      candidate_report_path: `${result.outputDir}/${result.profile.candidate_report_html_path ?? "profile_candidate_report.html"}`,
+      final_profile_preserved: result.update.final_profile_preserved,
+      update: result.update
+    });
+    return;
+  }
+
+  if (args.command === "profile-finalize" || args.command === "investment-profile-finalize") {
+    const result = finalizeProfile({
+      output: args.output,
+      synthesizedProfilePath: args.synthesis,
+      finalHtmlPath: args.html,
+      questionsPath: args.questions,
+      answersSummary: args.answersSummary,
+      provisional: args.provisional,
+      declinedInterview: args.declinedInterview
+    });
     print({
       profile_path: `${result.outputDir}/profile.json`,
       html_path: `${result.outputDir}/profile.html`,
-      update: result.update
+      profile_state: result.profile.profile_state,
+      synthesis_mode: result.profile.synthesis_mode,
+      provisional: result.profile.provisional,
+      unknown_dimensions: result.profile.unknown_dimensions
     });
     return;
   }

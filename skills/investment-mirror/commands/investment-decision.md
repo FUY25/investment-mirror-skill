@@ -16,12 +16,12 @@ npm run im -- decision "Research-only review of NVDA AI capex risk over 3 years.
 
 ## Modes
 
-- Profile-aware mode: uses `profile.json`, `guardrails.yaml`, past decisions, and the best-fit master lens.
-- Standalone mode: works without a profile and labels outputs as generic thesis clarification.
+- Profile-aware mode: uses finalized `profile.json`, `guardrails.yaml`, past decisions, and the final best-fit master lens.
+- Standalone mode: works without a finalized profile and labels outputs as generic thesis clarification. `profile_candidate_inputs.json` alone is not enough to personalize the decision review.
 
 ## Workflow
 
-1. Load local profile if available.
+1. Load finalized local `profile.json` if available.
 2. Parse ticker/asset/theme, decision type, thesis, horizon, confidence, and missing fields.
 3. Decompose the thesis into assumptions.
 4. Generate candidate P0/P1/P2 issues from the taxonomy.
