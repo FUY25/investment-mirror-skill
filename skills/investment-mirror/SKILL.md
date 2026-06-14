@@ -5,7 +5,9 @@ description: Local-first investment decision profiling and thesis-linting skill.
 
 # Investment Mirror
 
-Investment Mirror is a local-first investment decision skill. It analyzes local transcripts and notes to build a decision-process profile, maps that profile to source-backed investment-master learning archetypes, installs guardrails, and turns future theses into issues, questions, and decision records.
+Investment Mirror is a local-first investment decision skill. It analyzes local transcripts and notes to compile decision-process evidence, then the agent/LLM synthesizes the actual profile, maps it to source-backed investment-master learning archetypes, installs guardrails, and turns future theses into issues, questions, and decision records.
+
+The deterministic program is the evidence compiler and artifact writer. It does source discovery, redaction, span scoring, episode extraction, candidate master matching, guardrail candidate generation, and report-template generation. It does not make the final profile judgment by itself. The final profile narrative, final `profile.json` with `synthesis_mode: "llm_synthesized"`, and final `profile.html` must be produced by the agent/LLM after reading `profile_evidence.json` and `profile_synthesis_prompt.md`.
 
 The skill must not provide investment, legal, tax, or financial advice. Never recommend buy, sell, hold, allocation, suitability, or position size. Use process statuses, issue severity, guardrails, and research questions.
 
@@ -32,6 +34,7 @@ npm run im -- mirror-ask "Which guardrail do I trigger most often?" --output ~/.
 - Start profile artifacts with positive recognition and the best-fit master match.
 - Use one primary master match by default; add one secondary affinity only when evidence supports it.
 - Frame guardrails as protocols that make the user's style more investable.
+- For `/investment-profile-init`, ask 2-5 targeted interview questions before finalizing. The agent must generate these questions from evidence gaps, especially unobserved risk preference, loss tolerance, horizon, liquidity or personal constraints, concentration comfort, and what counts as enough evidence.
 - Use P0/P1/P2 issue language in `/investment-decision`.
 - Do not expose raw transcripts by default. Use receipt summaries and local source aliases.
 - Distinguish evidence from interpretation.
@@ -43,8 +46,12 @@ Runtime user memory lives under the output directory, normally `~/.investment-mi
 
 - `profile.json`
 - `guardrails.yaml`
+- `profile_evidence.json`
+- `profile_synthesis_prompt.md`
+- `profile_report_template.html`
 - `prompt_pack.md`
 - `InvestmentMirror.md`
+- `profile_draft.html`
 - `profile.html`
 - `source_index.sqlite`
 - `decision_log.jsonl`
@@ -77,8 +84,11 @@ For profile initialization and updates, run the local pipeline before model inte
 8. Sample across project, month, source type, and span type.
 9. Classify sampled spans into decision episodes.
 10. Aggregate recurring patterns.
-11. Match style vectors to active master profiles.
-12. Generate profile artifacts and SQLite source index.
+11. Generate candidate style-vector matches to active master profiles. Treat these as evidence, not a final profile.
+12. Generate profile evidence artifacts, report template, draft artifacts, and SQLite source index.
+13. As the agent, read `profile_evidence.json` and `profile_synthesis_prompt.md`.
+14. Ask 2-5 model-generated interview questions to pin down unobserved dimensions.
+15. After answers, synthesize the final profile in chat and write final `profile.json`/`profile.html` from the template.
 
 Run:
 

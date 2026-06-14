@@ -64,14 +64,23 @@ Commands:
     const result = generateInvestorProfile({ output: args.output, include: args.include, exclude: args.exclude, reindex: args.reindex });
     print({
       profile_path: `${result.outputDir}/profile.json`,
-      html_path: `${result.outputDir}/profile.html`,
+      synthesis_mode: result.profile.synthesis_mode,
+      llm_required: result.profile.llm_required,
+      evidence_path: `${result.outputDir}/${result.profile.profile_evidence_path ?? "profile_evidence.json"}`,
+      synthesis_prompt_path: `${result.outputDir}/${result.profile.profile_synthesis_prompt_path ?? "profile_synthesis_prompt.md"}`,
+      report_template_path: `${result.outputDir}/${result.profile.profile_report_template_path ?? "profile_report_template.html"}`,
+      draft_html_path: `${result.outputDir}/${result.profile.deterministic_draft_html_path ?? "profile_draft.html"}`,
+      final_model_html_path: `${result.outputDir}/${result.profile.final_model_html_path ?? "profile.html"}`,
       guardrails_path: `${result.outputDir}/guardrails.yaml`,
       prompt_pack_path: `${result.outputDir}/prompt_pack.md`,
       source_index_path: `${result.outputDir}/source_index.sqlite`,
       source_count: result.sources.length,
-      decision_episodes_found: result.episodes.length,
+      decision_episodes_found: result.profile.source_summary.decision_episodes_found,
       best_fit_master_matches: result.profile.best_fit_master_matches.map((match) => ({ master_id: match.master_id, similarity: match.similarity })),
-      calibration_recommended: result.profile.source_summary.calibration_recommended
+      calibration_recommended: result.profile.source_summary.calibration_recommended,
+      required_interview_questions: result.profile.interview_question_count ?? { min: 2, max: 5 },
+      calibration_question_topics: result.profile.calibration_question_topics ?? [],
+      presentation_next_steps: result.profile.presentation_next_steps ?? []
     });
     return;
   }

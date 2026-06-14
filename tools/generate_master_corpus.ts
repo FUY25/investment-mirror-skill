@@ -1,4 +1,4 @@
-import { mkdirSync, writeFileSync } from "node:fs";
+import { copyFileSync, existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import YAML from "yaml";
 import { MASTER_RECORDS, STYLE_DIMENSIONS } from "../skills/investment-mirror/src/master_data.ts";
@@ -146,7 +146,7 @@ function portraitSvg(masterId: string) {
     const opacity = 0.14 + ((index + seed) % 5) * 0.035;
     return `<circle cx="${x}" cy="${y}" r="${r.toFixed(2)}" fill="#b96b2f" opacity="${opacity.toFixed(2)}"/>`;
   }).join("\n    ");
-  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 220 260" role="img" aria-labelledby="${master.id}-title ${master.id}-desc">
+  return `<svg xmlns="http://www.w3.org/2000/svg" data-asset-kind="symbolic_draft" viewBox="0 0 220 260" role="img" aria-labelledby="${master.id}-title ${master.id}-desc">
   <title id="${master.id}-title">${master.displayName} original line-art portrait</title>
   <desc id="${master.id}-desc">Original local SVG portrait asset for Investment Mirror master profile cards.</desc>
   <rect width="220" height="260" rx="10" fill="#f7f3ee"/>
@@ -166,6 +166,24 @@ function portraitSvg(masterId: string) {
   <rect x="20" y="18" width="180" height="222" rx="8" fill="none" stroke="#2d2926" stroke-width="1.2" opacity="0.28"/>
   <text x="110" y="235" text-anchor="middle" font-family="Georgia, 'Times New Roman', serif" font-size="17" fill="#2d2926" letter-spacing="1.5">${initials}</text>
 </svg>`;
+}
+
+function preserveImagegenAsset(masterId: string) {
+  const rootAsset = join(root, "assets", "masters", `${masterId}.svg`);
+  const skillAsset = join(root, "skills", "investment-mirror", "assets", "masters", `${masterId}.svg`);
+  const rootIsPhoto = existsSync(rootAsset) && readFileSync(rootAsset, "utf8").includes("imagegen_line_art");
+  const skillIsPhoto = existsSync(skillAsset) && readFileSync(skillAsset, "utf8").includes("imagegen_line_art");
+  if (rootIsPhoto && !skillIsPhoto) {
+    mkdirSync(dirname(skillAsset), { recursive: true });
+    copyFileSync(rootAsset, skillAsset);
+    return true;
+  }
+  if (skillIsPhoto && !rootIsPhoto) {
+    mkdirSync(dirname(rootAsset), { recursive: true });
+    copyFileSync(skillAsset, rootAsset);
+    return true;
+  }
+  return rootIsPhoto && skillIsPhoto;
 }
 
 function renderRegistry() {
@@ -245,9 +263,11 @@ for (const master of MASTER_RECORDS) {
   write(`research/masters/${master.id}/profile.md`, profileMarkdown(master.id));
   write(`research/masters/${master.id}/sources.yaml`, sourcesYaml(master.id));
   write(`research/masters/${master.id}/style_notes.md`, styleNotesMarkdown(master.id));
-  const svg = portraitSvg(master.id);
-  write(`assets/masters/${master.id}.svg`, svg);
-  write(`skills/investment-mirror/assets/masters/${master.id}.svg`, svg);
+  if (!preserveImagegenAsset(master.id)) {
+    const svg = portraitSvg(master.id);
+    write(`assets/masters/${master.id}.svg`, svg);
+    write(`skills/investment-mirror/assets/masters/${master.id}.svg`, svg);
+  }
 }
 
 write("skills/investment-mirror/config/master_registry.yaml", renderRegistry());
@@ -273,4 +293,4 @@ Investment Mirror stores both source type and source-quality tier for master res
 The skill may use biography, style, and track-record context only when the relevant file records a source. It must not infer annualized returns, rank masters by performance, or use a master as an authority signal for a current security.
 `);
 
-console.log(`Generated ${MASTER_RECORDS.length} active master research folders, registry entries, style vectors, guardrail mappings, and SVG assets.`);
+console.log(`Generated ${MASTER_RECORDS.length} active master research folders, registry entries, style vectors, and guardrail mappings. Imagegen master assets are preserved when present; run tools/build_imagegen_master_assets.py to rebuild portrait assets from local imagegen sheets.`);

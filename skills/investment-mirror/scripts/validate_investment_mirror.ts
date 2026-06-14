@@ -29,7 +29,25 @@ function assertFile(path: string, minBytes = 1) {
 const registry = readYaml("skills/investment-mirror/config/master_registry.yaml");
 const vectors = readYaml("skills/investment-mirror/config/master_style_vectors.yaml");
 const guardrails = readYaml("skills/investment-mirror/config/master_guardrail_rules.yaml");
+const rootPhotoSources = readYaml("assets/masters/photo_sources.yaml");
+const skillPhotoSources = readYaml("skills/investment-mirror/assets/masters/photo_sources.yaml");
 const registryIds = registry.masters.map((master: any) => master.id);
+const rootPhotoSourceIds = new Set((rootPhotoSources.masters ?? []).map((source: any) => source.master_id));
+const skillPhotoSourceIds = new Set((skillPhotoSources.masters ?? []).map((source: any) => source.master_id));
+if (rootPhotoSources.asset_kind !== "imagegen_line_art") fail("Root photo_sources.yaml does not describe imagegen line-art assets.");
+if (skillPhotoSources.asset_kind !== "imagegen_line_art") fail("Skill photo_sources.yaml does not describe imagegen line-art assets.");
+const requiredImagegenSheets = [
+  "sheet_01_buffett_munger_lynch.jpg",
+  "sheet_02_graham_schloss_klarman.jpg",
+  "sheet_03_li_lu_duan_fisher.jpg",
+  "sheet_04_trowe_terry_marks.jpg",
+  "sheet_05_templeton_grantham_burry.jpg",
+  "sheet_06_soros_druckenmiller_tudorjones.jpg",
+  "sheet_07_livermore_dalio_bogle.jpg",
+  "sheet_08_simons_thorp_asness.jpg",
+  "sheet_09_fama_icahn_ackman.jpg",
+  "sheet_10_greenblatt_gross_swensen.jpg"
+];
 
 if (registry.active_master_count !== 30) fail(`Expected active_master_count 30, got ${registry.active_master_count}`);
 if (registryIds.length !== 30) fail(`Expected 30 registry masters, got ${registryIds.length}`);
@@ -52,8 +70,19 @@ for (const id of ACTIVE_MASTER_IDS) {
   for (const source of sources.sources ?? []) {
     if (!source.url || !source.source_quality || !source.source_type || !source.source_quality_tier) fail(`Incomplete source metadata for ${id}: ${JSON.stringify(source)}`);
   }
-  assertFile(`assets/masters/${id}.svg`, 900);
-  assertFile(`skills/investment-mirror/assets/masters/${id}.svg`, 900);
+  const rootSvg = assertFile(`assets/masters/${id}.svg`, 900);
+  const skillSvg = assertFile(`skills/investment-mirror/assets/masters/${id}.svg`, 900);
+  if (!rootSvg.includes("imagegen_line_art")) fail(`Root master asset is not imagegen line art: ${id}`);
+  if (!skillSvg.includes("imagegen_line_art")) fail(`Skill master asset is not imagegen line art: ${id}`);
+  if (rootSvg.includes("source_photo_line_art") || skillSvg.includes("source_photo_line_art")) fail(`Rejected source-photo edge-trace marker still present: ${id}`);
+  if (!rootSvg.includes("data:image/jpeg;base64")) fail(`Root master asset lacks embedded imagegen portrait image: ${id}`);
+  if (!skillSvg.includes("data:image/jpeg;base64")) fail(`Skill master asset lacks embedded imagegen portrait image: ${id}`);
+  if (!rootPhotoSourceIds.has(id)) fail(`Root photo source metadata missing: ${id}`);
+  if (!skillPhotoSourceIds.has(id)) fail(`Skill photo source metadata missing: ${id}`);
+  const rootMeta = (rootPhotoSources.masters ?? []).find((source: any) => source.master_id === id);
+  const skillMeta = (skillPhotoSources.masters ?? []).find((source: any) => source.master_id === id);
+  if (rootMeta?.asset_kind !== "imagegen_line_art" || !rootMeta?.generated_sheet_path || !rootMeta?.prompt_summary) fail(`Incomplete imagegen metadata for root asset: ${id}`);
+  if (skillMeta?.asset_kind !== "imagegen_line_art" || !skillMeta?.generated_sheet_path || !skillMeta?.prompt_summary) fail(`Incomplete imagegen metadata for skill asset: ${id}`);
   if (/TODO|TBD|FIXME|lorem ipsum|placeholder/i.test(`${profile}\n${style}\n${sourcesText}`)) fail(`Placeholder-like text found in master files: ${id}`);
 }
 
@@ -94,6 +123,8 @@ for (const script of requiredScripts) assertFile(`skills/investment-mirror/scrip
 
 const skill = assertFile("skills/investment-mirror/SKILL.md", 1000);
 if (/TODO|\[TODO/i.test(skill)) fail("SKILL.md still contains TODO text.");
+
+for (const sheet of requiredImagegenSheets) assertFile(`assets/masters/imagegen_sheets/${sheet}`, 100000);
 
 if (errors.length) {
   process.stderr.write(`Investment Mirror validation failed:\n${errors.map((error) => `- ${error}`).join("\n")}\n`);

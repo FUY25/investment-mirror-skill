@@ -74,10 +74,23 @@ export type ProfileMatch = {
   asset_path: string;
 };
 
+export type CalibrationQuestionTopic = {
+  dimension: string;
+  why_needed: string;
+  agent_instruction: string;
+};
+
 export type InvestorProfile = {
   profile_id: string;
   created_at: string;
   updated_at: string;
+  synthesis_mode: "deterministic_draft_requires_llm" | "llm_synthesized";
+  llm_required: boolean;
+  profile_evidence_path?: string;
+  profile_synthesis_prompt_path?: string;
+  profile_report_template_path?: string;
+  deterministic_draft_html_path?: string;
+  final_model_html_path?: string;
   confidence: number;
   primary_patterns: string[];
   best_fit_master_matches: ProfileMatch[];
@@ -96,6 +109,38 @@ export type InvestorProfile = {
     calibration_recommended: boolean;
   };
   receipts: Array<{ episode_id: string; source_alias: string; date: string; summary: string; evidence_tier: string }>;
+  interview_question_count?: { min: 2; max: 5 };
+  calibration_question_topics?: CalibrationQuestionTopic[];
+  model_interview_questions?: string[];
+  model_interview_answers_summary?: string;
+  risk_preference_summary?: string;
+  time_horizon_summary?: string;
+  constraints_summary?: string;
+  presentation_next_steps?: string[];
+};
+
+export type ProfileEvidencePacket = {
+  version: "0.2";
+  generated_at: string;
+  instructions: string;
+  source_summary: InvestorProfile["source_summary"];
+  deterministic_profile_draft: Pick<InvestorProfile, "primary_patterns" | "decision_fingerprint" | "default_issue" | "active_guardrails" | "match_strengths">;
+  candidate_master_matches: ProfileMatch[];
+  pattern_counts: Array<[string, number]>;
+  receipts: InvestorProfile["receipts"];
+  calibration_question_topics: CalibrationQuestionTopic[];
+  interview_question_contract: {
+    required: true;
+    count_min: 2;
+    count_max: 5;
+    generated_by: "agent_llm_after_reading_evidence";
+    must_include_when_unobserved: string[];
+  };
+  llm_output_contract: {
+    must_produce: string[];
+    must_not_produce: string[];
+    tone: string;
+  };
 };
 
 export type DecisionIssue = {
@@ -689,11 +734,21 @@ export function generateInvestorProfile(options: ProfileInitOptions = {}) {
     const preservedProfile: InvestorProfile = {
       ...existingProfile,
       updated_at: iso(now),
+      synthesis_mode: existingProfile.synthesis_mode ?? "deterministic_draft_requires_llm",
+      llm_required: existingProfile.llm_required ?? true,
+      profile_evidence_path: existingProfile.profile_evidence_path ?? "profile_evidence.json",
+      profile_synthesis_prompt_path: existingProfile.profile_synthesis_prompt_path ?? "profile_synthesis_prompt.md",
+      profile_report_template_path: existingProfile.profile_report_template_path ?? "profile_report_template.html",
+      deterministic_draft_html_path: existingProfile.deterministic_draft_html_path ?? "profile_draft.html",
+      final_model_html_path: existingProfile.final_model_html_path ?? "profile.html",
       source_summary: {
         ...existingProfile.source_summary,
         conversations_scanned: sources.length
       }
     };
+    if (!existsSync(join(outputDir, "profile_evidence.json")) || !existsSync(join(outputDir, "profile_synthesis_prompt.md")) || !existsSync(join(outputDir, "profile_report_template.html"))) {
+      writeProfileSynthesisArtifacts(outputDir, preservedProfile, [], now);
+    }
     writeProfileArtifacts(outputDir, preservedProfile, now, "profile");
     return { profile: preservedProfile, sources, turns: [], spans: [], episodes: [], outputDir };
   }
@@ -703,6 +758,7 @@ export function generateInvestorProfile(options: ProfileInitOptions = {}) {
   const episodes = classifyDecisionEpisodes(sampled, turns, changedSources);
   writeSqliteIndex(outputDir, sources, turns, sampled, episodes);
   const profile = buildProfileFromEpisodes(episodes, sources.length, now);
+  writeProfileSynthesisArtifacts(outputDir, profile, episodes, now);
   writeProfileArtifacts(outputDir, profile, now, "profile");
   return { profile, sources, turns, spans: sampled, episodes, outputDir };
 }
@@ -720,6 +776,13 @@ export function buildProfileFromEpisodes(episodes: DecisionEpisode[], sourceCoun
     profile_id: `profile_${todayStamp(now).replaceAll("-", "_")}`,
     created_at: iso(now),
     updated_at: iso(now),
+    synthesis_mode: "deterministic_draft_requires_llm",
+    llm_required: true,
+    profile_evidence_path: "profile_evidence.json",
+    profile_synthesis_prompt_path: "profile_synthesis_prompt.md",
+    profile_report_template_path: "profile_report_template.html",
+    deterministic_draft_html_path: "profile_draft.html",
+    final_model_html_path: "profile.html",
     confidence,
     primary_patterns: primaryPatterns,
     best_fit_master_matches: matches.length ? matches : [fallbackMasterMatch()],
@@ -743,8 +806,192 @@ export function buildProfileFromEpisodes(episodes: DecisionEpisode[], sourceCoun
       date: episode.date,
       summary: episode.receipt_summary,
       evidence_tier: episode.evidence_tier
-    }))
+    })),
+    interview_question_count: { min: 2, max: 5 },
+    calibration_question_topics: calibrationQuestionTopics(primaryPatterns, vector, episodes),
+    presentation_next_steps: [
+      "Read profile_evidence.json and profile_synthesis_prompt.md; treat profile.json as a deterministic draft.",
+      "Generate and ask 2-5 targeted interview questions before finalizing the model profile.",
+      "After the user answers, synthesize the final profile in chat and write profile.html from profile_report_template.html.",
+      "Offer to run /investment-decision on one current thesis as the next product step."
+    ]
   };
+}
+
+function buildProfileEvidencePacket(profile: InvestorProfile, episodes: DecisionEpisode[], now: Date): ProfileEvidencePacket {
+  return {
+    version: "0.2",
+    generated_at: iso(now),
+    instructions: "This packet is deterministic evidence preparation only. Codex must synthesize the final Investment Mirror profile with the LLM using the receipts, pattern counts, candidate master matches, and guardrail rules. Do not treat the candidate matches as final without interpretation.",
+    source_summary: profile.source_summary,
+    deterministic_profile_draft: {
+      primary_patterns: profile.primary_patterns,
+      decision_fingerprint: profile.decision_fingerprint,
+      default_issue: profile.default_issue,
+      active_guardrails: profile.active_guardrails,
+      match_strengths: profile.match_strengths
+    },
+    candidate_master_matches: profile.best_fit_master_matches,
+    pattern_counts: aggregateDecisionPatterns(episodes),
+    receipts: profile.receipts,
+    calibration_question_topics: profile.calibration_question_topics ?? calibrationQuestionTopics(profile.primary_patterns, profile.decision_fingerprint, episodes),
+    interview_question_contract: {
+      required: true,
+      count_min: 2,
+      count_max: 5,
+      generated_by: "agent_llm_after_reading_evidence",
+      must_include_when_unobserved: [
+        "risk preference / loss tolerance",
+        "investment horizon",
+        "liquidity or capital constraints",
+        "concentration comfort",
+        "decision authority and what counts as enough evidence"
+      ]
+    },
+    llm_output_contract: {
+      must_produce: [
+        "positive recognition first",
+        "one primary best-fit master match and at most one secondary affinity",
+        "evidence-backed explanation distinguishing evidence from interpretation",
+        "guardrails that make the style investable",
+        "2-5 agent-generated interview questions before finalization",
+        "final profile.html using profile_report_template.html after user answers",
+        "false-match warning",
+        "next steps after presenting the result"
+      ],
+      must_not_produce: [
+        "buy/sell/hold recommendations",
+        "position sizing",
+        "unsupported annualized return claims",
+        "raw transcript quotes by default",
+        "identity claims like 'you are Warren Buffett'"
+      ],
+      tone: "60% positive recognition, 40% guardrail discipline; no shame, no astrology, no authority worship."
+    }
+  };
+}
+
+function writeProfileSynthesisArtifacts(outputDir: string, profile: InvestorProfile, episodes: DecisionEpisode[], now: Date) {
+  const packet = buildProfileEvidencePacket(profile, episodes, now);
+  writeJson(join(outputDir, "profile_evidence.json"), packet);
+  writeFileSync(join(outputDir, "profile_synthesis_prompt.md"), renderProfileSynthesisPrompt(packet), "utf8");
+  writeFileSync(join(outputDir, "profile_report_template.html"), renderProfileReportTemplate(profile), "utf8");
+}
+
+function renderProfileSynthesisPrompt(packet: ProfileEvidencePacket) {
+  return `# Investment Mirror LLM Profile Synthesis Prompt
+
+You are finalizing an Investment Mirror profile from a deterministic local evidence packet. The local program has already discovered sources, redacted sensitive text, scored and sampled spans, extracted receipt summaries, counted patterns, and produced candidate master matches. Your job is to synthesize the actual user-facing profile using judgment, not to rubber-stamp similarity scores.
+
+## Inputs To Read
+
+- \`profile_evidence.json\`
+- \`guardrails.yaml\`
+- \`source_manifest.json\`
+- \`profile.json\` as a deterministic draft only
+
+## Required Output In Chat
+
+1. Start with positive recognition of the strongest evidenced decision behavior.
+2. Explain the primary best-fit master match and, only if useful, one secondary affinity.
+3. State why the match is useful and what not to copy.
+4. Distinguish evidence from interpretation.
+5. Present the required guardrails and why they make the style more investable.
+6. Generate and ask 2-5 interview questions before finalizing. These questions must be created by you from the evidence gaps, not copied blindly from deterministic output.
+7. The questions should pin down unobserved inputs such as risk preference, loss tolerance, time horizon, liquidity constraints, concentration comfort, and what counts as enough evidence.
+8. After the user answers, write the final model-synthesized \`profile.json\` with \`synthesis_mode: "llm_synthesized"\` and produce \`profile.html\` from \`profile_report_template.html\`.
+9. Suggest the next step: usually run \`/investment-decision\` on a current thesis.
+
+## Evidence Packet Summary
+
+\`\`\`json
+${JSON.stringify({
+  source_summary: packet.source_summary,
+  deterministic_profile_draft: packet.deterministic_profile_draft,
+  candidate_master_matches: packet.candidate_master_matches.map((match) => ({
+    master_id: match.master_id,
+    display_name: match.display_name,
+    similarity: match.similarity,
+    why_match: match.why_match
+  })),
+  pattern_counts: packet.pattern_counts,
+  receipt_count: packet.receipts.length,
+  calibration_question_topics: packet.calibration_question_topics,
+  interview_question_contract: packet.interview_question_contract
+}, null, 2)}
+\`\`\`
+
+## Hard Boundaries
+
+- Do not recommend buying, selling, holding, allocating, or sizing.
+- Do not expose raw transcripts unless explicitly requested.
+- Do not claim the user is a master investor.
+- Do not rank masters by performance.
+- Do not treat candidate similarity as final without interpreting receipts.
+- Do not finalize \`profile.json\` or \`profile.html\` until you have asked 2-5 targeted interview questions and incorporated the user's answers, unless the user explicitly declines calibration; in that case mark the report provisional.
+`;
+}
+
+function calibrationQuestionTopics(patterns: string[], vector: Record<keyof MasterVector, number>, episodes: DecisionEpisode[]): CalibrationQuestionTopic[] {
+  const text = episodes.map((episode) => `${episode.summary} ${episode.receipt_summary}`).join(" ").toLowerCase();
+  const topics: CalibrationQuestionTopic[] = [];
+  const add = (dimension: string, why_needed: string, agent_instruction: string) => {
+    topics.push({ dimension, why_needed, agent_instruction });
+  };
+
+  add(
+    "risk_preference_loss_tolerance",
+    "Logs can reveal reasoning style, but they usually cannot prove how much drawdown, regret, volatility, or opportunity cost the user can tolerate.",
+    "Ask one concrete question about risk preference or loss tolerance, using the user's observed patterns as context."
+  );
+
+  if (!/\b(1 year|2 years|3 years|5 years|10 years|horizon|months|years|long term|short term)\b/i.test(text) || vector.time_horizon_clarity < 65) {
+    add(
+      "time_horizon",
+      "The evidence does not reliably pin down whether ideas are evaluated on a trading, multi-year, or owner-style horizon.",
+      "Ask the user to choose or describe the default horizon they actually intend for most public-equity decisions."
+    );
+  }
+
+  if (!/\b(concentrat|position|portfolio|allocation|size|sizing|drawdown|liquidity|cash)\b/i.test(text)) {
+    add(
+      "liquidity_concentration_constraints",
+      "Transcript evidence does not establish portfolio constraints, liquidity needs, or concentration comfort.",
+      "Ask about concentration comfort and any constraints that should shape process guardrails, without asking for or giving position-size advice."
+    );
+  }
+
+  if (patterns.includes("research_loop_extension") || vector.research_loop_tendency >= 60) {
+    add(
+      "decision_threshold",
+      "The profile shows a possible research-loop tendency, but the logs do not define what evidence is enough to stop researching and make a user-owned decision.",
+      "Ask what two or three variables would normally be enough to move from research to a decision review."
+    );
+  }
+
+  if (patterns.includes("narrative_to_action_jump") || vector.narrative_sensitivity >= 60) {
+    add(
+      "narrative_vs_price_threshold",
+      "The evidence suggests strong narrative construction, but it does not fully reveal when the user forces price, expectations, and falsification into the thesis.",
+      "Ask what check would slow the user down before a compelling story becomes an action candidate."
+    );
+  }
+
+  if (vector.contrarian_impulse >= 58) {
+    add(
+      "contrarian_consensus_definition",
+      "A contrarian-looking profile needs a clear definition of consensus, but logs may not show whether the user defines consensus rigorously.",
+      "Ask how the user proves consensus is wrong rather than merely feeling differentiated from consensus."
+    );
+  }
+
+  add(
+    "personal_non_observable_constraints",
+    "Some required calibration data is personal and cannot be inferred from logs, including tax, liquidity, employment, family, and psychological constraints.",
+    "Ask whether there are non-negotiable constraints the profile must respect, while avoiding financial advice."
+  );
+
+  return topics.slice(0, 6);
 }
 
 function selectGuardrails(patterns: string[], matches: ProfileMatch[]) {
@@ -1023,8 +1270,11 @@ function writeProfileArtifacts(outputDir: string, profile: InvestorProfile, now:
   writeFileSync(join(outputDir, "prompt_pack.md"), renderPromptPack(profile), "utf8");
   writeFileSync(join(outputDir, "InvestmentMirror.md"), renderInvestmentMirror(profile), "utf8");
   const html = renderProfileHtml(profile);
-  writeFileSync(join(outputDir, "profile.html"), html, "utf8");
-  writeFileSync(join(outputDir, "profile_history", `${todayStamp(now)}-${kind}.html`), html, "utf8");
+  writeFileSync(join(outputDir, "profile_draft.html"), html, "utf8");
+  writeFileSync(join(outputDir, "profile_history", `${todayStamp(now)}-${kind}-draft.html`), html, "utf8");
+  if (!existsSync(join(outputDir, "profile.html"))) {
+    writeFileSync(join(outputDir, "profile.html"), html, "utf8");
+  }
 }
 
 function writeDecisionArtifacts(review: DecisionReview, outputDir: string, writeLog: boolean) {
@@ -1176,6 +1426,120 @@ ${review.research_questions.map((question, index) => `${index + 1}. ${question}`
 `;
 }
 
+function renderProfileReportTemplate(profile: InvestorProfile) {
+  const primary = profile.best_fit_master_matches[0];
+  const secondary = profile.best_fit_master_matches[1];
+  return `<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Investment Mirror Model Profile</title>
+  ${sharedReportCss()}
+</head>
+<body>
+  <!--
+    Investment Mirror model report template.
+    The deterministic program provided evidence only. Codex/LLM must fill this template after asking 2-5 targeted interview questions and incorporating the user's answers.
+    Required final output path: profile.html
+    Required final JSON path: profile.json with synthesis_mode="llm_synthesized"
+  -->
+  <main class="page-shell model-template" data-template="investment-mirror-profile-v0.2">
+    <section class="hero-grid">
+      <div>
+        <p class="kicker">Investment Mirror</p>
+        <h1>{{model_positive_recognition_headline}}</h1>
+        <p class="lead">{{model_positive_recognition_summary}}</p>
+        <div class="confidence"><span>Model confidence</span><strong>{{model_confidence_percent}}</strong></div>
+      </div>
+      <article class="master-card primary">
+        <img src="${escapeHtml(primary.asset_path)}" alt="${escapeHtml(primary.display_name)} line-art portrait">
+        <div>
+          <p class="label">Primary best-fit master match</p>
+          <h2>{{primary_master_name}}</h2>
+          <p>{{model_master_match_rationale}}</p>
+          <a href="${escapeHtml(primary.read_more_url)}">Read more</a>
+        </div>
+      </article>
+    </section>
+
+    <section class="report-stack">
+      <article class="sheet">
+        <h2>What The Evidence Shows</h2>
+        <p>{{evidence_summary}}</p>
+      </article>
+      <article class="sheet offset">
+        <h2>What The Model Infers</h2>
+        <p>{{interpretation_summary}}</p>
+      </article>
+    </section>
+
+    <section class="section-grid">
+      <article>
+        <h2>Interview Calibration</h2>
+        <p>{{interview_questions_asked}}</p>
+        <p>{{interview_answers_summary}}</p>
+      </article>
+      <article>
+        <h2>Risk Preference And Constraints</h2>
+        <p>{{risk_preference_summary}}</p>
+        <p>{{time_horizon_summary}}</p>
+        <p>{{constraints_summary}}</p>
+      </article>
+    </section>
+
+    <section class="section-grid">
+      <article>
+        <h2>Decision Fingerprint</h2>
+        <p>{{model_decision_fingerprint_summary}}</p>
+      </article>
+      <article>
+        <h2>False-Match Warning</h2>
+        <p>{{false_match_warning}}</p>
+      </article>
+    </section>
+
+    <section>
+      <h2>Best-Fit Master Match / Style Avatar</h2>
+      ${renderMasterCard(primary)}
+      ${secondary ? renderMasterCard(secondary) : ""}
+    </section>
+
+    <section>
+      <h2>Guardrails To Make This Style Investable</h2>
+      <div class="guardrails">
+        ${profile.active_guardrails.map((guardrail) => `<article><span>${escapeHtml(guardrailName(guardrail))}</span><p>{{model_guardrail_${escapeHtml(guardrail)}_reason}}</p><ul>${(guardrailQuestions[guardrail] ?? []).map((question) => `<li>${escapeHtml(question)}</li>`).join("")}</ul></article>`).join("")}
+      </div>
+    </section>
+
+    <section>
+      <h2>Receipts Used</h2>
+      <div class="receipts">
+        ${profile.receipts.map((receipt) => `<details><summary>${escapeHtml(receipt.source_alias)} · ${escapeHtml(receipt.date)} · ${escapeHtml(receipt.evidence_tier)}</summary><p>${escapeHtml(receipt.summary)}</p></details>`).join("")}
+      </div>
+    </section>
+
+    <section class="section-grid">
+      <article>
+        <h2>Next Step</h2>
+        <p>{{recommended_next_step}}</p>
+      </article>
+      <article>
+        <h2>Local Memory</h2>
+        <dl>
+          <div><dt>Evidence packet</dt><dd>profile_evidence.json</dd></div>
+          <div><dt>Source index</dt><dd>source_index.sqlite</dd></div>
+          <div><dt>Draft artifact</dt><dd>profile_draft.html</dd></div>
+        </dl>
+      </article>
+    </section>
+
+    <footer>Investment Mirror does not provide investment, legal, tax, or financial advice. It structures your reasoning; you remain responsible for your decisions.</footer>
+  </main>
+</body>
+</html>`;
+}
+
 function renderProfileHtml(profile: InvestorProfile) {
   const primary = profile.best_fit_master_matches[0];
   const secondary = profile.best_fit_master_matches[1];
@@ -1193,6 +1557,10 @@ function renderProfileHtml(profile: InvestorProfile) {
 </head>
 <body>
   <main class="page-shell">
+    <section class="draft-banner">
+      <p class="kicker">Deterministic evidence draft</p>
+      <p>This artifact was generated by the local evidence compiler. The skill workflow must ask 2-5 targeted interview questions, synthesize the final profile with the model, and write the final report from <code>profile_report_template.html</code>.</p>
+    </section>
     <section class="hero-grid">
       <div>
         <p class="kicker">Investment Mirror</p>
@@ -1350,6 +1718,9 @@ function sharedReportCss() {
   body { margin:0; background:var(--paper); color:var(--ink); font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; line-height:1.55; }
   body::before { content:""; position:fixed; inset:0; pointer-events:none; opacity:.28; background-image: radial-gradient(var(--copper) .7px, transparent .7px); background-size: 18px 18px; mask-image: linear-gradient(140deg, transparent 0%, black 18%, transparent 70%); }
   .page-shell { width:min(1160px, calc(100% - 36px)); margin:0 auto; padding:42px 0 56px; }
+  .draft-banner { border:1px solid var(--copper); border-radius:8px; background:#fff8ef; padding:16px 18px; margin-bottom:22px; }
+  .draft-banner p:last-child { margin:0; color:var(--muted); }
+  code { font-family:ui-monospace, SFMono-Regular, Menlo, monospace; }
   .hero-grid { display:grid; grid-template-columns: 1.05fr .95fr; gap:32px; min-height: min(680px, calc(100dvh - 44px)); align-items:center; }
   .hero-grid.compact { min-height: 520px; }
   .kicker, .label { margin:0 0 16px; color:var(--copper); font:700 12px/1 ui-monospace, SFMono-Regular, Menlo, monospace; text-transform:uppercase; letter-spacing:.12em; }

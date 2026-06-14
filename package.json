@@ -7,6 +7,7 @@
   "scripts": {
     "im": "tsx skills/investment-mirror/scripts/investment_mirror_cli.ts",
     "generate:masters": "tsx tools/generate_master_corpus.ts",
+    "generate:master-assets": "python3 tools/build_imagegen_master_assets.py",
     "validate:skill": "python3 /Users/fuyuming/.codex/skills/.system/skill-creator/scripts/quick_validate.py skills/investment-mirror",
     "validate:registry": "tsx skills/investment-mirror/scripts/validate_investment_mirror.ts",
     "test": "node --import tsx --test tests/*.test.ts",

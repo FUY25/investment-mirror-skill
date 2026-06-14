@@ -62,7 +62,7 @@ test("discovers transcript sources and scores decision spans", () => {
   assert.ok(episodes.some((episode) => episode.patterns.includes("narrative_to_action_jump")));
 });
 
-test("generates a local profile with HTML, SQLite, guardrails, and master assets", () => {
+test("generates a local profile evidence packet, draft HTML, template, SQLite, guardrails, and master assets", () => {
   resetFixture();
   const output = join(root, "mirror");
   const result = generateInvestorProfile({
@@ -74,13 +74,28 @@ test("generates a local profile with HTML, SQLite, guardrails, and master assets
   });
   assert.ok(result.profile.best_fit_master_matches.length >= 1);
   assert.ok(result.profile.best_fit_master_matches.length <= 2);
+  assert.equal(result.profile.synthesis_mode, "deterministic_draft_requires_llm");
+  assert.equal(result.profile.llm_required, true);
+  assert.deepEqual(result.profile.interview_question_count, { min: 2, max: 5 });
+  assert.ok((result.profile.calibration_question_topics ?? []).some((topic) => topic.dimension === "risk_preference_loss_tolerance"));
   assert.ok(existsSync(join(output, "profile.json")));
+  assert.ok(existsSync(join(output, "profile_evidence.json")));
+  assert.ok(existsSync(join(output, "profile_synthesis_prompt.md")));
+  assert.ok(existsSync(join(output, "profile_report_template.html")));
   assert.ok(existsSync(join(output, "guardrails.yaml")));
   assert.ok(existsSync(join(output, "prompt_pack.md")));
   assert.ok(existsSync(join(output, "InvestmentMirror.md")));
+  assert.ok(existsSync(join(output, "profile_draft.html")));
   assert.ok(existsSync(join(output, "profile.html")));
   assert.ok(existsSync(join(output, "source_index.sqlite")));
-  const html = readFileSync(join(output, "profile.html"), "utf8");
+  const prompt = readFileSync(join(output, "profile_synthesis_prompt.md"), "utf8");
+  assert.match(prompt, /ask 2-5 interview questions/i);
+  assert.match(prompt, /profile_report_template\.html/);
+  const template = readFileSync(join(output, "profile_report_template.html"), "utf8");
+  assert.match(template, /model_positive_recognition_headline/);
+  assert.match(template, /risk_preference_summary/);
+  const html = readFileSync(join(output, "profile_draft.html"), "utf8");
+  assert.match(html, /Deterministic evidence draft/);
   assert.match(html, /Why This Match Is Good/);
   assert.match(html, /Guardrails To Make This Style Investable/);
   assert.doesNotMatch(html.slice(0, 1200), /P0|blocker|flaw/i);
@@ -106,6 +121,8 @@ test("profile init is idempotent when all sources are unchanged", () => {
   assert.equal(second.profile.source_summary.decision_episodes_found, first.profile.source_summary.decision_episodes_found);
   assert.deepEqual(second.profile.primary_patterns, first.profile.primary_patterns);
   assert.equal(second.profile.best_fit_master_matches[0].master_id, first.profile.best_fit_master_matches[0].master_id);
+  assert.ok(existsSync(join(output, "profile_evidence.json")));
+  assert.ok(existsSync(join(output, "profile_report_template.html")));
 });
 
 test("decision workflow works standalone and profile-aware without recommendations", () => {
@@ -164,5 +181,8 @@ test("active master registry has 30 complete active IDs", () => {
     assert.ok(existsSync(join("research", "masters", id, "style_notes.md")), id);
     assert.ok(existsSync(join("assets", "masters", `${id}.svg`)), id);
     assert.ok(existsSync(join("skills", "investment-mirror", "assets", "masters", `${id}.svg`)), id);
+    const svg = readFileSync(join("assets", "masters", `${id}.svg`), "utf8");
+    assert.match(svg, /imagegen_line_art/, id);
+    assert.doesNotMatch(svg, /source_photo_line_art/, id);
   }
 });

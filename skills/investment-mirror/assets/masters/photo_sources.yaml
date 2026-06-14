@@ -1,0 +1,306 @@
+version: '0.2'
+asset_kind: imagegen_line_art
+generation_tool: built-in imagegen
+notes: Assets are generated professional line-art portraits cropped from local imagegen triptych sheets. They are not deterministic
+  photo edge traces.
+masters:
+- master_id: warren_buffett
+  display_name: Warren Buffett
+  asset_kind: imagegen_line_art
+  wikipedia_url: https://en.wikipedia.org/wiki/Warren_Buffett
+  generated_sheet_path: assets/masters/imagegen_sheets/sheet_01_buffett_munger_lynch.jpg
+  sheet_position: 0
+  generation_tool: built-in imagegen
+  prompt_summary: Warren Buffett, Charlie Munger, and Peter Lynch in professional ink/copper report-line style.
+  source_note: Generated with built-in imagegen from a public-figure portrait prompt, then locally cropped into a finished
+    professional report-line asset.
+- master_id: charlie_munger
+  display_name: Charlie Munger
+  asset_kind: imagegen_line_art
+  wikipedia_url: https://en.wikipedia.org/wiki/Charlie_Munger
+  generated_sheet_path: assets/masters/imagegen_sheets/sheet_01_buffett_munger_lynch.jpg
+  sheet_position: 1
+  generation_tool: built-in imagegen
+  prompt_summary: Warren Buffett, Charlie Munger, and Peter Lynch in professional ink/copper report-line style.
+  source_note: Generated with built-in imagegen from a public-figure portrait prompt, then locally cropped into a finished
+    professional report-line asset.
+- master_id: peter_lynch
+  display_name: Peter Lynch
+  asset_kind: imagegen_line_art
+  wikipedia_url: https://en.wikipedia.org/wiki/Peter_Lynch
+  generated_sheet_path: assets/masters/imagegen_sheets/sheet_01_buffett_munger_lynch.jpg
+  sheet_position: 2
+  generation_tool: built-in imagegen
+  prompt_summary: Warren Buffett, Charlie Munger, and Peter Lynch in professional ink/copper report-line style.
+  source_note: Generated with built-in imagegen from a public-figure portrait prompt, then locally cropped into a finished
+    professional report-line asset.
+- master_id: benjamin_graham
+  display_name: Benjamin Graham
+  asset_kind: imagegen_line_art
+  wikipedia_url: https://en.wikipedia.org/wiki/Benjamin_Graham
+  generated_sheet_path: assets/masters/imagegen_sheets/sheet_02_graham_schloss_klarman.jpg
+  sheet_position: 0
+  generation_tool: built-in imagegen
+  prompt_summary: Benjamin Graham, Walter Schloss, and Seth Klarman in professional ink/copper report-line style.
+  source_note: Generated with built-in imagegen from a public-figure portrait prompt, then locally cropped into a finished
+    professional report-line asset.
+- master_id: walter_schloss
+  display_name: Walter Schloss
+  asset_kind: imagegen_line_art
+  wikipedia_url: https://en.wikipedia.org/wiki/Walter_Schloss
+  generated_sheet_path: assets/masters/imagegen_sheets/sheet_02_graham_schloss_klarman.jpg
+  sheet_position: 1
+  generation_tool: built-in imagegen
+  prompt_summary: Benjamin Graham, Walter Schloss, and Seth Klarman in professional ink/copper report-line style.
+  source_note: Generated with built-in imagegen from a public-figure portrait prompt, then locally cropped into a finished
+    professional report-line asset.
+- master_id: seth_klarman
+  display_name: Seth Klarman
+  asset_kind: imagegen_line_art
+  wikipedia_url: https://en.wikipedia.org/wiki/Seth_Klarman
+  generated_sheet_path: assets/masters/imagegen_sheets/sheet_02_graham_schloss_klarman.jpg
+  sheet_position: 2
+  generation_tool: built-in imagegen
+  prompt_summary: Benjamin Graham, Walter Schloss, and Seth Klarman in professional ink/copper report-line style.
+  source_note: Generated with built-in imagegen from a public-figure portrait prompt, then locally cropped into a finished
+    professional report-line asset.
+- master_id: li_lu
+  display_name: Li Lu / 李录
+  asset_kind: imagegen_line_art
+  wikipedia_url: https://en.wikipedia.org/wiki/Li_Lu
+  generated_sheet_path: assets/masters/imagegen_sheets/sheet_03_li_lu_duan_fisher.jpg
+  sheet_position: 0
+  generation_tool: built-in imagegen
+  prompt_summary: Li Lu, Duan Yongping, and Philip Fisher in professional ink/copper report-line style.
+  source_note: Generated with built-in imagegen from a public-figure portrait prompt, then locally cropped into a finished
+    professional report-line asset.
+- master_id: duan_yongping
+  display_name: Duan Yongping / 段永平
+  asset_kind: imagegen_line_art
+  wikipedia_url: https://en.wikipedia.org/wiki/Duan_Yongping
+  generated_sheet_path: assets/masters/imagegen_sheets/sheet_03_li_lu_duan_fisher.jpg
+  sheet_position: 1
+  generation_tool: built-in imagegen
+  prompt_summary: Li Lu, Duan Yongping, and Philip Fisher in professional ink/copper report-line style.
+  source_note: Generated with built-in imagegen from a public-figure portrait prompt, then locally cropped into a finished
+    professional report-line asset.
+- master_id: philip_fisher
+  display_name: Philip Fisher
+  asset_kind: imagegen_line_art
+  wikipedia_url: https://en.wikipedia.org/wiki/Philip_Arthur_Fisher
+  generated_sheet_path: assets/masters/imagegen_sheets/sheet_03_li_lu_duan_fisher.jpg
+  sheet_position: 2
+  generation_tool: built-in imagegen
+  prompt_summary: Li Lu, Duan Yongping, and Philip Fisher in professional ink/copper report-line style.
+  source_note: Generated with built-in imagegen from a public-figure portrait prompt, then locally cropped into a finished
+    professional report-line asset.
+- master_id: t_rowe_price_jr
+  display_name: T. Rowe Price Jr.
+  asset_kind: imagegen_line_art
+  wikipedia_url: https://en.wikipedia.org/wiki/Thomas_Rowe_Price_Jr.
+  generated_sheet_path: assets/masters/imagegen_sheets/sheet_04_trowe_terry_marks.jpg
+  sheet_position: 0
+  generation_tool: built-in imagegen
+  prompt_summary: T. Rowe Price Jr., Terry Smith, and Howard Marks in professional ink/copper report-line style.
+  source_note: Generated with built-in imagegen from a public-figure portrait prompt, then locally cropped into a finished
+    professional report-line asset.
+- master_id: terry_smith
+  display_name: Terry Smith
+  asset_kind: imagegen_line_art
+  wikipedia_url: https://en.wikipedia.org/wiki/Terry_Smith_(fund_manager)
+  generated_sheet_path: assets/masters/imagegen_sheets/sheet_04_trowe_terry_marks.jpg
+  sheet_position: 1
+  generation_tool: built-in imagegen
+  prompt_summary: T. Rowe Price Jr., Terry Smith, and Howard Marks in professional ink/copper report-line style.
+  source_note: Generated with built-in imagegen from a public-figure portrait prompt, then locally cropped into a finished
+    professional report-line asset.
+- master_id: howard_marks
+  display_name: Howard Marks
+  asset_kind: imagegen_line_art
+  wikipedia_url: https://en.wikipedia.org/wiki/Howard_Marks_(investor)
+  generated_sheet_path: assets/masters/imagegen_sheets/sheet_04_trowe_terry_marks.jpg
+  sheet_position: 2
+  generation_tool: built-in imagegen
+  prompt_summary: T. Rowe Price Jr., Terry Smith, and Howard Marks in professional ink/copper report-line style.
+  source_note: Generated with built-in imagegen from a public-figure portrait prompt, then locally cropped into a finished
+    professional report-line asset.
+- master_id: john_templeton
+  display_name: John Templeton
+  asset_kind: imagegen_line_art
+  wikipedia_url: https://en.wikipedia.org/wiki/John_Templeton
+  generated_sheet_path: assets/masters/imagegen_sheets/sheet_05_templeton_grantham_burry.jpg
+  sheet_position: 0
+  generation_tool: built-in imagegen
+  prompt_summary: John Templeton, Jeremy Grantham, and Michael Burry in professional ink/copper report-line style.
+  source_note: Generated with built-in imagegen from a public-figure portrait prompt, then locally cropped into a finished
+    professional report-line asset.
+- master_id: jeremy_grantham
+  display_name: Jeremy Grantham
+  asset_kind: imagegen_line_art
+  wikipedia_url: https://en.wikipedia.org/wiki/Jeremy_Grantham
+  generated_sheet_path: assets/masters/imagegen_sheets/sheet_05_templeton_grantham_burry.jpg
+  sheet_position: 1
+  generation_tool: built-in imagegen
+  prompt_summary: John Templeton, Jeremy Grantham, and Michael Burry in professional ink/copper report-line style.
+  source_note: Generated with built-in imagegen from a public-figure portrait prompt, then locally cropped into a finished
+    professional report-line asset.
+- master_id: michael_burry
+  display_name: Michael Burry
+  asset_kind: imagegen_line_art
+  wikipedia_url: https://en.wikipedia.org/wiki/Michael_Burry
+  generated_sheet_path: assets/masters/imagegen_sheets/sheet_05_templeton_grantham_burry.jpg
+  sheet_position: 2
+  generation_tool: built-in imagegen
+  prompt_summary: John Templeton, Jeremy Grantham, and Michael Burry in professional ink/copper report-line style.
+  source_note: Generated with built-in imagegen from a public-figure portrait prompt, then locally cropped into a finished
+    professional report-line asset.
+- master_id: george_soros
+  display_name: George Soros
+  asset_kind: imagegen_line_art
+  wikipedia_url: https://en.wikipedia.org/wiki/George_Soros
+  generated_sheet_path: assets/masters/imagegen_sheets/sheet_06_soros_druckenmiller_tudorjones.jpg
+  sheet_position: 0
+  generation_tool: built-in imagegen
+  prompt_summary: George Soros, Stanley Druckenmiller, and Paul Tudor Jones in professional ink/copper report-line style.
+  source_note: Generated with built-in imagegen from a public-figure portrait prompt, then locally cropped into a finished
+    professional report-line asset.
+- master_id: stanley_druckenmiller
+  display_name: Stanley Druckenmiller
+  asset_kind: imagegen_line_art
+  wikipedia_url: https://en.wikipedia.org/wiki/Stanley_Druckenmiller
+  generated_sheet_path: assets/masters/imagegen_sheets/sheet_06_soros_druckenmiller_tudorjones.jpg
+  sheet_position: 1
+  generation_tool: built-in imagegen
+  prompt_summary: George Soros, Stanley Druckenmiller, and Paul Tudor Jones in professional ink/copper report-line style.
+  source_note: Generated with built-in imagegen from a public-figure portrait prompt, then locally cropped into a finished
+    professional report-line asset.
+- master_id: paul_tudor_jones
+  display_name: Paul Tudor Jones
+  asset_kind: imagegen_line_art
+  wikipedia_url: https://en.wikipedia.org/wiki/Paul_Tudor_Jones
+  generated_sheet_path: assets/masters/imagegen_sheets/sheet_06_soros_druckenmiller_tudorjones.jpg
+  sheet_position: 2
+  generation_tool: built-in imagegen
+  prompt_summary: George Soros, Stanley Druckenmiller, and Paul Tudor Jones in professional ink/copper report-line style.
+  source_note: Generated with built-in imagegen from a public-figure portrait prompt, then locally cropped into a finished
+    professional report-line asset.
+- master_id: jesse_livermore
+  display_name: Jesse Livermore
+  asset_kind: imagegen_line_art
+  wikipedia_url: https://en.wikipedia.org/wiki/Jesse_Livermore
+  generated_sheet_path: assets/masters/imagegen_sheets/sheet_07_livermore_dalio_bogle.jpg
+  sheet_position: 0
+  generation_tool: built-in imagegen
+  prompt_summary: Jesse Livermore, Ray Dalio, and John C. Bogle in professional ink/copper report-line style.
+  source_note: Generated with built-in imagegen from a public-figure portrait prompt, then locally cropped into a finished
+    professional report-line asset.
+- master_id: ray_dalio
+  display_name: Ray Dalio
+  asset_kind: imagegen_line_art
+  wikipedia_url: https://en.wikipedia.org/wiki/Ray_Dalio
+  generated_sheet_path: assets/masters/imagegen_sheets/sheet_07_livermore_dalio_bogle.jpg
+  sheet_position: 1
+  generation_tool: built-in imagegen
+  prompt_summary: Jesse Livermore, Ray Dalio, and John C. Bogle in professional ink/copper report-line style.
+  source_note: Generated with built-in imagegen from a public-figure portrait prompt, then locally cropped into a finished
+    professional report-line asset.
+- master_id: john_bogle
+  display_name: John C. Bogle
+  asset_kind: imagegen_line_art
+  wikipedia_url: https://en.wikipedia.org/wiki/John_C._Bogle
+  generated_sheet_path: assets/masters/imagegen_sheets/sheet_07_livermore_dalio_bogle.jpg
+  sheet_position: 2
+  generation_tool: built-in imagegen
+  prompt_summary: Jesse Livermore, Ray Dalio, and John C. Bogle in professional ink/copper report-line style.
+  source_note: Generated with built-in imagegen from a public-figure portrait prompt, then locally cropped into a finished
+    professional report-line asset.
+- master_id: jim_simons
+  display_name: Jim Simons
+  asset_kind: imagegen_line_art
+  wikipedia_url: https://en.wikipedia.org/wiki/Jim_Simons_(mathematician)
+  generated_sheet_path: assets/masters/imagegen_sheets/sheet_08_simons_thorp_asness.jpg
+  sheet_position: 0
+  generation_tool: built-in imagegen
+  prompt_summary: Jim Simons, Edward O. Thorp, and Cliff Asness in professional ink/copper report-line style.
+  source_note: Generated with built-in imagegen from a public-figure portrait prompt, then locally cropped into a finished
+    professional report-line asset.
+- master_id: edward_thorp
+  display_name: Edward O. Thorp
+  asset_kind: imagegen_line_art
+  wikipedia_url: https://en.wikipedia.org/wiki/Edward_O._Thorp
+  generated_sheet_path: assets/masters/imagegen_sheets/sheet_08_simons_thorp_asness.jpg
+  sheet_position: 1
+  generation_tool: built-in imagegen
+  prompt_summary: Jim Simons, Edward O. Thorp, and Cliff Asness in professional ink/copper report-line style.
+  source_note: Generated with built-in imagegen from a public-figure portrait prompt, then locally cropped into a finished
+    professional report-line asset.
+- master_id: cliff_asness
+  display_name: Cliff Asness
+  asset_kind: imagegen_line_art
+  wikipedia_url: https://en.wikipedia.org/wiki/Cliff_Asness
+  generated_sheet_path: assets/masters/imagegen_sheets/sheet_08_simons_thorp_asness.jpg
+  sheet_position: 2
+  generation_tool: built-in imagegen
+  prompt_summary: Jim Simons, Edward O. Thorp, and Cliff Asness in professional ink/copper report-line style.
+  source_note: Generated with built-in imagegen from a public-figure portrait prompt, then locally cropped into a finished
+    professional report-line asset.
+- master_id: eugene_fama
+  display_name: Eugene Fama
+  asset_kind: imagegen_line_art
+  wikipedia_url: https://en.wikipedia.org/wiki/Eugene_Fama
+  generated_sheet_path: assets/masters/imagegen_sheets/sheet_09_fama_icahn_ackman.jpg
+  sheet_position: 0
+  generation_tool: built-in imagegen
+  prompt_summary: Eugene Fama, Carl Icahn, and Bill Ackman in professional ink/copper report-line style.
+  source_note: Generated with built-in imagegen from a public-figure portrait prompt, then locally cropped into a finished
+    professional report-line asset.
+- master_id: carl_icahn
+  display_name: Carl Icahn
+  asset_kind: imagegen_line_art
+  wikipedia_url: https://en.wikipedia.org/wiki/Carl_Icahn
+  generated_sheet_path: assets/masters/imagegen_sheets/sheet_09_fama_icahn_ackman.jpg
+  sheet_position: 1
+  generation_tool: built-in imagegen
+  prompt_summary: Eugene Fama, Carl Icahn, and Bill Ackman in professional ink/copper report-line style.
+  source_note: Generated with built-in imagegen from a public-figure portrait prompt, then locally cropped into a finished
+    professional report-line asset.
+- master_id: bill_ackman
+  display_name: Bill Ackman
+  asset_kind: imagegen_line_art
+  wikipedia_url: https://en.wikipedia.org/wiki/Bill_Ackman
+  generated_sheet_path: assets/masters/imagegen_sheets/sheet_09_fama_icahn_ackman.jpg
+  sheet_position: 2
+  generation_tool: built-in imagegen
+  prompt_summary: Eugene Fama, Carl Icahn, and Bill Ackman in professional ink/copper report-line style.
+  source_note: Generated with built-in imagegen from a public-figure portrait prompt, then locally cropped into a finished
+    professional report-line asset.
+- master_id: joel_greenblatt
+  display_name: Joel Greenblatt
+  asset_kind: imagegen_line_art
+  wikipedia_url: https://en.wikipedia.org/wiki/Joel_Greenblatt
+  generated_sheet_path: assets/masters/imagegen_sheets/sheet_10_greenblatt_gross_swensen.jpg
+  sheet_position: 0
+  generation_tool: built-in imagegen
+  prompt_summary: Joel Greenblatt, Bill Gross, and David Swensen in professional ink/copper report-line style.
+  source_note: Generated with built-in imagegen from a public-figure portrait prompt, then locally cropped into a finished
+    professional report-line asset.
+- master_id: bill_gross
+  display_name: Bill Gross
+  asset_kind: imagegen_line_art
+  wikipedia_url: https://en.wikipedia.org/wiki/Bill_Gross
+  generated_sheet_path: assets/masters/imagegen_sheets/sheet_10_greenblatt_gross_swensen.jpg
+  sheet_position: 1
+  generation_tool: built-in imagegen
+  prompt_summary: Joel Greenblatt, Bill Gross, and David Swensen in professional ink/copper report-line style.
+  source_note: Generated with built-in imagegen from a public-figure portrait prompt, then locally cropped into a finished
+    professional report-line asset.
+- master_id: david_swensen
+  display_name: David Swensen
+  asset_kind: imagegen_line_art
+  wikipedia_url: https://en.wikipedia.org/wiki/David_F._Swensen
+  generated_sheet_path: assets/masters/imagegen_sheets/sheet_10_greenblatt_gross_swensen.jpg
+  sheet_position: 2
+  generation_tool: built-in imagegen
+  prompt_summary: Joel Greenblatt, Bill Gross, and David Swensen in professional ink/copper report-line style.
+  source_note: Generated with built-in imagegen from a public-figure portrait prompt, then locally cropped into a finished
+    professional report-line asset.
