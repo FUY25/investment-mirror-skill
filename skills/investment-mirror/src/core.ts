@@ -681,9 +681,22 @@ export function generateInvestorProfile(options: ProfileInitOptions = {}) {
   ensureDir(outputDir);
   ensureDir(join(outputDir, "profile_history"));
   ensureDir(join(outputDir, "decisions"));
+  const existingProfile = readJson<InvestorProfile | null>(join(outputDir, "profile.json"), null);
   const sources = discoverSources(options);
   buildSourceManifest(sources, outputDir);
   const changedSources = sources.filter((source) => source.status !== "unchanged" || options.reindex);
+  if (!options.reindex && existingProfile && changedSources.length === 0) {
+    const preservedProfile: InvestorProfile = {
+      ...existingProfile,
+      updated_at: iso(now),
+      source_summary: {
+        ...existingProfile.source_summary,
+        conversations_scanned: sources.length
+      }
+    };
+    writeProfileArtifacts(outputDir, preservedProfile, now, "profile");
+    return { profile: preservedProfile, sources, turns: [], spans: [], episodes: [], outputDir };
+  }
   const turns = changedSources.flatMap(parseSource);
   const spans = buildCandidateSpans(turns);
   const sampled = sampleCandidateEpisodes(spans, changedSources);

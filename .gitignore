@@ -1,6 +1,7 @@
 node_modules/
 .DS_Store
 .investment-mirror-test/
+.new-thread-profile-init/
 coverage/
 dist/
 *.log

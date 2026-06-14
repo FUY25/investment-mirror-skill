@@ -86,6 +86,28 @@ test("generates a local profile with HTML, SQLite, guardrails, and master assets
   assert.doesNotMatch(html.slice(0, 1200), /P0|blocker|flaw/i);
 });
 
+test("profile init is idempotent when all sources are unchanged", () => {
+  resetFixture();
+  const output = join(root, "mirror-idempotent");
+  const first = generateInvestorProfile({
+    output,
+    include: [join(root, ".codex", "sessions"), join(root, ".claude", "projects")],
+    exclude: [join(process.env.HOME ?? "", ".codex"), join(process.env.HOME ?? "", ".claude")],
+    reindex: true,
+    now: new Date("2026-06-13T12:00:00Z")
+  });
+  assert.ok(first.profile.source_summary.decision_episodes_found > 0);
+  const second = generateInvestorProfile({
+    output,
+    include: [join(root, ".codex", "sessions"), join(root, ".claude", "projects")],
+    exclude: [join(process.env.HOME ?? "", ".codex"), join(process.env.HOME ?? "", ".claude")],
+    now: new Date("2026-06-13T13:00:00Z")
+  });
+  assert.equal(second.profile.source_summary.decision_episodes_found, first.profile.source_summary.decision_episodes_found);
+  assert.deepEqual(second.profile.primary_patterns, first.profile.primary_patterns);
+  assert.equal(second.profile.best_fit_master_matches[0].master_id, first.profile.best_fit_master_matches[0].master_id);
+});
+
 test("decision workflow works standalone and profile-aware without recommendations", () => {
   resetFixture();
   const output = join(root, "mirror-decision");
