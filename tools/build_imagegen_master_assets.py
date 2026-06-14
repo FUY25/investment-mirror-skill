@@ -154,6 +154,8 @@ def write_metadata(entries: list[dict[str, object]]) -> None:
         "asset_kind": ASSET_KIND,
         "generation_tool": "built-in imagegen",
         "notes": "Assets are generated professional line-art portraits cropped from local imagegen triptych sheets. They are not deterministic photo edge traces.",
+        "served_base_url": "https://raw.githubusercontent.com/FUY25/investment-mirror-skill/main/assets/masters",
+        "provenance_note": "generated_sheet_path and sheet_position are build-time provenance only (the local source sheet a portrait was cropped from); they are not runtime or served paths. At runtime portraits are fetched on demand from served_base_url and inlined into artifacts.",
         "masters": entries,
     }
     for directory in ASSET_DIRS:

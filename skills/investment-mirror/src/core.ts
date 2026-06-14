@@ -755,7 +755,12 @@ export function classifyDecisionEpisodes(spans: CandidateSpan[], turns: TurnReco
 function detectPatterns(text: string, spanType: CandidateSpan["span_type"]) {
   const lower = text.toLowerCase();
   const patterns = new Set<string>();
-  if (spanType === "investment" || /thesis|idea|because|why|trend|future|ai|robotaxi|platform|market/.test(lower)) patterns.add("thesis_first_reasoning");
+  // thesis_first_reasoning is a candidate hint only. Require co-occurrence of a
+  // thesis/idea anchor with a forward-looking claim rather than firing on any
+  // generic token (market|ai|because|why), which made it near-constant (D4).
+  const thesisAnchor = /\b(thesis|idea|conviction|bull case|the case for|i (?:believe|think|want to (?:buy|own|invest)))\b/.test(lower);
+  const forwardClaim = /\b(will|could|should|going to|about to|future|long[- ]?term|secular|massive|huge|inevitable|unlock|multi[- ]?bagger|10x|growth curve|compounding)\b/.test(lower);
+  if (thesisAnchor && forwardClaim) patterns.add("thesis_first_reasoning");
   if (/(buy|add|position|invest|stock|equity).{0,80}(ai|tam|robotaxi|platform|disrupt|massive|secular|theme|trend)|(?:ai|tam|robotaxi|platform|disrupt|theme).{0,80}(buy|stock|position|invest)/.test(lower)) patterns.add("narrative_to_action_jump");
   if (/more research|keep researching|another source|dig deeper|expand scope|comprehensive|exhaustive/.test(lower)) patterns.add("research_loop_extension");
   if (/market is wrong|mispriced|underpricing|consensus|contrarian|everyone thinks|street/.test(lower)) patterns.add("contrarian_impulse");

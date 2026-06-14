@@ -1,3 +1,4 @@
+# Validated against src/master_data.ts by `npm run validate:registry`; not read at runtime.
 version: "0.2"
 scale: 0 to 100, where higher means closer to the high-end label in style_dimensions.yaml
 masters:

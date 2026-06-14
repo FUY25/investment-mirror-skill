@@ -15,6 +15,9 @@ function yaml(data: unknown) {
   return YAML.stringify(data, { lineWidth: 0, doubleQuotedAsJSON: false });
 }
 
+// Configs are reference/validation artifacts, not runtime inputs.
+const CONFIG_BANNER = "# Validated against src/master_data.ts by `npm run validate:registry`; not read at runtime.\n";
+
 function sourceUrls(masterId: string, predicate: (quality: string) => boolean) {
   const master = MASTER_RECORDS.find((record) => record.id === masterId);
   if (!master) return [];
@@ -270,10 +273,10 @@ for (const master of MASTER_RECORDS) {
   }
 }
 
-write("skills/investment-mirror/config/master_registry.yaml", renderRegistry());
-write("skills/investment-mirror/config/master_style_vectors.yaml", renderStyleVectors());
-write("skills/investment-mirror/config/master_guardrail_rules.yaml", renderMasterGuardrails());
-write("skills/investment-mirror/config/style_dimensions.yaml", renderStyleDimensions());
+write("skills/investment-mirror/config/master_registry.yaml", CONFIG_BANNER + renderRegistry());
+write("skills/investment-mirror/config/master_style_vectors.yaml", CONFIG_BANNER + renderStyleVectors());
+write("skills/investment-mirror/config/master_guardrail_rules.yaml", CONFIG_BANNER + renderMasterGuardrails());
+write("skills/investment-mirror/config/style_dimensions.yaml", CONFIG_BANNER + renderStyleDimensions());
 write("skills/investment-mirror/references/source_quality.md", `# Source Quality Semantics
 
 Investment Mirror stores both source type and source-quality tier for master research.

@@ -1,3 +1,4 @@
+# Validated against src/master_data.ts by `npm run validate:registry`; not read at runtime.
 version: "0.2"
 dimensions:
   - id: narrative_sensitivity

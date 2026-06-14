@@ -1,3 +1,4 @@
+# Validated against src/master_data.ts by `npm run validate:registry`; not read at runtime.
 version: "0.2"
 notes: Map master learning archetypes to guardrail relevance. These are process guardrails, not investment recommendations.
 masters:

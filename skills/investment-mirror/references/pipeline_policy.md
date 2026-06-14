@@ -50,6 +50,29 @@ Forbidden deterministic work:
 15. **Agent/LLM final content**: generate structured final profile content from the synthesized profile. Use `profile_report_template.html` as a visual reference specimen only.
 16. **Deterministic finalizer**: run `profile-finalize --synthesis ... --questions ... --answers-summary ... --content ...` to validate safety/schema/provenance, render canonical HTML, and write `profile.json` and `profile.html`.
 
+## Runtime Entry and Per-Phase Scripts
+
+There is exactly **one runtime entry point**: the committed plain-node bundle
+`scripts/cli.mjs` (subcommands `profile-init`, `profile-update`,
+`profile-finalize`, `decision`, `mirror-ask`, `discover-sources`). It runs with
+`node` + `python3` only — no `tsx`, no `npm install`. Rebuild it with
+`npm run build:cli` after editing `scripts/investment_mirror_cli.ts` or
+`src/*.ts`.
+
+The other `scripts/*.ts` files (`discover_sources.ts`, `build_source_manifest.ts`,
+`parse_transcript_adapters.ts`, `redact_sensitive.ts`, `build_transcript_index.ts`,
+`score_decision_spans.ts`, `collect_candidate_ledger.ts`,
+`classify_decision_episodes.ts`, `aggregate_decision_patterns.ts`,
+`match_master_styles.ts`, `run_calibration_interview.ts`, `finalize_profile.ts`,
+`generate_investor_profile.ts`, `lint_investment_decision.ts`,
+`generate_prompt_pack.ts`, `update_investment_mirror.ts`, `render_profile_html.ts`,
+`render_decision_html.ts`) are the spec §6.3 **per-phase source wrappers**. They
+are thin re-exports of the same `src/core.ts` functions the CLI uses (so they
+cannot drift in behavior) and exist as documentation of the pipeline phases.
+They are dev/source-level helpers (run with `tsx`), not the shipped runtime path;
+use `scripts/cli.mjs` at runtime. `sqlite_bridge.py` and `query_source_index.py`
+are the Python helpers invoked by the core.
+
 ## Candidate Evidence Language
 
 Use these labels in deterministic outputs:
