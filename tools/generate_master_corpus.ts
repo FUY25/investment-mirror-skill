@@ -264,9 +264,9 @@ for (const master of MASTER_RECORDS) {
   write(`research/masters/${master.id}/sources.yaml`, sourcesYaml(master.id));
   write(`research/masters/${master.id}/style_notes.md`, styleNotesMarkdown(master.id));
   if (!preserveImagegenAsset(master.id)) {
-    const svg = portraitSvg(master.id);
-    write(`assets/masters/${master.id}.svg`, svg);
-    write(`skills/investment-mirror/assets/masters/${master.id}.svg`, svg);
+    // Only the repo-root copy is canonical; it is served via raw URL and fetched
+    // on demand. The shipped skill carries no portrait bytes (Group C).
+    write(`assets/masters/${master.id}.svg`, portraitSvg(master.id));
   }
 }
 

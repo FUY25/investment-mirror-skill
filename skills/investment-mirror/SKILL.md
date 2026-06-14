@@ -72,16 +72,24 @@ Runtime user memory lives under the output directory, normally `~/.investment-mi
 - `InvestmentMirror.md`
 - `source_index.sqlite`
 - `decision_log.jsonl`
-- `decisions/*.md`, `decisions/*.json`, `decisions/*.html`
+- `decisions/*.md`, `decisions/*.json`, `decisions/*.html` (bare lints under `decisions/drafts/`)
 - `profile_history/*`
+- `.asset_cache/masters/{master_id}.svg` (on-demand portrait cache)
 
-Product assets and generated config live in the skill repo:
+Master portraits are **not** bundled in the shipped skill. They are fetched on
+demand at render time from `${INVESTMENT_MIRROR_ASSET_BASE_URL}` (default
+`https://raw.githubusercontent.com/FUY25/investment-mirror-skill/main/assets/masters/{master_id}.svg`),
+cached under the output dir, and inlined as a `data:` URI so saved HTML stays
+self-contained. If a portrait cannot be fetched (offline/sandbox/404), the
+master card renders without it — `profile-finalize` and `decision` never fail on
+asset resolution.
 
-- `skills/investment-mirror/config/*.yaml`
+Generated config and source-of-truth content live in the repo:
+
+- `skills/investment-mirror/config/*.yaml` (validated against runtime; not read at runtime)
 - `skills/investment-mirror/references/*.md`
 - `research/masters/{master_id}/`
-- `assets/masters/{master_id}.svg`
-- `skills/investment-mirror/assets/masters/{master_id}.svg`
+- `assets/masters/{master_id}.svg` (repo-root canonical copies served via raw URL)
 
 The runtime source of truth for active masters is `skills/investment-mirror/src/master_data.ts`; YAML config and research files are validated against it by `npm run validate:registry`.
 

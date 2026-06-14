@@ -2,7 +2,12 @@ import assert from "node:assert/strict";
 import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
+import { pathToFileURL } from "node:url";
 import test from "node:test";
+
+// Offline-safe asset resolution: point portrait fetches at the local repo-root
+// SVGs via a file:// base URL so tests never touch the network (C5).
+process.env.INVESTMENT_MIRROR_ASSET_BASE_URL = pathToFileURL(resolve("assets/masters")).href;
 import {
   __hashFileReadCount,
   __resetHashFileReadCount,
@@ -491,6 +496,51 @@ test("zero discovered sources returns an explicit needs-sources state, not a mas
   assert.equal(state.state, "needs_sources");
 });
 
+test("master portraits are fetched on demand, cached, and inlined into the artifact", () => {
+  resetFixture();
+  const output = join(root, "mirror-assets");
+  generateInvestorProfile({
+    output,
+    include: [join(root, ".codex", "sessions"), join(root, ".claude", "projects")],
+    exclude: [join(process.env.HOME ?? "", ".codex"), join(process.env.HOME ?? "", ".claude")],
+    reindex: true,
+    now: new Date("2026-06-13T12:00:00Z")
+  });
+  const result = finalizeFixture(output);
+  const masterId = result.profile.best_fit_master_matches[0].master_id;
+  const html = readFileSync(join(output, "profile.html"), "utf8");
+  // Portrait is inlined as a self-contained data: URI, not a sidecar path.
+  assert.match(html, /data:image\/svg\+xml;base64,/);
+  // Resolved bytes are cached locally for reuse on the next render.
+  assert.ok(existsSync(join(output, ".asset_cache", "masters", `${masterId}.svg`)));
+  // No sidecar .assets dir is created.
+  assert.equal(existsSync(join(output, "profile.assets")), false);
+});
+
+test("offline asset failure degrades gracefully without crashing the render", () => {
+  resetFixture();
+  const output = join(root, "mirror-offline");
+  const previous = process.env.INVESTMENT_MIRROR_ASSET_BASE_URL;
+  // Point at a nonexistent local fixture so resolution always fails.
+  process.env.INVESTMENT_MIRROR_ASSET_BASE_URL = pathToFileURL(join(root, "no-such-assets")).href;
+  try {
+    generateInvestorProfile({
+      output,
+      include: [join(root, ".codex", "sessions"), join(root, ".claude", "projects")],
+      exclude: [join(process.env.HOME ?? "", ".codex"), join(process.env.HOME ?? "", ".claude")],
+      reindex: true,
+      now: new Date("2026-06-13T12:00:00Z")
+    });
+    const result = finalizeFixture(output);
+    assert.equal(result.profile.profile_state, "finalized");
+    const html = readFileSync(join(output, "profile.html"), "utf8");
+    assert.doesNotMatch(html, /data:image\/svg\+xml;base64,/);
+    assert.match(html, /master-portrait-fallback/);
+  } finally {
+    process.env.INVESTMENT_MIRROR_ASSET_BASE_URL = previous;
+  }
+});
+
 test("active master registry has 30 complete active IDs", () => {
   assert.equal(ACTIVE_MASTER_IDS.length, 30);
   for (const id of ACTIVE_MASTER_IDS) {
@@ -498,9 +548,10 @@ test("active master registry has 30 complete active IDs", () => {
     assert.ok(existsSync(join("research", "masters", id, "sources.yaml")), id);
     assert.ok(existsSync(join("research", "masters", id, "style_notes.md")), id);
     assert.ok(existsSync(join("assets", "masters", `${id}.svg`)), id);
-    assert.ok(existsSync(join("skills", "investment-mirror", "assets", "masters", `${id}.svg`)), id);
     const svg = readFileSync(join("assets", "masters", `${id}.svg`), "utf8");
     assert.match(svg, /imagegen_line_art/, id);
     assert.doesNotMatch(svg, /source_photo_line_art/, id);
   }
+  // The shipped skill must carry no portrait bytes (fetched on demand).
+  assert.equal(existsSync(join("skills", "investment-mirror", "assets", "masters")), false);
 });

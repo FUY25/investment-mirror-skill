@@ -1,5 +1,5 @@
 import { createHash } from "node:crypto";
-import { existsSync, mkdirSync, readFileSync, readdirSync, statSync, writeFileSync, copyFileSync, appendFileSync, unlinkSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync, readdirSync, statSync, writeFileSync, appendFileSync, unlinkSync } from "node:fs";
 import { homedir } from "node:os";
 import { basename, dirname, extname, join, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -1140,9 +1140,8 @@ export function finalizeProfile(options: FinalizeProfileOptions) {
   delete (finalProfile as Record<string, unknown>).final_profile_content_path;
   delete (finalProfile as Record<string, unknown>).final_model_html_path;
   validateProfileSafety(finalProfile);
-  const finalHtml = finalContent ? renderFinalProfileHtml(finalProfile, finalContent) : loadLegacyFinalProfileHtml(options, synthesized);
+  const finalHtml = finalContent ? renderFinalProfileHtml(finalProfile, finalContent, outputDir) : loadLegacyFinalProfileHtml(options, synthesized);
   validateFinalProfileHtml(finalHtml, provisional);
-  copyMasterAssets(finalProfile, outputDir);
   writeJson(join(outputDir, "profile.json"), finalProfile);
   writeJson(join(outputDir, "profile_history", `${todayStamp(now)}-${finalProfile.profile_state}-profile.json`), finalProfile);
   writeFileSync(join(outputDir, "profile.html"), finalHtml, "utf8");
@@ -1448,7 +1447,7 @@ function writeProfileSynthesisArtifacts(outputDir: string, profile: InvestorProf
   writeJson(join(outputDir, "profile_evidence.json"), packet);
   writeFileSync(join(outputDir, "profile_synthesis_prompt.md"), renderProfileSynthesisPrompt(packet), "utf8");
   writeJson(join(outputDir, "profile_finalization_schema.json"), profileFinalizationSchema());
-  writeFileSync(join(outputDir, "profile_report_template.html"), renderProfileReportTemplate(profile), "utf8");
+  writeFileSync(join(outputDir, "profile_report_template.html"), renderProfileReportTemplate(profile, outputDir), "utf8");
 }
 
 function renderProfileSynthesisPrompt(packet: ProfileEvidencePacket) {
@@ -2093,7 +2092,6 @@ function queryRedactedTurnEvidence(outputDir: string, terms: string[]): MirrorMe
 }
 
 function writeCandidateProfileArtifacts(outputDir: string, profile: InvestorProfile, now: Date, kind: "profile" | "update") {
-  copyMasterAssets(profile, outputDir);
   writeJson(join(outputDir, "profile_candidate_inputs.json"), profile);
   writeJson(join(outputDir, "profile_history", `${todayStamp(now)}-${kind}-candidate-inputs.json`), profile);
   writeProfileState(outputDir, "interview_required", now, "Deterministic evidence compilation completed; agent/LLM interview and synthesis are required before final profile files can be written.");
@@ -2110,14 +2108,13 @@ function writeCandidateProfileArtifacts(outputDir: string, profile: InvestorProf
   }), "utf8");
   writeFileSync(join(outputDir, "prompt_pack.md"), renderPromptPack(profile), "utf8");
   writeFileSync(join(outputDir, "InvestmentMirror.md"), renderInvestmentMirror(profile), "utf8");
-  const html = renderProfileCandidateReportHtml(profile);
+  const html = renderProfileCandidateReportHtml(profile, outputDir);
   writeFileSync(join(outputDir, "profile_candidate_report.html"), html, "utf8");
   writeFileSync(join(outputDir, "profile_history", `${todayStamp(now)}-${kind}-candidate-report.html`), html, "utf8");
 }
 
 function writeDecisionArtifacts(review: DecisionReview, outputDir: string, writeLog: boolean) {
-  copyDecisionAssets(review, outputDir);
-  writeFileSync(review.artifact_paths.html, renderDecisionHtml(review), "utf8");
+  writeFileSync(review.artifact_paths.html, renderDecisionHtml(review, outputDir), "utf8");
   writeFileSync(review.artifact_paths.md, renderDecisionMarkdown(review), "utf8");
   writeJson(review.artifact_paths.json, review);
   if (writeLog) {
@@ -2126,29 +2123,85 @@ function writeDecisionArtifacts(review: DecisionReview, outputDir: string, write
   }
 }
 
-function copyMasterAssets(profile: InvestorProfile, outputDir: string) {
-  for (const match of profile.best_fit_master_matches) {
-    const source = findMasterAsset(match.master_id);
-    const target = join(outputDir, "profile.assets", "masters", `${match.master_id}.svg`);
-    ensureDir(dirname(target));
-    copyFileSync(source, target);
+const DEFAULT_ASSET_BASE_URL = "https://raw.githubusercontent.com/FUY25/investment-mirror-skill/main/assets/masters";
+
+// Master portraits are fetched on demand from this base URL (overridable for
+// repo renames/forks/release-pinning and for offline tests via a file:// or
+// absolute-path fixture). The shipped skill carries no portrait bytes (C3/C4).
+function assetBaseUrl(): string {
+  return (process.env.INVESTMENT_MIRROR_ASSET_BASE_URL || DEFAULT_ASSET_BASE_URL).replace(/\/+$/, "");
+}
+
+// Synchronous HTTP(S) GET via python3 (already a runtime dependency through the
+// sqlite bridge), keeping the render pipeline synchronous. Prints raw bytes to
+// stdout and exits non-zero on any failure so the caller can fall back.
+const PY_FETCH_ASSET = [
+  "import sys,urllib.request",
+  "url=sys.argv[1]",
+  "req=urllib.request.Request(url, headers={'User-Agent':'investment-mirror'})",
+  "sys.stdout.buffer.write(urllib.request.urlopen(req, timeout=10).read())"
+].join("\n");
+
+// Resolve a master portrait SVG on demand: local cache first, then a fetch from
+// the configured base URL. Never throws; returns null when the asset cannot be
+// resolved (offline/sandbox/404) so profile-finalize and decision keep working
+// with the portrait gracefully omitted (C1/C2).
+function resolveMasterAsset(masterId: string, outputDir: string): string | null {
+  const cachePath = join(outputDir, ".asset_cache", "masters", `${masterId}.svg`);
+  if (existsSync(cachePath)) {
+    try {
+      return readFileSync(cachePath, "utf8");
+    } catch {
+      // fall through and refetch
+    }
+  }
+  const svg = fetchMasterAsset(masterId);
+  if (svg == null) return null;
+  try {
+    ensureDir(dirname(cachePath));
+    writeFileSync(cachePath, svg, "utf8");
+  } catch {
+    // caching is best-effort
+  }
+  return svg;
+}
+
+function fetchMasterAsset(masterId: string): string | null {
+  const base = assetBaseUrl();
+  try {
+    if (base.startsWith("file://")) {
+      const filePath = fileURLToPath(`${base}/${masterId}.svg`);
+      return existsSync(filePath) ? readFileSync(filePath, "utf8") : null;
+    }
+    if (base.startsWith("/")) {
+      const filePath = join(base, `${masterId}.svg`);
+      return existsSync(filePath) ? readFileSync(filePath, "utf8") : null;
+    }
+    const result = spawnSync("python3", ["-c", PY_FETCH_ASSET, `${base}/${masterId}.svg`], { encoding: "utf8", maxBuffer: 16 * 1024 * 1024 });
+    if (result.status === 0 && result.stdout) return result.stdout;
+    return null;
+  } catch {
+    return null;
   }
 }
 
-function copyDecisionAssets(review: DecisionReview, outputDir: string) {
-  const masterId = review.closest_master_lens?.master_id;
-  if (!masterId) return;
-  const source = findMasterAsset(masterId);
-  const assetDir = review.artifact_paths.html.replace(/\.html$/, ".assets");
-  const target = join(assetDir, "masters", `${masterId}.svg`);
-  ensureDir(dirname(target));
-  copyFileSync(source, target);
+// Inline data: URI so saved HTML stays self-contained (no sidecar .assets dir).
+function masterPortraitDataUri(masterId: string, outputDir: string): string | null {
+  const svg = resolveMasterAsset(masterId, outputDir);
+  if (!svg) return null;
+  return `data:image/svg+xml;base64,${Buffer.from(svg, "utf8").toString("base64")}`;
 }
 
-function findMasterAsset(masterId: string) {
-  const rootAsset = join(repoRoot, "assets", "masters", `${masterId}.svg`);
-  if (existsSync(rootAsset)) return rootAsset;
-  return join(skillRoot, "assets", "masters", `${masterId}.svg`);
+// Emit an <img> when the portrait resolves, else a neutral inline placeholder so
+// the master card still renders offline (C2).
+function masterPortraitImg(masterId: string, displayName: string, outputDir: string): string {
+  const uri = masterPortraitDataUri(masterId, outputDir);
+  if (uri) return `<img src="${uri}" alt="${escapeHtml(displayName)} line-art portrait">`;
+  return `<div class="master-portrait-fallback" role="img" aria-label="${escapeHtml(displayName)} portrait unavailable offline"><span>${escapeHtml(masterInitials(displayName))}</span></div>`;
+}
+
+function masterInitials(name: string): string {
+  return name.split(/\s+/).filter(Boolean).slice(0, 2).map((part) => part[0]?.toUpperCase() ?? "").join("");
 }
 
 function renderPromptPack(profile: InvestorProfile) {
@@ -2266,7 +2319,7 @@ ${review.research_questions.map((question, index) => `${index + 1}. ${question}`
 `;
 }
 
-function renderProfileReportTemplate(profile: InvestorProfile) {
+function renderProfileReportTemplate(profile: InvestorProfile, outputDir: string) {
   const primary = profile.best_fit_master_matches[0];
   const secondary = profile.best_fit_master_matches[1];
   const bars = Object.entries(profile.decision_fingerprint).slice(0, 7).map(([key, value]) => {
@@ -2302,7 +2355,7 @@ function renderProfileReportTemplate(profile: InvestorProfile) {
         <div class="confidence"><span>Required status language</span><strong>Finalized or Provisional</strong></div>
       </div>
       <article class="master-card primary">
-        <img src="${escapeHtml(primary.asset_path)}" alt="${escapeHtml(primary.display_name)} line-art portrait">
+        ${masterPortraitImg(primary.master_id, primary.display_name, outputDir)}
         <div>
           <p class="label">Model-owned master lens</p>
           <h2>${escapeHtml(primary.display_name)}</h2>
@@ -2347,8 +2400,8 @@ function renderProfileReportTemplate(profile: InvestorProfile) {
 
     <section>
       <h2>Master Lens Reference Cards</h2>
-      ${renderMasterCard(primary)}
-      ${secondary ? renderMasterCard(secondary) : ""}
+      ${renderMasterCard(primary, outputDir)}
+      ${secondary ? renderMasterCard(secondary, outputDir) : ""}
     </section>
 
     <section>
@@ -2395,7 +2448,7 @@ function renderProfileReportTemplate(profile: InvestorProfile) {
 </html>`;
 }
 
-function renderFinalProfileHtml(profile: InvestorProfile, content: FinalProfileContent) {
+function renderFinalProfileHtml(profile: InvestorProfile, content: FinalProfileContent, outputDir: string) {
   const primary = profile.best_fit_master_matches[0];
   const status = profile.profile_state === "provisional" ? "Provisional" : "Finalized";
   const recognition = content.hero?.positive_recognition ?? profile.interpretation_summary ?? "Your strongest evidenced behavior is turning an investment thesis into an explicit evidence and review system.";
@@ -2435,7 +2488,7 @@ function renderFinalProfileHtml(profile: InvestorProfile, content: FinalProfileC
         <div class="confidence"><span>Profile state</span><strong>${escapeHtml(status)}</strong></div>
       </div>
       <article class="master-card primary">
-        <img src="${escapeHtml(primary.asset_path)}" alt="${escapeHtml(primary.display_name)} line-art portrait">
+        ${masterPortraitImg(primary.master_id, primary.display_name, outputDir)}
         <div>
           <p class="label">Best-fit master lens · ${escapeHtml(matchBadge)}</p>
           <h2>${escapeHtml(primary.display_name)}</h2>
@@ -2519,7 +2572,7 @@ function renderFinalProfileHtml(profile: InvestorProfile, content: FinalProfileC
 </html>`;
 }
 
-function renderProfileCandidateReportHtml(profile: InvestorProfile) {
+function renderProfileCandidateReportHtml(profile: InvestorProfile, outputDir: string) {
   const primary = profile.best_fit_master_matches[0];
   const secondary = profile.best_fit_master_matches[1];
   const bars = Object.entries(profile.decision_fingerprint).map(([key, value]) => {
@@ -2548,7 +2601,7 @@ function renderProfileCandidateReportHtml(profile: InvestorProfile) {
         <div class="confidence"><span>Analysis scope</span><strong>Full candidate ledger</strong></div>
       </div>
       <article class="master-card primary">
-        <img src="${escapeHtml(primary.asset_path)}" alt="${escapeHtml(primary.display_name)} line-art portrait">
+        ${masterPortraitImg(primary.master_id, primary.display_name, outputDir)}
         <div>
         <p class="label">Candidate master suggestion</p>
           <h2>${escapeHtml(primary.display_name)}</h2>
@@ -2565,8 +2618,8 @@ function renderProfileCandidateReportHtml(profile: InvestorProfile) {
       </article>
       <article class="sheet offset">
         <h2>Candidate Master Lenses</h2>
-        ${renderMasterCard(primary)}
-        ${secondary ? renderMasterCard(secondary) : ""}
+        ${renderMasterCard(primary, outputDir)}
+        ${secondary ? renderMasterCard(secondary, outputDir) : ""}
       </article>
     </section>
 
@@ -2622,13 +2675,13 @@ function renderProfileCandidateReportHtml(profile: InvestorProfile) {
 </html>`;
 }
 
-function renderMasterCard(match: ProfileMatch) {
+function renderMasterCard(match: ProfileMatch, outputDir: string) {
   const score = matchScore(match);
   const badge = score !== null
     ? `${Math.round(score * 100)}% candidate`
     : match.match_confidence ? `${humanize(match.match_confidence)} confidence` : "model lens";
   return `<div class="master-detail">
-    <img src="${escapeHtml(match.asset_path)}" alt="${escapeHtml(match.display_name)} line-art portrait">
+    ${masterPortraitImg(match.master_id, match.display_name, outputDir)}
     <div>
       <h3>${escapeHtml(match.display_name)} <span>${escapeHtml(badge)}</span></h3>
       <p>${escapeHtml(match.bio_summary)}</p>
@@ -2640,8 +2693,7 @@ function renderMasterCard(match: ProfileMatch) {
   </div>`;
 }
 
-function renderDecisionHtml(review: DecisionReview) {
-  const assetPath = review.closest_master_lens ? `${basename(review.artifact_paths.html, ".html")}.assets/masters/${review.closest_master_lens.master_id}.svg` : "";
+function renderDecisionHtml(review: DecisionReview, outputDir: string) {
   return `<!doctype html>
 <html lang="en">
 <head>
@@ -2659,7 +2711,7 @@ function renderDecisionHtml(review: DecisionReview) {
         <p class="lead">${escapeHtml(review.profile_context)}</p>
         <div class="confidence"><span>Process status</span><strong>${escapeHtml(humanize(review.decision_status))}</strong></div>
       </div>
-      ${review.closest_master_lens ? `<article class="master-card primary"><img src="${escapeHtml(assetPath)}" alt="${escapeHtml(review.closest_master_lens.display_name)} line-art portrait"><div><p class="label">Relevant master lens</p><h2>${escapeHtml(review.closest_master_lens.display_name)}</h2><p>${escapeHtml(review.closest_master_lens.why_match)}</p></div></article>` : `<article class="master-card primary"><div><p class="label">Standalone mode</p><h2>Generic thesis clarification</h2><p>Run /investment-profile-init to personalize guardrails.</p></div></article>`}
+      ${review.closest_master_lens ? `<article class="master-card primary">${masterPortraitImg(review.closest_master_lens.master_id, review.closest_master_lens.display_name, outputDir)}<div><p class="label">Relevant master lens</p><h2>${escapeHtml(review.closest_master_lens.display_name)}</h2><p>${escapeHtml(review.closest_master_lens.why_match)}</p></div></article>` : `<article class="master-card primary"><div><p class="label">Standalone mode</p><h2>Generic thesis clarification</h2><p>Run /investment-profile-init to personalize guardrails.</p></div></article>`}
     </section>
     <section class="sheet">
       <h2>Decision Summary</h2>
@@ -2718,6 +2770,9 @@ function sharedReportCss() {
   .master-card { display:grid; grid-template-columns: 170px 1fr; gap:22px; padding:20px; box-shadow: 0 24px 60px rgba(81, 51, 28, .09); transform: rotate(-1deg); }
   .master-card img { width:100%; border-radius:8px; border:1px solid var(--line); background:var(--soft); }
   .master-card a { color:var(--copper); font-weight:700; text-decoration:none; }
+  .master-portrait-fallback { display:flex; align-items:center; justify-content:center; aspect-ratio:1; width:100%; border-radius:8px; border:1px dashed var(--line); background:var(--soft); color:var(--muted); }
+  .master-detail .master-portrait-fallback { width:120px; }
+  .master-portrait-fallback span { font-family:ui-monospace, SFMono-Regular, Menlo, monospace; font-size:34px; letter-spacing:2px; }
   .report-stack { display:grid; grid-template-columns: 1fr 1.2fr; gap:24px; align-items:start; margin:42px 0; }
   .sheet { padding:30px; box-shadow:0 18px 50px rgba(81, 51, 28, .07); }
   .sheet.offset { margin-top:34px; }

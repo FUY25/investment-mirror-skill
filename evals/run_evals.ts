@@ -1,7 +1,12 @@
 import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
-import { join } from "node:path";
+import { join, resolve } from "node:path";
+import { pathToFileURL } from "node:url";
 import YAML from "yaml";
+
+// Offline-safe asset resolution: point portrait fetches at the local repo-root
+// SVGs via a file:// base URL so evals never touch the network (C5).
+process.env.INVESTMENT_MIRROR_ASSET_BASE_URL = pathToFileURL(resolve("assets/masters")).href;
 import { finalizeProfile, generateInvestorProfile, lintInvestmentDecision, mirrorAsk } from "../skills/investment-mirror/src/core.ts";
 
 type EvalResult = { group: string; name: string; passed: boolean; detail: string };

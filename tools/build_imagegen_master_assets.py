@@ -20,9 +20,10 @@ from PIL import Image, ImageOps
 ROOT = Path(__file__).resolve().parents[1]
 MASTER_DATA = ROOT / "skills/investment-mirror/src/master_data.ts"
 SHEET_DIR = ROOT / "assets/masters/imagegen_sheets"
+# Only the repo-root copy is canonical; it is served via raw URL and fetched on
+# demand. The shipped skill carries no portrait bytes (Group C).
 ASSET_DIRS = [
     ROOT / "assets/masters",
-    ROOT / "skills/investment-mirror/assets/masters",
 ]
 METADATA_FILENAME = "photo_sources.yaml"
 ASSET_KIND = "imagegen_line_art"

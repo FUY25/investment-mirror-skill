@@ -30,13 +30,17 @@ const registry = readYaml("skills/investment-mirror/config/master_registry.yaml"
 const vectors = readYaml("skills/investment-mirror/config/master_style_vectors.yaml");
 const guardrails = readYaml("skills/investment-mirror/config/master_guardrail_rules.yaml");
 const rootPhotoSources = readYaml("assets/masters/photo_sources.yaml");
-const skillPhotoSources = readYaml("skills/investment-mirror/assets/masters/photo_sources.yaml");
 const registryIds = registry.masters.map((master: any) => master.id);
 const runtimeById = new Map(MASTER_RECORDS.map((master) => [master.id, master]));
 const rootPhotoSourceIds = new Set((rootPhotoSources.masters ?? []).map((source: any) => source.master_id));
-const skillPhotoSourceIds = new Set((skillPhotoSources.masters ?? []).map((source: any) => source.master_id));
 if (rootPhotoSources.asset_kind !== "imagegen_line_art") fail("Root photo_sources.yaml does not describe imagegen line-art assets.");
-if (skillPhotoSources.asset_kind !== "imagegen_line_art") fail("Skill photo_sources.yaml does not describe imagegen line-art assets.");
+
+// The shipped skill carries no portrait bytes; portraits are fetched on demand
+// from the repo-root assets/masters/*.svg served by raw URL (Group C). Assert
+// the in-skill asset tree is absent so the duplicate cannot creep back.
+if (existsSync(join(root, "skills/investment-mirror/assets/masters"))) {
+  fail("skills/investment-mirror/assets/masters must not exist; portraits are fetched on demand, not bundled.");
+}
 const requiredImagegenSheets = [
   "sheet_01_buffett_munger_lynch.jpg",
   "sheet_02_graham_schloss_klarman.jpg",
@@ -78,18 +82,12 @@ for (const id of ACTIVE_MASTER_IDS) {
     if (!source.url || !source.source_quality || !source.source_type || !source.source_quality_tier) fail(`Incomplete source metadata for ${id}: ${JSON.stringify(source)}`);
   }
   const rootSvg = assertFile(`assets/masters/${id}.svg`, 900);
-  const skillSvg = assertFile(`skills/investment-mirror/assets/masters/${id}.svg`, 900);
   if (!rootSvg.includes("imagegen_line_art")) fail(`Root master asset is not imagegen line art: ${id}`);
-  if (!skillSvg.includes("imagegen_line_art")) fail(`Skill master asset is not imagegen line art: ${id}`);
-  if (rootSvg.includes("source_photo_line_art") || skillSvg.includes("source_photo_line_art")) fail(`Rejected source-photo edge-trace marker still present: ${id}`);
+  if (rootSvg.includes("source_photo_line_art")) fail(`Rejected source-photo edge-trace marker still present: ${id}`);
   if (!rootSvg.includes("data:image/jpeg;base64")) fail(`Root master asset lacks embedded imagegen portrait image: ${id}`);
-  if (!skillSvg.includes("data:image/jpeg;base64")) fail(`Skill master asset lacks embedded imagegen portrait image: ${id}`);
   if (!rootPhotoSourceIds.has(id)) fail(`Root photo source metadata missing: ${id}`);
-  if (!skillPhotoSourceIds.has(id)) fail(`Skill photo source metadata missing: ${id}`);
   const rootMeta = (rootPhotoSources.masters ?? []).find((source: any) => source.master_id === id);
-  const skillMeta = (skillPhotoSources.masters ?? []).find((source: any) => source.master_id === id);
-  if (rootMeta?.asset_kind !== "imagegen_line_art" || !rootMeta?.generated_sheet_path || !rootMeta?.prompt_summary) fail(`Incomplete imagegen metadata for root asset: ${id}`);
-  if (skillMeta?.asset_kind !== "imagegen_line_art" || !skillMeta?.generated_sheet_path || !skillMeta?.prompt_summary) fail(`Incomplete imagegen metadata for skill asset: ${id}`);
+  if (rootMeta?.asset_kind !== "imagegen_line_art" || !rootMeta?.prompt_summary) fail(`Incomplete imagegen metadata for root asset: ${id}`);
   if (/TODO|TBD|FIXME|lorem ipsum|placeholder/i.test(`${profile}\n${style}\n${sourcesText}`)) fail(`Placeholder-like text found in master files: ${id}`);
 }
 
