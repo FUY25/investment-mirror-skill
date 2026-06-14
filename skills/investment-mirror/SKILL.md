@@ -7,7 +7,7 @@ description: Local-first investment decision profiling and thesis-linting skill.
 
 Investment Mirror is a local-first investment decision skill. Deterministic scripts are fast evidence tools only: source discovery, manifest/hash, redaction, grep/FTS search, heuristic span scoring, full candidate ledger extraction, candidate pattern counts, candidate master suggestions, schema validation, and artifact scaffolding.
 
-The deterministic program must not write a profile draft, final profile judgment, final master match, final profile synthesis, or final profile HTML. It writes `profile_candidate_inputs.json`, `profile_evidence.json`, `profile_synthesis_prompt.md`, `profile_finalization_schema.json`, `profile_report_template.html`, `profile_candidate_report.html`, and `profile_state.json`. Final `profile.json` and `profile.html` are written only by the finalizer after the agent/LLM has produced both synthesized JSON and final static HTML.
+The deterministic program must not write a profile draft, final profile judgment, final master match, or final profile synthesis. It writes `profile_candidate_inputs.json`, `profile_evidence.json`, `profile_synthesis_prompt.md`, `profile_finalization_schema.json`, `profile_report_template.html`, `profile_candidate_report.html`, and `profile_state.json`. Final `profile.json` and `profile.html` are written only by the finalizer after the agent/LLM has produced synthesized JSON and structured final profile content. The finalizer renders `profile.html` from that model-owned content using deterministic layout and safety rules.
 
 Investment Mirror must not provide investment, legal, tax, or financial advice. Never recommend buy, sell, hold, allocation, suitability, or position size. Use process statuses, P0/P1/P2 issues, guardrails, and research questions.
 
@@ -25,7 +25,7 @@ Executable entry point:
 
 ```bash
 npm run im -- profile-init --output ~/.investment-mirror
-npm run im -- profile-finalize --synthesis synthesized_profile.json --questions interview_questions.json --answers-summary "..." --html profile_model_generated.html --output ~/.investment-mirror
+npm run im -- profile-finalize --synthesis synthesized_profile.json --questions interview_questions.json --answers-summary "..." --content profile_model_content.json --output ~/.investment-mirror
 npm run im -- profile-update --output ~/.investment-mirror --since 30d
 npm run im -- decision "I want to buy TSLA because robotaxi could unlock a massive new growth curve." --output ~/.investment-mirror
 npm run im -- mirror-ask "Which guardrail do I trigger most often?" --output ~/.investment-mirror
@@ -36,7 +36,7 @@ npm run im -- mirror-ask "Which guardrail do I trigger most often?" --output ~/.
 - Start final profile presentations with positive recognition and the best-fit master match.
 - Use one primary master match by default; add one secondary affinity only when evidence supports it.
 - Treat deterministic master suggestions as candidate inputs until the agent/LLM interprets receipts and master records.
-- For `/investment-profile-init`, run the model-owned phases: full evidence analysis, question formation, master/profile synthesis, model-generated HTML, then finalizer validation/write.
+- `/investment-profile-init` is a multi-phase workflow: deterministic evidence compilation first, then model-owned evidence analysis/question formation/master-profile synthesis/content writing, then `/investment-profile-finalize` validation/render/write.
 - Generate 2-5 targeted interview questions from evidence gaps; do not use a fixed limited questionnaire.
 - If the user declines interview calibration, finalization must be provisional and list unknown dimensions.
 - Do not expose raw transcripts by default; use receipt summaries and local source aliases.
@@ -54,7 +54,7 @@ Runtime user memory lives under the output directory, normally `~/.investment-mi
 - `profile_evidence.json`
 - `profile_synthesis_prompt.md`
 - `profile_finalization_schema.json`
-- `profile_report_template.html` (AI HTML reference specimen, not a fill-in template)
+- `profile_report_template.html` (AI visual reference specimen, not a fill-in template)
 - `profile_candidate_report.html`
 - `profile_state.json`
 - `profile.json` and `profile.html` only after `profile-finalize`
@@ -87,8 +87,10 @@ The runtime source of truth for active masters is `skills/investment-mirror/src/
 
 ## Validation
 
-Before claiming completion, run:
+When you edit the skill code, tests, evals, registry, or scripts, run:
 
 ```bash
 npm run validate
 ```
+
+Do not include tests, evals, or validation output in normal user-facing profile completion replies unless the user explicitly asks for engineering validation or a validation failure affects the profile workflow. Profile replies should summarize state, artifacts, evidence/interpretation boundaries, unknown dimensions, and next process step.

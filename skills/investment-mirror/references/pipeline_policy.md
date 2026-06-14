@@ -18,6 +18,7 @@ Allowed deterministic work:
 - candidate master style suggestions;
 - candidate guardrail generation;
 - schema validation and artifact scaffolding;
+- deterministic rendering of final `profile.html` from model-owned structured content;
 - local JSON/SQLite/grep-style memory search.
 
 Forbidden deterministic work:
@@ -26,7 +27,7 @@ Forbidden deterministic work:
 - final master match;
 - final guardrail rationale;
 - final profile synthesis;
-- final profile HTML;
+- final profile content judgment;
 - profile draft JSON or HTML;
 - buy, sell, hold, allocation, sizing, or suitability recommendations.
 
@@ -46,8 +47,8 @@ Forbidden deterministic work:
 12. **Agent/LLM question formation**: generate 2-5 targeted interview questions from evidence gaps. Questions are not a fixed limited set.
 13. **Agent/LLM interview**: ask the user unless they explicitly decline calibration.
 14. **Agent/LLM master/profile synthesis**: choose the final master lens and synthesize profile JSON by reading evidence plus master records. Do not rely on vectors as the decision.
-15. **Agent/LLM final HTML**: generate the final static `profile.html` from the synthesized profile. Use `profile_report_template.html` as a reference specimen only.
-16. **Deterministic finalizer**: run `profile-finalize --synthesis ... --questions ... --answers-summary ... --html ...` to validate safety/schema/provenance and write `profile.json` and `profile.html`.
+15. **Agent/LLM final content**: generate structured final profile content from the synthesized profile. Use `profile_report_template.html` as a visual reference specimen only.
+16. **Deterministic finalizer**: run `profile-finalize --synthesis ... --questions ... --answers-summary ... --content ...` to validate safety/schema/provenance, render canonical HTML, and write `profile.json` and `profile.html`.
 
 ## Candidate Evidence Language
 
@@ -72,4 +73,4 @@ Avoid these labels before finalization:
 
 `profile-update` must merge historical `profile_evidence.json` candidate episodes with new evidence. It may write new candidate inputs and update reports, but it must preserve `profile.json` and `profile.html` until the agent/LLM runs finalization again.
 
-Master match changes are review candidates only. A deterministic similarity-score change is insufficient; the agent/LLM must inspect receipts and explain why a new master lens is more useful than the prior one.
+Master match changes are review candidates only. A deterministic similarity-score change is insufficient; the agent/LLM must inspect receipts and explain why a new master lens is more useful than the prior one. Final `best_fit_master_matches` must not expose deterministic similarity scores; use qualitative model confidence and rationale instead.

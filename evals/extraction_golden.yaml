@@ -9,6 +9,7 @@ fixtures:
     expected_abstentions:
       - final_profile_json
       - final_profile_html
+      - final_profile_content
       - final_master_match
   - name: research_loop_candidate
     text: I keep adding more research and another source. Please force this into three decision variables and a reject rule before I expand scope again.
@@ -19,3 +20,4 @@ fixtures:
     expected_abstentions:
       - final_profile_json
       - final_profile_html
+      - final_profile_content

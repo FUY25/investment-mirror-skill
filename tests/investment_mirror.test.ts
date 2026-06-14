@@ -39,7 +39,7 @@ function resetFixture() {
 
 function finalizeFixture(output: string) {
   const candidate = JSON.parse(readFileSync(join(output, "profile_candidate_inputs.json"), "utf8"));
-  const finalHtml = modelGeneratedProfileHtml(candidate.best_fit_master_matches[0]?.display_name ?? "Model-selected master");
+  const finalContent = modelGeneratedProfileContent(candidate.best_fit_master_matches[0]?.display_name ?? "Model-selected master");
   return finalizeProfile({
     output,
     synthesizedProfile: {
@@ -47,7 +47,12 @@ function finalizeFixture(output: string) {
       evidence_summary: "The local evidence shows recurring investment reasoning around thesis quality, valuation checks, value capture, and falsification.",
       interpretation_summary: "The model interprets the evidence as a style that can form strong narratives but needs explicit price, capture, and disconfirmation protocols.",
       primary_patterns: candidate.primary_patterns,
-      best_fit_master_matches: candidate.best_fit_master_matches.slice(0, 1),
+      best_fit_master_matches: candidate.best_fit_master_matches.slice(0, 1).map((match: any) => ({
+        ...match,
+        why_match: "Model-selected learning lens after reviewing evidence, interview answers, and master records.",
+        match_confidence: "medium",
+        selection_basis: "model_selected_from_evidence_interview_and_master_records"
+      })),
       match_strengths: candidate.match_strengths,
       active_guardrails: candidate.active_guardrails,
       recommended_guardrails: candidate.recommended_guardrails,
@@ -61,7 +66,7 @@ function finalizeFixture(output: string) {
       false_match_warning: "The master match is a learning lens only and must not be copied as authority or identity.",
       unknown_dimensions: []
     },
-    finalHtml,
+    finalContent,
     agentQuestions: [
       "What drawdown or thesis deterioration would make you stop and review?",
       "What horizon should most public-equity ideas use by default?",
@@ -72,26 +77,37 @@ function finalizeFixture(output: string) {
   });
 }
 
-function modelGeneratedProfileHtml(masterName: string) {
-  return `<!doctype html>
-<html lang="en">
-<head><meta charset="utf-8"><title>Investment Mirror Model Profile</title></head>
-<body>
-  <main>
-    <header>
-      <p>Investment Mirror Finalized model profile</p>
-      <h1>Evidence-backed decision profile</h1>
-      <p>This profile recognizes a thesis-building strength while keeping process guardrails explicit.</p>
-    </header>
-    <section><h2>Evidence Ledger</h2><p>Local receipt summaries and source IDs support the profile; raw transcript text is not exposed.</p></section>
-    <section><h2>Model Interpretation</h2><p>The model interpretation separates evidence from judgment and explains which signals mattered.</p></section>
-    <section><h2>Interview Calibration</h2><p>The interview clarified risk review triggers, horizon, and evidence threshold.</p></section>
-    <section><h2>Master Lens</h2><p>${masterName} is used as a learning archetype, not an identity or authority claim.</p></section>
-    <section><h2>Guardrail Protocols</h2><p>Guardrails convert style into repeatable research and decision-review protocols.</p></section>
-    <footer>Investment Mirror does not provide investment, legal, tax, or financial advice.</footer>
-  </main>
-</body>
-</html>`;
+function modelGeneratedProfileContent(masterName: string) {
+  return {
+    hero: {
+      positive_recognition: "Evidence-backed decision profile",
+      status_line: "Final profile rendered from model structured content."
+    },
+    evidence: {
+      summary: "Local receipt summaries and source IDs support the profile; raw transcript text is not exposed."
+    },
+    interpretation: {
+      summary: "The model interpretation separates evidence from judgment and explains which signals mattered.",
+      rejected_or_downweighted_signals: ["candidate similarity scores were treated as suggestions only"]
+    },
+    master_lens: {
+      why_this_lens: `${masterName} is used as a learning archetype, not an identity or authority claim.`,
+      what_to_learn: ["connect thesis quality to explicit review rules"],
+      what_not_to_copy: ["do not copy another investor as authority"]
+    },
+    interview_calibration: {
+      answers_summary: "The interview clarified risk review triggers, horizon, and evidence threshold."
+    },
+    guardrail_protocols: [
+      {
+        guardrail_id: "falsification_condition_before_position",
+        title: "Falsification Condition",
+        rationale: "Guardrails convert style into repeatable research and decision-review protocols.",
+        questions: ["What would weaken this thesis?"]
+      }
+    ],
+    next_process_step: "Run /investment-decision on a current thesis."
+  };
 }
 
 test("redacts secrets and sensitive identifiers", () => {
@@ -157,7 +173,7 @@ test("generates local candidate inputs without writing final profile artifacts",
   assert.equal(existsSync(join(output, ".sqlite_payload.json")), false);
   const prompt = readFileSync(join(output, "profile_synthesis_prompt.md"), "utf8");
   assert.match(prompt, /Generate 2-5 interview questions/i);
-  assert.match(prompt, /--html profile_model_generated\.html/);
+  assert.match(prompt, /--content profile_model_content\.json/);
   assert.match(prompt, /profile_report_template\.html/);
   assert.match(prompt, /profile-finalize/);
   const template = readFileSync(join(output, "profile_report_template.html"), "utf8");
@@ -172,7 +188,7 @@ test("generates local candidate inputs without writing final profile artifacts",
   assert.doesNotMatch(html.slice(0, 1200), /P0|blocker|flaw/i);
 });
 
-test("profile finalize refuses to write final artifacts without model-generated html", () => {
+test("profile finalize refuses to write final artifacts without model-generated content or html", () => {
   resetFixture();
   const output = join(root, "mirror-finalize-no-html");
   generateInvestorProfile({
@@ -209,7 +225,7 @@ test("profile finalize refuses to write final artifacts without model-generated 
       "What horizon should most ideas use?"
     ],
     answersSummary: "The user clarified review triggers, horizon, and evidence thresholds."
-  }), /requires model-generated final HTML/);
+  }), /requires model-generated final content/);
   assert.equal(existsSync(join(output, "profile.json")), false);
   assert.equal(existsSync(join(output, "profile.html")), false);
 });
@@ -229,12 +245,63 @@ test("profile finalize is the only writer of final profile json and html", () =>
   assert.equal(result.profile.profile_state, "finalized");
   assert.equal(result.profile.provisional, false);
   assert.equal(result.profile.llm_required, false);
+  assert.equal("similarity" in result.profile.best_fit_master_matches[0], false);
+  assert.equal("calibration_recommended" in result.profile.source_summary, false);
   assert.ok(existsSync(join(output, "profile.json")));
   assert.ok(existsSync(join(output, "profile.html")));
   const html = readFileSync(join(output, "profile.html"), "utf8");
-  assert.match(html, /Finalized model profile/);
+  assert.match(html, /Final profile rendered from model structured content/);
   assert.match(html, /Interview Calibration/);
   assert.doesNotMatch(html, /you should buy|you should sell|strong buy|strong sell/i);
+});
+
+test("provisional finalization caps confidence and strips deterministic source flags", () => {
+  resetFixture();
+  const output = join(root, "mirror-provisional");
+  generateInvestorProfile({
+    output,
+    include: [join(root, ".codex", "sessions"), join(root, ".claude", "projects")],
+    exclude: [join(process.env.HOME ?? "", ".codex"), join(process.env.HOME ?? "", ".claude")],
+    reindex: true,
+    now: new Date("2026-06-13T12:00:00Z")
+  });
+  const candidate = JSON.parse(readFileSync(join(output, "profile_candidate_inputs.json"), "utf8"));
+  const result = finalizeProfile({
+    output,
+    synthesizedProfile: {
+      profile_id: candidate.profile_id,
+      confidence: 0.9,
+      evidence_summary: "The local evidence shows process behavior but limited direct public-equity history.",
+      interpretation_summary: "The model interpretation is provisional because some calibration dimensions remain unknown.",
+      primary_patterns: candidate.primary_patterns,
+      best_fit_master_matches: candidate.best_fit_master_matches.slice(0, 1),
+      match_strengths: candidate.match_strengths,
+      active_guardrails: candidate.active_guardrails,
+      recommended_guardrails: candidate.recommended_guardrails,
+      decision_fingerprint: candidate.decision_fingerprint,
+      default_issue: candidate.default_issue,
+      source_summary: { ...candidate.source_summary, calibration_recommended: false },
+      receipts: candidate.receipts,
+      risk_preference_summary: "Risk preference remains partially unknown.",
+      time_horizon_summary: "The user has not fully calibrated horizon.",
+      constraints_summary: "No suitability, allocation, or position-size conclusion is inferred.",
+      false_match_warning: "The master match is a learning lens only.",
+      unknown_dimensions: ["minimum_evidence_package_for_decision_review"]
+    },
+    finalContent: modelGeneratedProfileContent(candidate.best_fit_master_matches[0]?.display_name ?? "Model-selected master"),
+    agentQuestions: [
+      "What evidence package is enough for review?",
+      "What risk trigger should govern review?"
+    ],
+    answersSummary: "The user did not complete all calibration questions.",
+    provisional: true,
+    now: new Date("2026-06-13T14:30:00Z")
+  });
+  assert.equal(result.profile.profile_state, "provisional");
+  assert.equal(result.profile.confidence <= 0.7, true);
+  assert.equal("similarity" in result.profile.best_fit_master_matches[0], false);
+  assert.equal("calibration_recommended" in result.profile.source_summary, false);
+  assert.equal(result.profile.source_summary.calibration_status, "partial");
 });
 
 test("profile init is idempotent when all sources are unchanged", () => {

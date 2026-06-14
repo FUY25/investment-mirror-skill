@@ -30,7 +30,7 @@ Final `profile.html` must:
 - include a false-match warning;
 - show guardrails as protocols that make the style more investable.
 
-`profile_report_template.html` is an AI reference specimen. It shows required sections, tone, and visual rhythm. It is not a fill-in template. The agent/LLM must generate final `profile.html` as finished static HTML and pass it to `profile-finalize --html`.
+`profile_report_template.html` is an AI visual reference specimen. It shows required sections, tone, and visual rhythm. It is not a fill-in template. The agent/LLM must generate structured final profile content, not hand-written raw HTML. The finalizer renders the canonical `profile.html` from that content using deterministic layout and safety rules.
 
 ## Decision Artifacts
 

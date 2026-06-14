@@ -1,6 +1,6 @@
 # /investment-profile-init
 
-Compile local Investment Mirror evidence for the first profile. This command does not create a profile draft and does not write final `profile.json` or `profile.html`.
+Compile local Investment Mirror evidence for the first profile. This command is phase 1 of the profile workflow. It does not create a profile draft and does not write final `profile.json` or `profile.html`.
 
 ## Run
 
@@ -34,8 +34,8 @@ npm run im -- profile-init \
 13. Ask those questions before finalization unless the user explicitly declines.
 14. As the agent/LLM, choose the final master lens by reading evidence plus master records; vectors are only suggestions.
 15. Produce a model-synthesized profile JSON matching `profile_finalization_schema.json`.
-16. Generate final static `profile.html` as the agent/LLM, using `profile_report_template.html` only as a reference specimen.
-17. Run `/investment-profile-finalize --html profile_model_generated.html` to validate and write final `profile.json` and `profile.html`.
+16. Produce `profile_model_content.json` as structured user-facing final content. Do not hand-write raw HTML.
+17. Run `/investment-profile-finalize --content profile_model_content.json` so the finalizer can render, validate, and write final `profile.json` and `profile.html`.
 
 ## Outputs
 
@@ -43,7 +43,7 @@ npm run im -- profile-init \
 - `profile_evidence.json`
 - `profile_synthesis_prompt.md`
 - `profile_finalization_schema.json`
-- `profile_report_template.html` as an AI reference specimen, not a fill-in template
+- `profile_report_template.html` as an AI visual reference specimen, not a fill-in template
 - `profile_candidate_report.html`
 - `profile_state.json`
 - `guardrails.yaml`
@@ -71,4 +71,8 @@ The agent/LLM final profile must distinguish:
 - what the interview clarified;
 - what remains uncertain.
 
-If the user declines the 2-5 interview questions, generate provisional JSON and provisional HTML, then use `/investment-profile-finalize --provisional --declined-interview --html profile_model_generated.html` and list unknown dimensions. Never infer risk preference, liquidity constraints, horizon, or concentration comfort from logs alone.
+If the user declines the 2-5 interview questions, generate provisional JSON and provisional structured final content, then use `/investment-profile-finalize --provisional --declined-interview --content profile_model_content.json` and list unknown dimensions. Never infer risk preference, liquidity constraints, horizon, or concentration comfort from logs alone.
+
+## User-Facing Reply
+
+After running only this command, tell the user that evidence compilation is complete and interview/finalization is still pending. Do not describe this as a completed profile. Do not mention tests, evals, or validation output unless the user explicitly asks for engineering validation.

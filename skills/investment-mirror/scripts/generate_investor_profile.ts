@@ -13,6 +13,6 @@ process.stdout.write(`${JSON.stringify({
   finalization_schema_path: `${result.outputDir}/${result.profile.profile_finalization_schema_path ?? "profile_finalization_schema.json"}`,
   report_template_path: `${result.outputDir}/${result.profile.profile_report_template_path ?? "profile_report_template.html"}`,
   candidate_report_path: `${result.outputDir}/${result.profile.candidate_report_html_path ?? "profile_candidate_report.html"}`,
-  final_model_html_path_pending: `${result.outputDir}/${result.profile.final_model_html_path ?? "profile.html"}`,
+  final_rendered_html_path_pending: `${result.outputDir}/${result.profile.final_rendered_html_path ?? result.profile.final_model_html_path ?? "profile.html"}`,
   required_interview_questions: result.profile.interview_question_count ?? { min: 2, max: 5 }
 }, null, 2)}\n`);

@@ -48,21 +48,6 @@ function routeQuery(query: string) {
 
 function finalizeFixture(output: string) {
   const candidate = JSON.parse(readFileSync(join(output, "profile_candidate_inputs.json"), "utf8"));
-  const finalHtml = `<!doctype html>
-<html lang="en">
-<head><meta charset="utf-8"><title>Investment Mirror Model Profile</title></head>
-<body>
-  <main>
-    <h1>Investment Mirror finalized model profile</h1>
-    <section><h2>Evidence Ledger</h2><p>Local receipt summaries and source IDs support the profile.</p></section>
-    <section><h2>Model Interpretation</h2><p>The model interpretation separates evidence from judgment.</p></section>
-    <section><h2>Interview Calibration</h2><p>The interview clarified review triggers, horizon, and evidence threshold.</p></section>
-    <section><h2>Master Lens</h2><p>The selected master is a learning archetype, not an authority claim.</p></section>
-    <section><h2>Guardrail Protocols</h2><p>Guardrails structure process without giving investment advice.</p></section>
-    <footer>Investment Mirror does not provide investment, legal, tax, or financial advice.</footer>
-  </main>
-</body>
-</html>`;
   finalizeProfile({
     output,
     synthesizedProfile: {
@@ -70,7 +55,11 @@ function finalizeFixture(output: string) {
       evidence_summary: "Local evidence shows repeated candidate issues around AI narratives, valuation expectations, value capture, and falsification.",
       interpretation_summary: "The model interprets the evidence as thesis-first reasoning that needs explicit guardrails before a user-owned decision.",
       primary_patterns: candidate.primary_patterns,
-      best_fit_master_matches: candidate.best_fit_master_matches.slice(0, 1),
+      best_fit_master_matches: candidate.best_fit_master_matches.slice(0, 1).map((match: any) => ({
+        ...match,
+        match_confidence: "medium",
+        selection_basis: "model_selected_from_evidence_interview_and_master_records"
+      })),
       match_strengths: candidate.match_strengths,
       active_guardrails: candidate.active_guardrails,
       recommended_guardrails: candidate.recommended_guardrails,
@@ -84,7 +73,31 @@ function finalizeFixture(output: string) {
       false_match_warning: "The master match is a learning lens only and not an identity or authority claim.",
       unknown_dimensions: []
     },
-    finalHtml,
+    finalContent: {
+      hero: {
+        positive_recognition: "Investment Mirror finalized model profile",
+        status_line: "Final profile rendered from model structured content."
+      },
+      evidence: {
+        summary: "Local receipt summaries and source IDs support the profile."
+      },
+      interpretation: {
+        summary: "The model interpretation separates evidence from judgment."
+      },
+      master_lens: {
+        why_this_lens: "The selected master is a learning archetype, not an authority claim."
+      },
+      interview_calibration: {
+        answers_summary: "The interview clarified review triggers, horizon, and evidence threshold."
+      },
+      guardrail_protocols: [
+        {
+          title: "Guardrail Protocols",
+          rationale: "Guardrails structure process without giving investment advice."
+        }
+      ],
+      next_process_step: "Run /investment-decision on a current thesis."
+    },
     agentQuestions: [
       "What would make you stop and review a thesis?",
       "What horizon should default public-equity ideas use?",

@@ -12,6 +12,7 @@ type ParsedArgs = {
   writeLog: boolean;
   since?: string;
   synthesis?: string;
+  content?: string;
   html?: string;
   questions?: string;
   answersSummary?: string;
@@ -31,6 +32,7 @@ function parseArgs(argv: string[]): ParsedArgs {
     else if (arg === "--write-log" || arg === "--write") parsed.writeLog = true;
     else if (arg === "--since") parsed.since = rest[++index];
     else if (arg === "--synthesis") parsed.synthesis = rest[++index];
+    else if (arg === "--content") parsed.content = rest[++index];
     else if (arg === "--html") parsed.html = rest[++index];
     else if (arg === "--questions") parsed.questions = rest[++index];
     else if (arg === "--answers-summary") parsed.answersSummary = rest[++index];
@@ -53,7 +55,7 @@ export function main(argv = process.argv.slice(2)) {
 Commands:
   profile-init [--output PATH] [--include PATH] [--exclude PATH] [--reindex]
   profile-update [--output PATH] [--include PATH] [--exclude PATH] [--since 30d]
-  profile-finalize --synthesis PATH --questions PATH --answers-summary TEXT --html PATH [--provisional] [--output PATH]
+  profile-finalize --synthesis PATH --questions PATH --answers-summary TEXT --content PATH [--provisional] [--output PATH]
   decision "thesis text" [--output PATH] [--write-log]
   mirror-ask "question" [--output PATH]
   discover-sources [--output PATH] [--include PATH] [--exclude PATH]
@@ -86,13 +88,13 @@ Commands:
       report_template_path: `${result.outputDir}/${result.profile.profile_report_template_path ?? "profile_report_template.html"}`,
       candidate_report_path: `${result.outputDir}/${result.profile.candidate_report_html_path ?? "profile_candidate_report.html"}`,
       final_profile_path_pending: `${result.outputDir}/profile.json`,
-      final_model_html_path_pending: `${result.outputDir}/${result.profile.final_model_html_path ?? "profile.html"}`,
+      final_rendered_html_path_pending: `${result.outputDir}/${result.profile.final_rendered_html_path ?? result.profile.final_model_html_path ?? "profile.html"}`,
       guardrails_path: `${result.outputDir}/guardrails.yaml`,
       prompt_pack_path: `${result.outputDir}/prompt_pack.md`,
       source_index_path: `${result.outputDir}/source_index.sqlite`,
       source_count: result.sources.length,
       decision_episodes_found: result.profile.source_summary.decision_episodes_found,
-      candidate_master_suggestions: result.profile.best_fit_master_matches.map((match) => ({ master_id: match.master_id, similarity: match.similarity })),
+      candidate_master_suggestions: result.profile.best_fit_master_matches.map((match) => ({ master_id: match.master_id, candidate_similarity: match.candidate_similarity ?? match.similarity })),
       calibration_recommended: result.profile.source_summary.calibration_recommended,
       required_interview_questions: result.profile.interview_question_count ?? { min: 2, max: 5 },
       calibration_question_topics: result.profile.calibration_question_topics ?? [],
@@ -116,6 +118,7 @@ Commands:
     const result = finalizeProfile({
       output: args.output,
       synthesizedProfilePath: args.synthesis,
+      finalContentPath: args.content,
       finalHtmlPath: args.html,
       questionsPath: args.questions,
       answersSummary: args.answersSummary,

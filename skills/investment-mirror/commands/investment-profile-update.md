@@ -28,7 +28,7 @@ npm run im -- profile-update \
 8. As the agent/LLM, read the updated evidence packet and distinguish local evidence from model interpretation.
 9. If the update exposes unresolved dimensions such as risk preference, horizon, or constraints, ask 2-5 targeted interview questions before changing the final model profile.
 10. Generate an update report that lists newly detected, strengthened, and weakened patterns.
-11. If the final profile changes, synthesize updated JSON and generate updated final HTML in the model phase, then run `/investment-profile-finalize --html profile_model_generated.html`.
+11. If the final profile changes, synthesize updated JSON and structured final content in the model phase, then run `/investment-profile-finalize --content profile_model_content.json`.
 
 ## Outputs
 
@@ -57,4 +57,4 @@ Show:
 
 Use process language only. Do not turn profile updates into investment recommendations.
 
-Do not accept a deterministic similarity-score change as a real master-match change until the model has checked the receipts and explained why the new lens is more useful than the prior one. Run `/investment-profile-finalize --html profile_model_generated.html` only after the agent/LLM has synthesized updated JSON and generated updated final HTML.
+Do not accept a deterministic similarity-score change as a real master-match change until the model has checked the receipts and explained why the new lens is more useful than the prior one. Run `/investment-profile-finalize --content profile_model_content.json` only after the agent/LLM has synthesized updated JSON and generated updated structured final content.
