@@ -222,17 +222,40 @@ export type ProfileEvidencePacket = {
 };
 
 export type FinalProfileContent = {
+  ui_language?: string;
+  labels?: Record<string, string>;
   hero?: {
     positive_recognition?: string;
     status_line?: string;
+    user_decision_style?: string;
+    why_master_match?: string;
+    master_bio?: string;
   };
   evidence?: {
     summary?: string;
     receipt_ids?: string[];
+    rows?: Array<{
+      source_type?: string;
+      what_scanned?: string;
+      how_used?: string;
+      takeaway?: string;
+    }>;
   };
   interpretation?: {
     summary?: string;
     rejected_or_downweighted_signals?: string[];
+  };
+  decision_pattern?: {
+    summary?: string;
+    dimensions?: Array<{
+      id?: string;
+      label?: string;
+      read?: string;
+      evidence_basis?: string;
+      master_connection?: string;
+      confidence?: string;
+      caveat?: string;
+    }>;
   };
   master_lens?: {
     why_this_lens?: string;
@@ -250,6 +273,12 @@ export type FinalProfileContent = {
     rationale?: string;
     questions?: string[];
   }>;
+  decision_review_cta?: {
+    heading?: string;
+    intro?: string;
+    command_template?: string;
+    fields?: string[];
+  };
   next_process_step?: string;
 };
 
@@ -394,6 +423,15 @@ const guardrailQuestions: Record<string, string[]> = {
     "Which blind spot of the matched master should you avoid copying?"
   ]
 };
+
+const DECISION_PATTERN_DIMENSIONS = [
+  { id: "philosophy", label: "Philosophy" },
+  { id: "decision_making_process", label: "Decision-making process" },
+  { id: "research_process", label: "Research process" },
+  { id: "buy_sell_discipline", label: "Buy/sell discipline" },
+  { id: "risk_process", label: "Risk process" },
+  { id: "repeatability", label: "Repeatability" }
+] as const;
 
 export function expandHome(path: string) {
   if (path === "~") return homedir();
@@ -1360,21 +1398,35 @@ function validateFinalizationInput(synthesized: Record<string, unknown>, questio
 function validateFinalProfileContent(content: FinalProfileContent | null, provisional: boolean) {
   if (!content) return;
   const requiredStrings = [
-    ["hero.positive_recognition", content.hero?.positive_recognition],
-    ["hero.status_line", content.hero?.status_line],
+    ["hero.user_decision_style", content.hero?.user_decision_style ?? content.hero?.positive_recognition],
+    ["hero.why_master_match", content.hero?.why_master_match ?? content.master_lens?.why_this_lens],
     ["evidence.summary", content.evidence?.summary],
-    ["interpretation.summary", content.interpretation?.summary],
+    ["decision_pattern.summary", content.decision_pattern?.summary ?? content.interpretation?.summary],
     ["master_lens.why_this_lens", content.master_lens?.why_this_lens],
     ["interview_calibration.answers_summary", content.interview_calibration?.answers_summary],
-    ["next_process_step", content.next_process_step]
+    ["decision_review_cta.command_template", content.decision_review_cta?.command_template ?? content.next_process_step]
   ] as const;
   for (const [field, value] of requiredStrings) {
     if (!provisional && String(value ?? "").trim().length < 12) {
       throw new Error(`profile-finalize missing model-generated final content field: ${field}`);
     }
   }
+  if (!provisional && (!Array.isArray(content.evidence?.rows) || content.evidence.rows.length < 2)) {
+    throw new Error("profile-finalize requires model-generated evidence.rows with compact evidence-scanned table content.");
+  }
+  const dimensions = content.decision_pattern?.dimensions ?? [];
+  if (!provisional) {
+    const present = new Set(dimensions.map((dimension) => dimension.id).filter(Boolean));
+    const missing = DECISION_PATTERN_DIMENSIONS.map((dimension) => dimension.id).filter((id) => !present.has(id));
+    if (missing.length) {
+      throw new Error(`profile-finalize missing decision_pattern dimensions: ${missing.join(", ")}`);
+    }
+  }
   if (!Array.isArray(content.guardrail_protocols) || content.guardrail_protocols.length === 0) {
     throw new Error("profile-finalize requires model-generated guardrail_protocols in final content.");
+  }
+  if (content.guardrail_protocols.length > 5) {
+    throw new Error("profile-finalize guardrail_protocols must stay concise: provide 1-5 model-generated protocols.");
   }
 }
 
@@ -1383,7 +1435,7 @@ function validateFinalProfileHtml(html: string, provisional: boolean) {
     /<html[\s>]/i,
     /Investment Mirror/i,
     /evidence/i,
-    /interpretation|infers|model/i,
+    /decision pattern|interpretation|infers|model/i,
     /interview|calibration/i,
     /master/i,
     /guardrail|protocol/i,
@@ -1668,20 +1720,22 @@ You are running the model-owned phases of an Investment Mirror profile from a de
 2. Choose the primary best-fit master match by comparing model-reviewed evidence against master records. There are no deterministic candidate master suggestions in this packet.
 3. State why the match is useful and what not to copy. Do not use or invent deterministic similarity scores.
 4. Distinguish evidence from interpretation.
-5. Present the required guardrails and why they make the style more investable.
+5. Write the user-facing decision pattern through six investment-process dimensions: philosophy, decision-making process, research process, buy/sell discipline, risk process, and repeatability. These are profile dimensions about how the user makes investment decisions, not a checklist for one security.
 6. After the user answers, produce a model-synthesized JSON object matching \`profile_finalization_schema.json\`.
-7. Produce \`profile_model_content.json\`: structured user-facing final content for hero recognition, evidence, interpretation, master lens, interview calibration, guardrails, and next process step.
+7. Produce \`profile_model_content.json\`: structured user-facing final content for hero recognition, evidence scanned, the six-dimension decision pattern, master learning lens, compact guardrail protocol, and a \`/investment-decision\` command scaffold.
 8. Run \`profile-finalize --synthesis synthesized_profile.json --questions interview_questions.json --answers-summary "..." --content profile_model_content.json\` so the deterministic renderer can produce the final static \`profile.html\`.
 9. Suggest the next step: usually run \`/investment-decision\` on a current thesis.
 
 ## User-Facing Content Rules
 
-1. Match the user's language for interview questions, final profile copy, and completion summaries unless the user asks for another language.
+1. Match the completed interview answers' dominant language for interview questions, final profile copy, completion summaries, and rendered HTML chrome unless the user asks for another language. If interview-answer language conflicts with earlier chat or transcript language, the interview-answer language wins. Master names, file paths, IDs, and technical field names may stay in their canonical form.
 2. Calibrate confidence and wording to evidence strength. If direct public-equity evidence is absent or sparse, say the profile is evidence-light or process-level, keep the master lens tentative/low-confidence unless interview answers strongly support it, and avoid definitive identity-style claims.
 3. Keep direct investment evidence, indirect process evidence, and interview calibration separate. Do not let product/engineering workflow evidence masquerade as investment behavior.
 4. A user-stated drawdown or thesis-deterioration threshold is a review boundary, not proof of broad risk tolerance, allocation comfort, sizing preference, or suitability.
 5. If constraints were not stated, write "no constraints were stated" rather than "the user has no constraints."
 6. Avoid pseudo-precision. Numeric decision-fingerprint values are model orientation signals, not measurements; when evidence is thin, use qualitative bands or explicitly flag uncertainty in the copy.
+7. Do not split interview calibration into its own user-facing section. Use it as one evidence source row inside the evidence-scanned section unless the report is provisional and needs unknown dimensions.
+8. The profile call-to-action must connect to the skill-family \`/investment-decision\` workflow, not a generic chat prompt. The command scaffold should ask the user to fill ticker/theme, horizon, thesis, price expectation, catalyst, falsification/deterioration condition, and constraints/review boundaries.
 
 ## Evidence Packet Summary
 
@@ -1743,12 +1797,18 @@ function profileFinalizationSchema() {
       "final_profile_content or final_profile_content_path"
     ],
     final_profile_content_shape: {
-      hero: ["positive_recognition", "status_line"],
-      evidence: ["summary", "receipt_ids"],
-      interpretation: ["summary", "rejected_or_downweighted_signals"],
+      ui_language: "string such as en or zh-Hans",
+      hero: ["positive_recognition", "status_line", "user_decision_style", "why_master_match", "master_bio"],
+      evidence: ["summary", "receipt_ids", "rows[source_type, what_scanned, how_used, takeaway]"],
+      decision_pattern: {
+        summary: "string",
+        required_dimensions: DECISION_PATTERN_DIMENSIONS.map((dimension) => dimension.id),
+        dimensions: ["id", "label", "read", "evidence_basis", "master_connection", "confidence", "caveat"]
+      },
       master_lens: ["why_this_lens", "what_to_learn", "what_not_to_copy"],
       interview_calibration: ["questions", "answers_summary", "unknown_dimensions"],
       guardrail_protocols: ["guardrail_id", "title", "rationale", "questions"],
+      decision_review_cta: ["heading", "intro", "command_template", "fields"],
       next_process_step: "string"
     },
     constants_written_by_finalizer: {
@@ -2583,7 +2643,7 @@ function renderProfileReportTemplate(profile: InvestorProfile, outputDir: string
       <div>
         <p class="kicker">Investment Mirror</p>
         <h1>Lead with the user's strongest evidenced decision behavior.</h1>
-        <p class="lead">The final model report should open with positive recognition, then quickly anchor the best-fit master lens and the guardrails that make the style more investable.</p>
+        <p class="lead">The final model report should open with the user's decision style, then explain why that style resembles the selected master lens.</p>
         <div class="confidence"><span>Required status language</span><strong>Finalized or Provisional</strong></div>
       </div>
       ${masterReferenceCard}
@@ -2591,34 +2651,34 @@ function renderProfileReportTemplate(profile: InvestorProfile, outputDir: string
 
     <section class="report-stack">
       <article class="sheet">
-        <h2>Evidence Ledger</h2>
-        <p>Summarize local receipts and source IDs. Keep transcript text out by default. Cite receipt IDs and local aliases rather than raw conversation text.</p>
+        <h2>Evidence Scanned</h2>
+        <p>Summarize what was reviewed in a few sentences, then show a compact table. Interview calibration belongs here as one evidence source, not as a standalone section.</p>
       </article>
       <article class="sheet offset">
-        <h2>Model Interpretation</h2>
-        <p>Explain what the evidence means, where the model is uncertain, and which candidate signals were rejected or downweighted.</p>
+        <h2>Decision Pattern</h2>
+        <p>Analyze the user's investment process through six dimensions: philosophy, decision-making process, research process, buy/sell discipline, risk process, and repeatability.</p>
       </article>
     </section>
 
     <section class="section-grid">
       <article>
-        <h2>Interview Calibration</h2>
-        <p>Show the 2-5 model-generated questions and summarize what the user's answers changed. If declined, mark the report provisional and list unknown dimensions.</p>
+        <h2>Master Learning Lens</h2>
+        <p>Explain what the user should learn from the master because their process resembles this lens. Do not turn the master match into identity or authority.</p>
       </article>
       <article>
-        <h2>Risk, Horizon, Constraints</h2>
-        <p>Only include what the user answered or what evidence strongly supports. Never infer suitability, allocation, or position size.</p>
+        <h2>Guardrail Protocol</h2>
+        <p>Provide 3-5 concise questions that hedge the user's existing process before a thesis enters decision review.</p>
       </article>
     </section>
 
     <section class="section-grid">
       <article>
-        <h2>Decision Fingerprint Reference</h2>
+        <h2>Internal Fingerprint Reference</h2>
         <div class="fingerprint">${bars}</div>
       </article>
       <article>
-        <h2>False-Match Warning</h2>
-        <p>The final report must say that a master match is a learning archetype and process lens, not an identity claim or authority signal.</p>
+        <h2>/investment-decision CTA</h2>
+        <p>The final report should end with a command scaffold that feeds the personalized thesis-lint workflow: asset/theme, horizon, thesis, price expectations, catalyst, falsification, and constraints.</p>
       </article>
     </section>
 
@@ -2647,13 +2707,11 @@ function renderProfileReportTemplate(profile: InvestorProfile, outputDir: string
         <h2>Required Final Sections</h2>
         <ol>
           <li>Positive recognition</li>
-          <li>Evidence ledger</li>
-          <li>Model interpretation</li>
-          <li>Interview calibration</li>
-          <li>Risk, horizon, and constraints</li>
-          <li>Master lens and false-match warning</li>
-          <li>Guardrail protocols</li>
-          <li>Next process step</li>
+          <li>Evidence scanned</li>
+          <li>Six-dimension decision pattern</li>
+          <li>Master learning lens</li>
+          <li>Compact guardrail protocol</li>
+          <li>/investment-decision command scaffold</li>
         </ol>
       </article>
       <article>
@@ -2675,27 +2733,34 @@ function renderProfileReportTemplate(profile: InvestorProfile, outputDir: string
 function renderFinalProfileHtml(profile: InvestorProfile, content: FinalProfileContent, outputDir: string) {
   const primary = profile.best_fit_master_matches[0];
   const status = profile.profile_state === "provisional" ? "Provisional" : "Finalized";
-  const recognition = content.hero?.positive_recognition ?? profile.interpretation_summary ?? "Your strongest evidenced behavior is turning an investment thesis into an explicit evidence and review system.";
+  const labels = profileUiLabels(content);
+  const recognition = content.hero?.positive_recognition ?? profile.interpretation_summary ?? labels.defaultRecognition;
   const statusLine = content.hero?.status_line ?? `${status} profile rendered from model structured content.`;
+  const userDecisionStyle = content.hero?.user_decision_style ?? recognition;
+  const whyMasterMatch = content.hero?.why_master_match ?? content.master_lens?.why_this_lens ?? primary.why_match;
+  const masterBio = content.hero?.master_bio ?? primary.bio_summary;
   const evidenceSummary = content.evidence?.summary ?? profile.evidence_summary ?? evidenceSummaryFromInputs(profile);
-  const interpretationSummary = content.interpretation?.summary ?? profile.interpretation_summary ?? "The model interpretation separates evidence from judgment and keeps uncertain dimensions explicit.";
+  const evidenceRows = content.evidence?.rows?.length ? content.evidence.rows : defaultEvidenceRows(profile, content);
+  const patternSummary = content.decision_pattern?.summary ?? content.interpretation?.summary ?? profile.interpretation_summary ?? labels.defaultPatternSummary;
+  const patternDimensions = normalizeDecisionPatternDimensions(content.decision_pattern?.dimensions);
   const masterRationale = content.master_lens?.why_this_lens ?? primary.why_match;
   const learn = normalizeOptionalStringArray(content.master_lens?.what_to_learn, primary.what_to_learn);
   const avoid = normalizeOptionalStringArray(content.master_lens?.what_not_to_copy, primary.what_not_to_copy);
-  const questions = normalizeOptionalStringArray(content.interview_calibration?.questions, profile.agent_interview_questions ?? profile.model_interview_questions ?? []);
   const answersSummary = content.interview_calibration?.answers_summary ?? profile.model_interview_answers_summary ?? "Interview calibration summary unavailable.";
-  const unknowns = normalizeOptionalStringArray(content.interview_calibration?.unknown_dimensions, profile.unknown_dimensions);
-  const guardrails = content.guardrail_protocols?.length ? content.guardrail_protocols : profile.active_guardrails.map((guardrail) => ({
+  const unknowns = Array.isArray(content.interview_calibration?.unknown_dimensions)
+    ? normalizeStringArray(content.interview_calibration?.unknown_dimensions)
+    : normalizeStringArray(profile.unknown_dimensions);
+  const guardrails = (content.guardrail_protocols?.length ? content.guardrail_protocols : profile.active_guardrails.map((guardrail) => ({
     guardrail_id: guardrail,
     title: guardrailName(guardrail),
     rationale: guardrailReason(guardrail),
     questions: guardrailQuestions[guardrail] ?? []
-  }));
-  const rejected = normalizeStringArray(content.interpretation?.rejected_or_downweighted_signals);
-  const nextStep = content.next_process_step ?? "Use /investment-decision on one current thesis to turn this profile into a process review.";
+  }))).slice(0, 5);
+  const cta = content.decision_review_cta ?? defaultDecisionReviewCta(labels);
+  const nextStep = content.next_process_step ?? labels.defaultNextStep;
   const matchBadge = primary.match_confidence ? `${humanize(primary.match_confidence)} confidence` : "model-selected lens";
   return `<!doctype html>
-<html lang="en">
+<html lang="${escapeHtml(labels.lang)}">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -2704,53 +2769,64 @@ function renderFinalProfileHtml(profile: InvestorProfile, content: FinalProfileC
 </head>
 <body>
   <main class="page-shell">
-    <section class="hero-grid">
-      <div>
+    <section class="hero-grid hero-profile">
+      <article class="master-portrait-panel">
+        ${masterPortraitImg(primary.master_id, primary.display_name, outputDir)}
+        <p class="label">${escapeHtml(labels.bestFitMasterLens)} · ${escapeHtml(matchBadge)}</p>
+        <h2>${escapeHtml(primary.display_name)}</h2>
+        <p>${escapeHtml(masterBio)}</p>
+        <a href="${escapeHtml(primary.read_more_url)}">${escapeHtml(labels.readMore)}</a>
+      </article>
+      <div class="hero-copy">
         <p class="kicker">Investment Mirror ${escapeHtml(status)} Profile</p>
         <h1>${escapeHtml(recognition)}</h1>
-        <p class="lead">${escapeHtml(statusLine)}</p>
-        <div class="confidence"><span>Profile state</span><strong>${escapeHtml(status)}</strong></div>
+        <p class="decision-copy">${escapeHtml(userDecisionStyle)}</p>
+        <p class="decision-copy">${escapeHtml(whyMasterMatch)}</p>
+        <div class="confidence"><span>${escapeHtml(labels.profileState)}</span><strong>${escapeHtml(status)}</strong></div>
+        <p class="status-line">${escapeHtml(statusLine)}</p>
       </div>
-      <article class="master-card primary">
-        ${masterPortraitImg(primary.master_id, primary.display_name, outputDir)}
-        <div>
-          <p class="label">Best-fit master lens · ${escapeHtml(matchBadge)}</p>
-          <h2>${escapeHtml(primary.display_name)}</h2>
-          <p>${escapeHtml(masterRationale)}</p>
-          <a href="${escapeHtml(primary.read_more_url)}">Read more</a>
-        </div>
-      </article>
     </section>
 
-    <section class="report-stack">
-      <article class="sheet">
-        <h2>Evidence Ledger</h2>
+    <section class="sheet evidence-sheet">
+      <div class="section-heading">
+        <h2>${escapeHtml(labels.evidenceScanned)}</h2>
         <p>${escapeHtml(evidenceSummary)}</p>
-        <dl>
-          <div><dt>Sources scanned</dt><dd>${profile.source_summary.conversations_scanned}</dd></div>
-          <div><dt>Candidate episodes</dt><dd>${profile.source_summary.decision_episodes_found}</dd></div>
-          <div><dt>Receipt summaries</dt><dd>${profile.source_summary.receipts_used}</dd></div>
-        </dl>
-      </article>
-      <article class="sheet offset">
-        <h2>Model Interpretation</h2>
-        <p>${escapeHtml(interpretationSummary)}</p>
-        ${rejected.length ? `<h3>Downweighted signals</h3><ul>${rejected.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ul>` : ""}
-      </article>
+      </div>
+      <dl class="metric-row">
+        <div><dt>${escapeHtml(labels.sourcesScanned)}</dt><dd>${profile.source_summary.conversations_scanned}</dd></div>
+        <div><dt>${escapeHtml(labels.candidateEvidence)}</dt><dd>${profile.source_summary.decision_episodes_found}</dd></div>
+        <div><dt>${escapeHtml(labels.receiptSummaries)}</dt><dd>${profile.source_summary.receipts_used}</dd></div>
+      </dl>
+      <table class="evidence-table">
+        <thead>
+          <tr>
+            <th>${escapeHtml(labels.evidenceSourceType)}</th>
+            <th>${escapeHtml(labels.evidenceWhatScanned)}</th>
+            <th>${escapeHtml(labels.evidenceHowUsed)}</th>
+            <th>${escapeHtml(labels.evidenceTakeaway)}</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${evidenceRows.map((row) => `<tr><td>${escapeHtml(row.source_type ?? "")}</td><td>${escapeHtml(row.what_scanned ?? "")}</td><td>${escapeHtml(row.how_used ?? "")}</td><td>${escapeHtml(row.takeaway ?? "")}</td></tr>`).join("")}
+        </tbody>
+      </table>
+      ${content.evidence?.receipt_ids?.length ? `<p class="receipt-line">${escapeHtml(labels.receipts)}: ${content.evidence.receipt_ids.map((id) => `<code>${escapeHtml(id)}</code>`).join(" ")}</p>` : ""}
     </section>
 
-    <section class="section-grid">
-      <article>
-        <h2>Interview Calibration</h2>
-        <p>${escapeHtml(answersSummary)}</p>
-        ${questions.length ? `<ol>${questions.map((question) => `<li>${escapeHtml(question)}</li>`).join("")}</ol>` : ""}
-      </article>
-      <article>
-        <h2>Risk, Horizon, Constraints</h2>
-        <p><strong>Risk:</strong> ${escapeHtml(profile.risk_preference_summary ?? "Risk preference remains user-owned and is not inferred as suitability.")}</p>
-        <p><strong>Horizon:</strong> ${escapeHtml(profile.time_horizon_summary ?? "Time horizon remains explicit calibration input.")}</p>
-        <p><strong>Constraints:</strong> ${escapeHtml(profile.constraints_summary ?? "No allocation, sizing, or suitability conclusion is inferred.")}</p>
-      </article>
+    <section>
+      <div class="section-heading">
+        <h2>${escapeHtml(labels.decisionPattern)}</h2>
+        <p>${escapeHtml(patternSummary)}</p>
+      </div>
+      <div class="pattern-grid">
+        ${patternDimensions.map((dimension) => `<article class="pattern-card">
+          <span>${escapeHtml(dimension.label ?? labelForDecisionPatternDimension(dimension.id ?? ""))}</span>
+          <p>${escapeHtml(dimension.read ?? "")}</p>
+          ${dimension.evidence_basis ? `<dl><div><dt>${escapeHtml(labels.evidenceBasis)}</dt><dd>${escapeHtml(dimension.evidence_basis)}</dd></div></dl>` : ""}
+          ${dimension.master_connection ? `<dl><div><dt>${escapeHtml(labels.masterConnection)}</dt><dd>${escapeHtml(dimension.master_connection)}</dd></div></dl>` : ""}
+          ${dimension.caveat ? `<p class="caveat">${escapeHtml(dimension.caveat)}</p>` : ""}
+        </article>`).join("")}
+      </div>
     </section>
 
     ${unknowns.length ? `<section>
@@ -2760,40 +2836,160 @@ function renderFinalProfileHtml(profile: InvestorProfile, content: FinalProfileC
 
     <section class="section-grid">
       <article>
-        <h2>Master Lens</h2>
+        <h2>${escapeHtml(labels.masterLens)}</h2>
+        <p>${escapeHtml(masterRationale)}</p>
         <p>${escapeHtml(profile.false_match_warning ?? "The master match is a learning archetype, not an identity claim or authority signal.")}</p>
-        <h3>What to learn</h3>
+        <h3>${escapeHtml(labels.whatToLearn)}</h3>
         <ul>${learn.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ul>
-        <h3>What not to copy</h3>
+        <h3>${escapeHtml(labels.whatNotToCopy)}</h3>
         <ul>${avoid.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ul>
       </article>
       <article>
-        <h2>Decision Fingerprint</h2>
-        <div class="fingerprint">
-          ${Object.entries(profile.decision_fingerprint).slice(0, 7).map(([key, value]) => {
-            const label = STYLE_DIMENSIONS.find((dimension) => dimension.id === key)?.label ?? key;
-            return `<div class="fingerprint-row"><span>${escapeHtml(label)}</span><strong>${Math.round(value)}</strong><i style="--v:${Math.round(value)}"></i></div>`;
-          }).join("")}
-        </div>
+        <h2>${escapeHtml(labels.calibrationNotes)}</h2>
+        <p>${escapeHtml(answersSummary)}</p>
+        <dl>
+          <div><dt>${escapeHtml(labels.horizon)}</dt><dd>${escapeHtml(profile.time_horizon_summary ?? "")}</dd></div>
+          <div><dt>${escapeHtml(labels.reviewBoundary)}</dt><dd>${escapeHtml(profile.risk_preference_summary ?? "")}</dd></div>
+          <div><dt>${escapeHtml(labels.constraints)}</dt><dd>${escapeHtml(profile.constraints_summary ?? "")}</dd></div>
+        </dl>
       </article>
     </section>
 
     <section>
-      <h2>Guardrail Protocols</h2>
+      <h2>${escapeHtml(labels.guardrailProtocol)}</h2>
       <div class="guardrails">
         ${guardrails.map((guardrail) => `<article><span>${escapeHtml(guardrail.title ?? guardrailName(guardrail.guardrail_id ?? ""))}</span><p>${escapeHtml(guardrail.rationale ?? guardrailReason(guardrail.guardrail_id ?? ""))}</p><ul>${normalizeStringArray(guardrail.questions).map((question) => `<li>${escapeHtml(question)}</li>`).join("")}</ul></article>`).join("")}
       </div>
     </section>
 
-    <section>
-      <h2>Next Process Step</h2>
+    <section class="sheet cta-section">
+      <h2>${escapeHtml(cta.heading ?? labels.runDecisionReview)}</h2>
+      <p>${escapeHtml(cta.intro ?? nextStep)}</p>
+      <pre><code>${escapeHtml(cta.command_template ?? labels.defaultDecisionCommand)}</code></pre>
+      ${normalizeStringArray(cta.fields).length ? `<ul>${normalizeStringArray(cta.fields).map((field) => `<li>${escapeHtml(field)}</li>`).join("")}</ul>` : ""}
       <p>${escapeHtml(nextStep)}</p>
     </section>
 
-    <footer>Investment Mirror does not provide investment, legal, tax, or financial advice. It structures your reasoning; you remain responsible for your decisions. Raw transcripts are not exposed in this report.</footer>
+    <footer>${escapeHtml(labels.safetyFooter)}</footer>
   </main>
 </body>
 </html>`;
+}
+
+function profileUiLabels(content: FinalProfileContent) {
+  const zh = String(content.ui_language ?? "").toLowerCase().startsWith("zh");
+  const defaults = zh ? {
+    lang: "zh-Hans",
+    defaultRecognition: "你的投资决策画像",
+    defaultPatternSummary: "这个画像描述你如何形成、校验、推进和复盘投资判断。",
+    defaultNextStep: "下一步可以用 /investment-decision 跑一个具体 thesis，把这个 profile 变成 process review。",
+    defaultDecisionCommand: `/investment-decision Research-only review of [股票/代码/主题] over [时间范围].\n\nMy thesis:\n[写一句你的 thesis]\n\nWhat I think the current price already implies:\n[写当前价格似乎已经反映了什么]\n\nCatalyst I would need to see:\n[写未来什么事件/数据会让这个 thesis 值得继续 review]\n\nWhat would weaken or falsify the thesis:\n[写什么证据会说明 thesis deterioration]\n\nConstraints or review boundaries:\n[写 liquidity / tax / employment / concentration / drawdown / time horizon 等边界；没有就写 no constraints stated]`,
+    bestFitMasterLens: "Best-fit master lens",
+    readMore: "Read more",
+    profileState: "Profile state",
+    evidenceScanned: "Evidence scanned",
+    sourcesScanned: "Sources scanned",
+    candidateEvidence: "Candidate evidence",
+    receiptSummaries: "Receipt summaries",
+    evidenceSourceType: "Source type",
+    evidenceWhatScanned: "What was scanned",
+    evidenceHowUsed: "How it was used",
+    evidenceTakeaway: "Takeaway",
+    receipts: "Receipts",
+    decisionPattern: "Decision Pattern",
+    evidenceBasis: "Evidence basis",
+    masterConnection: "Master connection",
+    masterLens: "Master Lens",
+    whatToLearn: "What to learn",
+    whatNotToCopy: "What not to copy",
+    calibrationNotes: "Calibrated facts",
+    horizon: "Horizon",
+    reviewBoundary: "Review boundary",
+    constraints: "Constraints",
+    guardrailProtocol: "Guardrail Protocol",
+    runDecisionReview: "Run a Decision Review",
+    safetyFooter: "Investment Mirror does not provide investment, legal, tax, or financial advice. 它只帮你结构化推理；最终决策仍由你负责。Raw transcripts are not exposed in this report."
+  } : {
+    lang: "en",
+    defaultRecognition: "Your investment decision profile",
+    defaultPatternSummary: "This profile describes how you form, test, advance, and review investment judgments.",
+    defaultNextStep: "Use /investment-decision on one current thesis to turn this profile into a process review.",
+    defaultDecisionCommand: `/investment-decision Research-only review of [ticker/asset/theme] over [horizon].\n\nMy thesis:\n[write one thesis sentence]\n\nWhat I think the current price already implies:\n[write what seems priced in]\n\nCatalyst I would need to see:\n[write the evidence or event needed within the horizon]\n\nWhat would weaken or falsify the thesis:\n[write the deterioration condition]\n\nConstraints or review boundaries:\n[write liquidity / tax / employment / concentration / drawdown / time horizon boundaries; if none are stated, write no constraints stated]`,
+    bestFitMasterLens: "Best-fit master lens",
+    readMore: "Read more",
+    profileState: "Profile state",
+    evidenceScanned: "Evidence scanned",
+    sourcesScanned: "Sources scanned",
+    candidateEvidence: "Candidate evidence",
+    receiptSummaries: "Receipt summaries",
+    evidenceSourceType: "Source type",
+    evidenceWhatScanned: "What was scanned",
+    evidenceHowUsed: "How it was used",
+    evidenceTakeaway: "Takeaway",
+    receipts: "Receipts",
+    decisionPattern: "Decision Pattern",
+    evidenceBasis: "Evidence basis",
+    masterConnection: "Master connection",
+    masterLens: "Master Lens",
+    whatToLearn: "What to learn",
+    whatNotToCopy: "What not to copy",
+    calibrationNotes: "Calibrated facts",
+    horizon: "Horizon",
+    reviewBoundary: "Review boundary",
+    constraints: "Constraints",
+    guardrailProtocol: "Guardrail Protocol",
+    runDecisionReview: "Run a Decision Review",
+    safetyFooter: "Investment Mirror does not provide investment, legal, tax, or financial advice. It structures your reasoning; you remain responsible for your decisions. Raw transcripts are not exposed in this report."
+  };
+  return { ...defaults, ...(content.labels ?? {}) };
+}
+
+function normalizeDecisionPatternDimensions(dimensions: NonNullable<FinalProfileContent["decision_pattern"]>["dimensions"]) {
+  const list = Array.isArray(dimensions) ? dimensions : [];
+  const byId = new Map(list.map((dimension) => [dimension.id, dimension]));
+  return DECISION_PATTERN_DIMENSIONS.map((required) => byId.get(required.id) ?? {
+    id: required.id,
+    label: required.label,
+    read: "",
+    evidence_basis: "",
+    master_connection: ""
+  });
+}
+
+function labelForDecisionPatternDimension(id: string) {
+  return DECISION_PATTERN_DIMENSIONS.find((dimension) => dimension.id === id)?.label ?? humanize(id);
+}
+
+function defaultEvidenceRows(profile: InvestorProfile, content: FinalProfileContent) {
+  return [
+    {
+      source_type: "Direct public-equity evidence",
+      what_scanned: `${profile.source_summary.decision_episodes_found} candidate decision episodes`,
+      how_used: "Not treated as realized investment behavior unless the model has verified it.",
+      takeaway: "Direct investing history remains evidence-light."
+    },
+    {
+      source_type: "Indirect process evidence",
+      what_scanned: `${profile.source_summary.receipts_used} receipt summaries`,
+      how_used: "Used only as process evidence, not as buy/sell/hold behavior.",
+      takeaway: profile.match_strengths[0] ?? "Shows how the user structures decision work."
+    },
+    {
+      source_type: "Interview calibration",
+      what_scanned: "Model-generated calibration answers",
+      how_used: "Used as explicit user input for horizon, review boundary, decision threshold, and constraints.",
+      takeaway: content.interview_calibration?.answers_summary ?? profile.model_interview_answers_summary ?? "Calibration summary unavailable."
+    }
+  ];
+}
+
+function defaultDecisionReviewCta(labels: ReturnType<typeof profileUiLabels>) {
+  return {
+    heading: labels.runDecisionReview,
+    intro: labels.defaultNextStep,
+    command_template: labels.defaultDecisionCommand,
+    fields: []
+  };
 }
 
 function renderProfileCandidateReportHtml(profile: InvestorProfile, evidenceItems: CandidateEvidenceItem[], outputDir: string) {
@@ -2995,10 +3191,38 @@ function sharedReportCss() {
   .master-card, .sheet, .section-grid > article, .guardrails article, .issues article { background:rgba(255,253,248,.92); border:1px solid var(--line); border-radius:8px; }
   .master-card { display:grid; grid-template-columns: 170px 1fr; gap:22px; padding:20px; box-shadow: 0 24px 60px rgba(81, 51, 28, .09); transform: rotate(-1deg); }
   .master-card img { width:100%; border-radius:8px; border:1px solid var(--line); background:var(--soft); }
-  .master-card a { color:var(--copper); font-weight:700; text-decoration:none; }
+  .master-card a, .master-portrait-panel a { color:var(--copper); font-weight:700; text-decoration:none; }
+  .hero-profile { grid-template-columns: 360px 1fr; gap:46px; align-items:center; }
+  .hero-copy h1 { max-width:900px; }
+  .decision-copy { max-width:72ch; color:var(--ink); font-size:22px; line-height:1.55; margin:20px 0; }
+  .status-line { color:var(--muted); max-width:68ch; }
+  .master-portrait-panel { align-self:stretch; display:flex; flex-direction:column; justify-content:flex-end; min-height:620px; padding:22px; border-left:1px solid var(--line); background:linear-gradient(180deg, rgba(246,238,224,.2), rgba(246,238,224,.75)); }
+  .master-portrait-panel img { width:100%; margin:auto 0 18px; border:1px solid var(--line); border-radius:8px; background:var(--soft); }
+  .master-portrait-panel .master-portrait-fallback { margin:auto 0 18px; }
+  .master-portrait-panel h2 { margin-top:6px; }
   .master-portrait-fallback { display:flex; align-items:center; justify-content:center; aspect-ratio:1; width:100%; border-radius:8px; border:1px dashed var(--line); background:var(--soft); color:var(--muted); }
   .master-detail .master-portrait-fallback { width:120px; }
   .master-portrait-fallback span { font-family:ui-monospace, SFMono-Regular, Menlo, monospace; font-size:34px; letter-spacing:2px; }
+  .section-heading { max-width:920px; margin:0 0 22px; }
+  .section-heading p { color:var(--muted); font-size:18px; line-height:1.65; }
+  .evidence-sheet { margin:42px 0; }
+  .metric-row { display:grid; grid-template-columns:repeat(3, minmax(0, 1fr)); gap:16px; margin:22px 0; }
+  .metric-row div { display:block; border:1px solid var(--line); padding:14px; }
+  .metric-row dd { margin:6px 0 0; font:700 26px/1 ui-monospace, SFMono-Regular, Menlo, monospace; }
+  .evidence-table { width:100%; border-collapse:collapse; table-layout:fixed; margin-top:18px; }
+  .evidence-table th, .evidence-table td { text-align:left; vertical-align:top; border-top:1px solid var(--line); padding:14px 12px; }
+  .evidence-table th { color:var(--muted); font:700 12px/1.2 ui-monospace, SFMono-Regular, Menlo, monospace; text-transform:uppercase; }
+  .receipt-line { color:var(--muted); font-size:14px; }
+  .receipt-line code { color:var(--ink); }
+  .pattern-grid { display:grid; grid-template-columns:repeat(3, minmax(0, 1fr)); gap:18px; margin:28px 0 42px; }
+  .pattern-card { min-height:250px; padding:22px; border:1px solid var(--line); border-radius:8px; background:rgba(255,253,248,.92); }
+  .pattern-card span { display:block; color:var(--copper); font:700 12px/1.2 ui-monospace, SFMono-Regular, Menlo, monospace; text-transform:uppercase; margin-bottom:14px; }
+  .pattern-card p { font-size:17px; line-height:1.6; }
+  .pattern-card dl { margin-top:16px; }
+  .pattern-card dl div { display:block; padding:10px 0; }
+  .pattern-card dd { margin:6px 0 0; color:var(--muted); }
+  .caveat { color:var(--muted); border-top:1px solid var(--line); padding-top:12px; }
+  .cta-section { margin-top:42px; }
   .report-stack { display:grid; grid-template-columns: 1fr 1.2fr; gap:24px; align-items:start; margin:42px 0; }
   .sheet { padding:30px; box-shadow:0 18px 50px rgba(81, 51, 28, .07); }
   .sheet.offset { margin-top:34px; }
@@ -3020,7 +3244,8 @@ function sharedReportCss() {
   dt { color:var(--muted); }
   footer { margin-top:42px; color:var(--muted); border-top:1px solid var(--line); padding-top:18px; font-size:14px; }
   pre { white-space:pre-wrap; overflow:auto; background:#2f2b27; color:#fff8ef; border-radius:8px; padding:18px; }
-  @media (max-width: 820px) { .hero-grid, .report-stack, .section-grid, .guardrails, .issues, .master-card, .master-detail { grid-template-columns:1fr; } h1 { font-size:44px; } .page-shell { width:min(100% - 24px, 1160px); padding-top:24px; } .hero-grid { min-height:auto; padding:32px 0; } .sheet.offset { margin-top:0; } }
+  @media (max-width: 1000px) { .pattern-grid { grid-template-columns:repeat(2, minmax(0, 1fr)); } }
+  @media (max-width: 820px) { .hero-grid, .hero-profile, .report-stack, .section-grid, .guardrails, .issues, .master-card, .master-detail, .pattern-grid, .metric-row { grid-template-columns:1fr; } h1 { font-size:44px; } .page-shell { width:min(100% - 24px, 1160px); padding-top:24px; } .hero-grid { min-height:auto; padding:32px 0; } .master-portrait-panel { min-height:auto; } .sheet.offset { margin-top:0; } .evidence-table { display:block; overflow-x:auto; } }
   </style>`;
 }
 

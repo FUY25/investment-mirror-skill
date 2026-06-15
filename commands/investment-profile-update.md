@@ -34,7 +34,7 @@ node "${CLAUDE_PLUGIN_ROOT}/skills/investment-mirror/scripts/cli.mjs" profile-up
 8. As the agent/LLM, read the updated evidence packet and distinguish local evidence from model interpretation.
 9. If the update exposes unresolved dimensions such as risk preference, horizon, or constraints, ask 2-5 targeted interview questions before changing the final model profile.
 10. Generate an update report that lists candidate evidence span count changes and the model review requirement.
-11. If the final profile changes, synthesize updated JSON and structured final content in the model phase, then run `/investment-profile-finalize --content profile_model_content.json`.
+11. If the final profile changes, synthesize updated JSON and structured final content in the model phase, including the six investment-process dimensions: philosophy, decision-making process, research process, buy/sell discipline, risk process, and repeatability. Then run `/investment-profile-finalize --content profile_model_content.json`.
 
 ## Outputs
 
@@ -61,4 +61,4 @@ Show:
 
 Use process language only. Do not turn profile updates into investment recommendations.
 
-Do not accept retrieval-score changes as profile changes. Run `/investment-profile-finalize --content profile_model_content.json` only after the agent/LLM has reviewed updated evidence, compared master records, synthesized updated JSON, and generated updated structured final content.
+Do not accept retrieval-score changes as profile changes. Run `/investment-profile-finalize --content profile_model_content.json` only after the agent/LLM has reviewed updated evidence, compared master records, synthesized updated JSON, and generated updated structured final content using the six investment-process dimensions.

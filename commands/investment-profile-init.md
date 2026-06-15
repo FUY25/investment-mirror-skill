@@ -40,7 +40,7 @@ node "${CLAUDE_PLUGIN_ROOT}/skills/investment-mirror/scripts/cli.mjs" profile-in
 13. Ask those questions before finalization unless the user explicitly declines.
 14. As the agent/LLM, choose the final master lens by reading evidence plus `research/masters/{master_id}/profile.md`, `style_notes.md`, and `sources.yaml`; there are no deterministic candidate master suggestions.
 15. Produce a model-synthesized profile JSON matching `profile_finalization_schema.json`.
-16. Produce `profile_model_content.json` as structured user-facing final content. Do not hand-write raw HTML.
+16. Produce `profile_model_content.json` as structured user-facing final content. It must use the six investment-process dimensions: philosophy, decision-making process, research process, buy/sell discipline, risk process, and repeatability. Do not hand-write raw HTML.
 17. Run `/investment-profile-finalize --content profile_model_content.json` so the finalizer can render, validate, and write final `profile.json` and `profile.html`.
 
 If discovery reports **0 sources**, the command returns a `needs_sources` state instead of a master suggestion. Tell the user to add `--include` paths or confirm `~/.codex/sessions` / `~/.claude/projects` contain transcripts, then re-run.
@@ -77,6 +77,17 @@ The agent/LLM final profile must distinguish:
 - model interpretation;
 - what the interview clarified;
 - what remains uncertain.
+
+The final profile's user-facing interpretation should be a decision-pattern profile, not a one-security review checklist. Use:
+
+- philosophy;
+- decision-making process;
+- research process;
+- buy/sell discipline;
+- risk process;
+- repeatability.
+
+The final CTA should invite the user to run `/investment-decision` on one concrete thesis with asset/theme, horizon, thesis, current-price expectations, catalyst, falsification or deterioration condition, and constraints/review boundaries.
 
 If the user declines the 2-5 interview questions, generate provisional JSON and provisional structured final content, then use `/investment-profile-finalize --provisional --declined-interview --content profile_model_content.json` and list unknown dimensions. Never infer risk preference, liquidity constraints, horizon, or concentration comfort from logs alone.
 

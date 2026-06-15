@@ -50,16 +50,18 @@ Legacy `--html PATH` is accepted only for compatibility. The normal product path
 The final profile must include:
 
 - evidence summary;
-- interpretation summary;
+- compact evidence-scanned table, with interview calibration as one evidence source row rather than a standalone section;
+- six-dimension investment-process interpretation: philosophy, decision-making process, research process, buy/sell discipline, risk process, and repeatability;
 - one primary master match and at most one secondary affinity;
 - guardrail rationale;
-- model-synthesized primary patterns, decision fingerprint, and active guardrails;
+- model-synthesized primary patterns and active guardrails;
 - interview questions and answer summary;
 - risk preference summary;
 - time horizon summary;
 - constraints summary;
 - false-match warning;
 - final HTML rendered by the deterministic finalizer from model-owned structured content, using `profile_report_template.html` only as visual reference;
+- `/investment-decision` command scaffold for the next concrete thesis review;
 - unknown dimensions when provisional.
 
 Final profile cleanup rules:

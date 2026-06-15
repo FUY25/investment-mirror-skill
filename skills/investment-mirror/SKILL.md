@@ -44,7 +44,10 @@ Inside a Claude Code plugin command, reference the bundle via
 
 - Start final profile presentations with positive recognition and the best-fit master match.
 - Use one primary master match by default; add one secondary affinity only when evidence supports it.
-- Match the user's language for user-facing questions, summaries, and final profile copy unless the user asks for another language.
+- Match the completed interview answers' dominant language for user-facing questions, summaries, final profile copy, and rendered HTML chrome unless the user asks for another language. If interview-answer language conflicts with earlier chat or transcript language, the interview-answer language wins. Master names, file paths, IDs, and technical field names may stay in their canonical form.
+- Frame final profile interpretation as a six-dimension investment-process profile: philosophy, decision-making process, research process, buy/sell discipline, risk process, and repeatability. These dimensions describe how the user tends to make investment decisions; they are not a checklist for one security.
+- Keep interview calibration inside the evidence-scanned section as one source row unless the profile is provisional and must list unknown dimensions.
+- End final profile presentations with a `/investment-decision` command scaffold for a concrete thesis review, not a generic LLM prompt.
 - Calibrate confidence and tone to evidence strength. If direct investment evidence is absent or sparse, say the profile is evidence-light or process-level, keep the master lens tentative/low-confidence unless interview answers strongly support it, and avoid definitive identity-style claims.
 - Treat direct public-equity evidence, indirect process evidence, and interview calibration as separate inputs. Do not let product/engineering workflow evidence masquerade as investment behavior.
 - Do not convert a stated drawdown/review trigger into a broad risk-tolerance claim. Phrase it as a user-stated review boundary, not allocation, sizing, suitability, or general volatility comfort.

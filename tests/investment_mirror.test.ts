@@ -113,16 +113,41 @@ function modelSynthesizedProfile(candidate: any, overrides: Record<string, unkno
 
 function modelGeneratedProfileContent(masterName: string) {
   return {
+    ui_language: "en",
     hero: {
       positive_recognition: "Evidence-backed decision profile",
-      status_line: "Final profile rendered from model structured content."
+      status_line: "Final profile rendered from model structured content.",
+      user_decision_style: "The user turns investment ideas into evidence, review gates, and explicit process checks before action.",
+      why_master_match: `${masterName} is a useful process lens because the match is about disciplined reasoning rather than authority copying.`,
+      master_bio: `${masterName} is used here as a source-backed learning archetype.`
     },
     evidence: {
-      summary: "Model-reviewed evidence summaries and source IDs support the profile; raw transcript text is not exposed."
+      summary: "Model-reviewed evidence summaries and source IDs support the profile; raw transcript text is not exposed.",
+      rows: [
+        {
+          source_type: "Interview calibration",
+          what_scanned: "Model-generated calibration answers",
+          how_used: "Used as explicit user input.",
+          takeaway: "Clarified horizon, review triggers, and evidence threshold."
+        },
+        {
+          source_type: "Indirect process evidence",
+          what_scanned: "Receipt summaries",
+          how_used: "Used only as process evidence.",
+          takeaway: "Supports a source-first workflow."
+        }
+      ]
     },
-    interpretation: {
-      summary: "The model interpretation separates evidence from judgment and explains which signals mattered.",
-      rejected_or_downweighted_signals: ["candidate similarity scores were treated as suggestions only"]
+    decision_pattern: {
+      summary: "The profile analyzes how the user makes investment decisions across six process dimensions.",
+      dimensions: [
+        { id: "philosophy", label: "Philosophy", read: "The user prefers process discipline over narrative intensity.", evidence_basis: "Model-reviewed receipts and interview answers.", master_connection: "Matches a process lens rather than an identity." },
+        { id: "decision_making_process", label: "Decision-making process", read: "The user asks for criteria and gates before action.", evidence_basis: "Evidence shows review gates.", master_connection: "Relevant to the selected master lens." },
+        { id: "research_process", label: "Research process", read: "The user wants source quality and evidence provenance.", evidence_basis: "Receipts emphasize source provenance.", master_connection: "Uses the master lens as a research discipline." },
+        { id: "buy_sell_discipline", label: "Buy/sell discipline", read: "The profile does not infer buy/sell behavior from sparse evidence.", evidence_basis: "No direct public-equity decisions were observed.", master_connection: "Keeps action rules user-owned." },
+        { id: "risk_process", label: "Risk process", read: "Review triggers are treated as process boundaries, not suitability.", evidence_basis: "Interview answer defined review triggers.", master_connection: "Supports downside-aware learning." },
+        { id: "repeatability", label: "Repeatability", read: "The user benefits from repeatable thesis-review prompts.", evidence_basis: "Evidence supports rule-auditable workflow.", master_connection: "Turns the lens into a repeatable process." }
+      ]
     },
     master_lens: {
       why_this_lens: `${masterName} is used as a learning archetype, not an identity or authority claim.`,
@@ -140,6 +165,12 @@ function modelGeneratedProfileContent(masterName: string) {
         questions: ["What would weaken this thesis?"]
       }
     ],
+    decision_review_cta: {
+      heading: "Run a Decision Review",
+      intro: "Use the thesis-lint workflow for one concrete idea.",
+      command_template: "/investment-decision Research-only review of [ticker/theme] over [horizon].",
+      fields: ["asset/theme", "horizon", "thesis", "price expectation", "catalyst", "falsification condition"]
+    },
     next_process_step: "Run /investment-decision on a current thesis."
   };
 }
@@ -280,7 +311,7 @@ test("profile finalize is the only writer of final profile json and html", () =>
   assert.ok(existsSync(join(output, "profile.html")));
   const html = readFileSync(join(output, "profile.html"), "utf8");
   assert.match(html, /Final profile rendered from model structured content/);
-  assert.match(html, /Interview Calibration/);
+  assert.match(html, /Decision Pattern/);
   assert.doesNotMatch(html, /you should buy|you should sell|strong buy|strong sell/i);
 });
 

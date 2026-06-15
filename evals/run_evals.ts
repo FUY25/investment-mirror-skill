@@ -99,15 +99,41 @@ function finalizeFixture(output: string) {
       unknown_dimensions: []
     },
     finalContent: {
+      ui_language: "en",
       hero: {
         positive_recognition: "Investment Mirror finalized model profile",
-        status_line: "Final profile rendered from model structured content."
+        status_line: "Final profile rendered from model structured content.",
+        user_decision_style: "The user converts investment ideas into explicit evidence checks before decision review.",
+        why_master_match: "The selected master lens is useful because it reinforces process discipline rather than authority copying.",
+        master_bio: "The selected master is used as a source-backed process archetype."
       },
       evidence: {
-        summary: "Model-reviewed evidence summaries and source IDs support the profile."
+        summary: "Model-reviewed evidence summaries and source IDs support the profile.",
+        rows: [
+          {
+            source_type: "Interview calibration",
+            what_scanned: "Answers to model-generated questions",
+            how_used: "Used as explicit user input.",
+            takeaway: "Clarified review triggers and thresholds."
+          },
+          {
+            source_type: "Indirect process evidence",
+            what_scanned: "Local receipt summaries",
+            how_used: "Used only as process evidence.",
+            takeaway: "Supports a source-first review workflow."
+          }
+        ]
       },
-      interpretation: {
-        summary: "The model interpretation separates evidence from judgment."
+      decision_pattern: {
+        summary: "The final profile explains the user's investment process across six dimensions.",
+        dimensions: [
+          { id: "philosophy", label: "Philosophy", read: "The user values process discipline.", evidence_basis: "Evidence and interview calibration.", master_connection: "Process lens." },
+          { id: "decision_making_process", label: "Decision-making process", read: "The user uses explicit gates.", evidence_basis: "Evidence and interview calibration.", master_connection: "Process lens." },
+          { id: "research_process", label: "Research process", read: "The user prefers source-backed research.", evidence_basis: "Evidence and interview calibration.", master_connection: "Process lens." },
+          { id: "buy_sell_discipline", label: "Buy/sell discipline", read: "The profile does not infer actions from sparse evidence.", evidence_basis: "Evidence and interview calibration.", master_connection: "Process lens." },
+          { id: "risk_process", label: "Risk process", read: "The user-owned risk process is framed as review boundaries.", evidence_basis: "Evidence and interview calibration.", master_connection: "Process lens." },
+          { id: "repeatability", label: "Repeatability", read: "The user benefits from repeatable review prompts.", evidence_basis: "Evidence and interview calibration.", master_connection: "Process lens." }
+        ]
       },
       master_lens: {
         why_this_lens: "The selected master is a learning archetype, not an authority claim."
@@ -121,6 +147,12 @@ function finalizeFixture(output: string) {
           rationale: "Guardrails structure process without giving investment advice."
         }
       ],
+      decision_review_cta: {
+        heading: "Run a Decision Review",
+        intro: "Use the thesis-lint workflow on one concrete idea.",
+        command_template: "/investment-decision Research-only review of [ticker/theme] over [horizon].",
+        fields: ["asset/theme", "horizon", "thesis", "price expectation", "catalyst", "falsification condition"]
+      },
       next_process_step: "Run /investment-decision on a current thesis."
     },
     agentQuestions: [
