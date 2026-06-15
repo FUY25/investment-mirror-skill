@@ -17,7 +17,7 @@ Generated HTML artifacts are static-first reports with light interactions only.
 
 ## Profile Artifacts
 
-`profile_candidate_report.html` must clearly state that it is a candidate evidence report, not a profile draft.
+`profile_candidate_report.html` must clearly state that it is an evidence workbench, not a profile draft. It may show source coverage, retrieval scores, matched lexical signals, and redacted candidate evidence snippets. It must not present deterministic profile patterns, master suggestions, selected guardrails, confidence, or interpretation as user-facing judgment.
 
 Final `profile.html` must:
 

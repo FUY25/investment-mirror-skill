@@ -1,11 +1,11 @@
 fixtures:
   - name: narrative_ai_candidate
     text: I want to buy TSLA because robotaxi could unlock a massive growth curve over 3 years, but I have not checked valuation, value capture, or what would prove me wrong.
-    expected_candidate_patterns:
-      - thesis_first_reasoning
-      - narrative_to_action_jump
-    expected_episode_type: investment_reasoning
-    expected_evidence_tier: tier2_investment_conversation
+    expected_matched_signals:
+      - investment:buy
+      - investment:valuation
+      - decision:because
+      - action:buy
     expected_abstentions:
       - final_profile_json
       - final_profile_html
@@ -13,10 +13,10 @@ fixtures:
       - final_master_match
   - name: research_loop_candidate
     text: I keep adding more research and another source. Please force this into three decision variables and a reject rule before I expand scope again.
-    expected_candidate_patterns:
-      - research_loop_extension
-    expected_episode_type: research_process
-    expected_evidence_tier: tier3_general_decision_episode
+    expected_matched_signals:
+      - decision:decision
+      - decision:reject
+      - epistemic:source
     expected_abstentions:
       - final_profile_json
       - final_profile_html

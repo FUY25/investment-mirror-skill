@@ -76,6 +76,10 @@ Legacy compatibility: `--html` is accepted only as an escape hatch for existing 
 6. Generate structured final profile content; use `profile_report_template.html` only as visual reference.
 7. Keep master matches as learning archetypes, not identity labels.
 8. Do not include investment advice.
+9. Match the user's language unless they request another language.
+10. Keep evidence strength visible: if direct investment evidence is sparse, describe the profile as process-level or evidence-light and keep master confidence conservative.
+11. Do not turn review triggers into broad risk-tolerance claims, and do not turn "no constraints stated" into "no constraints."
+12. Avoid pseudo-precision in final copy; numeric fingerprint values are orientation signals, not measurements.
 
 ## User-Facing Reply
 

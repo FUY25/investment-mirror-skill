@@ -8264,19 +8264,6 @@ var decisionSignals = [
 ];
 var epistemicSignals = ["falsify", "disconfirm", "prove wrong", "base rate", "confidence", "uncertain", "unknown", "assume", "evidence", "source", "primary", "variant", "scenario"];
 var actionSignals = ["buy", "sell", "add", "trim", "avoid", "watchlist", "act", "log", "decide", "commit", "position", "allocate", "enter", "exit"];
-var patternToGuardrail = {
-  thesis_first_reasoning: "falsification_condition_before_position",
-  narrative_to_action_jump: "reverse_expectation_check_before_thematic_growth",
-  research_loop_extension: "research_loop_breaker_three_variable_rule",
-  contrarian_impulse: "consensus_gap_check_before_contrarian_thesis",
-  product_quality_overweight: "value_capture_check_before_platform_thesis",
-  macro_story_overreach: "cycle_regime_guardrail",
-  authority_anchor: "matched_master_blind_spot_check",
-  valuation_avoidance: "reverse_expectation_check_before_thematic_growth",
-  falsification_avoidance: "falsification_condition_before_position",
-  scope_expansion_under_uncertainty: "research_loop_breaker_three_variable_rule",
-  framework_over_action: "research_loop_breaker_three_variable_rule"
-};
 var guardrailQuestions = {
   reverse_expectation_check_before_thematic_growth: [
     "What does the current price already assume?",
@@ -8610,132 +8597,45 @@ function buildCandidateSpans(turns) {
 function collectCandidateEvidenceLedger(spans) {
   return spans.sort((a, b) => b.score - a.score || a.source_id.localeCompare(b.source_id) || a.start_turn - b.start_turn).map((span) => ({ ...span, analysis_scope: "full_candidate_ledger" }));
 }
-function classifyDecisionEpisodes(spans, turns, sources) {
+function buildCandidateEvidenceItems(spans, turns, sources) {
   const turnsBySource = groupBy(turns, (turn) => turn.source_id);
   const sourceById = new Map(sources.map((source) => [source.source_id, source]));
-  const episodes = [];
-  for (const span of spans) {
-    const spanTurns = (turnsBySource[span.source_id] ?? []).filter((turn) => turn.turn_index >= span.start_turn && turn.turn_index <= span.end_turn);
-    const text = spanTurns.map((turn) => turn.text_redacted).join("\n").slice(0, 5e3);
-    const patterns = detectPatterns(text, span.span_type);
-    if (!patterns.length && span.score < 4) continue;
+  return spans.map((span) => {
     const source = sourceById.get(span.source_id);
-    const hasInvestment = span.span_type === "investment";
-    const episodeType = hasInvestment ? "investment_reasoning" : text.toLowerCase().includes("research") ? "research_process" : "general_decision_reasoning";
-    const date = source?.modified_at.slice(0, 10) ?? (/* @__PURE__ */ new Date()).toISOString().slice(0, 10);
-    const evidenceTier = hasInvestment ? "tier2_investment_conversation" : "tier3_general_decision_episode";
-    const summary = summarizeSpan(text, patterns, hasInvestment);
-    episodes.push({
-      episode_id: `ep_${hashText(span.span_id).slice(0, 12)}`,
+    const spanTurns = (turnsBySource[span.source_id] ?? []).filter((turn) => turn.turn_index >= span.start_turn && turn.turn_index <= span.end_turn);
+    const text = spanTurns.map((turn) => `[${turn.role}] ${turn.text_redacted}`).join("\n").slice(0, 6e3);
+    return {
+      evidence_id: `ev_${hashText(span.span_id).slice(0, 12)}`,
       span_id: span.span_id,
       source_id: span.source_id,
       source_alias: source ? sourceAlias(source.path) : span.source_id,
-      date,
-      episode_type: episodeType,
-      summary,
-      patterns,
-      confidence: Math.max(0.45, Math.min(0.92, span.score / 12)),
-      evidence_tier: evidenceTier,
-      sensitivity: text.includes("[REDACTED") ? "medium" : "low",
-      receipt_summary: summary
-    });
+      source_type: source?.source_type ?? "text_notes",
+      path_hash: source?.path_hash ?? hashText(span.source_id),
+      date: source?.modified_at.slice(0, 10) ?? (/* @__PURE__ */ new Date()).toISOString().slice(0, 10),
+      start_turn: span.start_turn,
+      end_turn: span.end_turn,
+      turn_ids: spanTurns.map((turn) => turn.turn_id),
+      retrieval_score: span.score,
+      reason_codes: span.reason_codes,
+      matched_signals: matchedRetrievalSignals(text),
+      text_redacted: text
+    };
+  });
+}
+function matchedRetrievalSignals(text) {
+  const groups = [
+    ["investment", investmentSignals],
+    ["decision", decisionSignals],
+    ["epistemic", epistemicSignals],
+    ["action", actionSignals]
+  ];
+  const matched = [];
+  for (const [group, signals] of groups) {
+    for (const signal of signals) {
+      if (matchesSignal(text.toLowerCase(), signal)) matched.push(`${group}:${signal}`);
+    }
   }
-  return episodes;
-}
-function detectPatterns(text, spanType) {
-  const lower = text.toLowerCase();
-  const patterns = /* @__PURE__ */ new Set();
-  const thesisAnchor = /\b(thesis|idea|conviction|bull case|the case for|i (?:believe|think|want to (?:buy|own|invest)))\b/.test(lower);
-  const forwardClaim = /\b(will|could|should|going to|about to|future|long[- ]?term|secular|massive|huge|inevitable|unlock|multi[- ]?bagger|10x|growth curve|compounding)\b/.test(lower);
-  if (thesisAnchor && forwardClaim) patterns.add("thesis_first_reasoning");
-  if (/(buy|add|position|invest|stock|equity).{0,80}(ai|tam|robotaxi|platform|disrupt|massive|secular|theme|trend)|(?:ai|tam|robotaxi|platform|disrupt|theme).{0,80}(buy|stock|position|invest)/.test(lower)) patterns.add("narrative_to_action_jump");
-  if (/more research|keep researching|another source|dig deeper|expand scope|comprehensive|exhaustive/.test(lower)) patterns.add("research_loop_extension");
-  if (/market is wrong|mispriced|underpricing|consensus|contrarian|everyone thinks|street/.test(lower)) patterns.add("contrarian_impulse");
-  if (/product|founder|user experience|customers love|great company|quality business/.test(lower)) patterns.add("product_quality_overweight");
-  if (/rates|inflation|fed|macro|cycle|recession|liquidity|regime|credit/.test(lower)) patterns.add("macro_story_overreach");
-  if (/buffett|munger|ackman|analyst|guru|famous investor|superinvestor|twitter|x post/.test(lower)) patterns.add("authority_anchor");
-  if (!/valuation|multiple|dcf|price|expectation|ev\/|p\/e|cash flow/.test(lower) && spanType === "investment") patterns.add("valuation_avoidance");
-  if (!/falsify|wrong|disconfirm|would change my mind|prove.*wrong/.test(lower) && spanType === "investment") patterns.add("falsification_avoidance");
-  if (/scope|expand|also need|while we're at it|add another/.test(lower)) patterns.add("scope_expansion_under_uncertainty");
-  if (/framework|taxonomy|rubric|architecture/.test(lower) && !/decision rule|pass condition|reject/.test(lower)) patterns.add("framework_over_action");
-  return [...patterns];
-}
-function summarizeSpan(text, patterns, investment) {
-  const firstSentence = text.replace(/\s+/g, " ").split(/(?<=[.!?。！？])\s+/)[0]?.slice(0, 220) ?? "Decision-relevant reasoning was detected.";
-  const patternText = patterns.slice(0, 3).join(", ") || "decision_reasoning";
-  return `${investment ? "Investment" : "General decision"} episode showing ${patternText}. Evidence summary: ${firstSentence}`;
-}
-function aggregateDecisionPatterns(episodes) {
-  const counts = /* @__PURE__ */ new Map();
-  for (const episode of episodes) {
-    for (const pattern of episode.patterns) counts.set(pattern, (counts.get(pattern) ?? 0) + 1);
-  }
-  return [...counts.entries()].sort((a, b) => b[1] - a[1]);
-}
-function deriveProfileVector(patternCounts) {
-  const total = Math.max(1, patternCounts.reduce((sum, [, count]) => sum + count, 0));
-  const value = (pattern) => (patternCounts.find(([id]) => id === pattern)?.[1] ?? 0) / total;
-  const narrative = value("thesis_first_reasoning") + value("narrative_to_action_jump");
-  const research = value("research_loop_extension") + value("framework_over_action");
-  const contrarian = value("contrarian_impulse");
-  const product = value("product_quality_overweight");
-  const macro = value("macro_story_overreach");
-  const authority = value("authority_anchor");
-  const valuationAvoidance = value("valuation_avoidance");
-  const falsificationAvoidance = value("falsification_avoidance");
-  return {
-    narrative_sensitivity: clamp(45 + narrative * 45),
-    valuation_discipline: clamp(70 - valuationAvoidance * 45),
-    evidence_threshold: clamp(55 + research * 24 - authority * 20),
-    falsifiability_discipline: clamp(70 - falsificationAvoidance * 45),
-    time_horizon_clarity: clamp(58 + research * 12),
-    research_loop_tendency: clamp(38 + research * 60),
-    contrarian_impulse: clamp(35 + contrarian * 60),
-    product_founder_bias: clamp(25 + product * 65),
-    downside_first_thinking: clamp(55 - narrative * 15 + macro * 10),
-    catalyst_dependence: clamp(30 + contrarian * 24),
-    cycle_regime_sensitivity: clamp(25 + macro * 70),
-    systematic_vs_discretionary: clamp(40 + research * 20 - narrative * 10),
-    concentration_comfort: clamp(42 + narrative * 18 + contrarian * 18),
-    authority_reliance: clamp(15 + authority * 80),
-    value_capture_clarity: clamp(62 - product * 18 - narrative * 12)
-  };
-}
-function matchMasterStyles(vector) {
-  const matches = MASTER_RECORDS.map((master) => {
-    const distance = Math.sqrt(
-      STYLE_DIMENSIONS.reduce((sum, dimension) => {
-        const key = dimension.id;
-        return sum + Math.pow((vector[key] ?? 50) - master.vector[key], 2);
-      }, 0) / STYLE_DIMENSIONS.length
-    );
-    const similarity = Number(Math.max(0, 1 - distance / 100).toFixed(3));
-    return { master, similarity };
-  }).sort((a, b) => b.similarity - a.similarity);
-  const selected = matches.slice(0, 2).filter((match, index) => index === 0 || match.similarity >= 0.58);
-  return selected.map((match, index) => ({
-    rank: index + 1,
-    master_id: match.master.id,
-    display_name: match.master.displayName,
-    similarity: match.similarity,
-    candidate_similarity: match.similarity,
-    why_match: explainMatch(match.master, vector),
-    bio_summary: match.master.bioSummary,
-    investment_style: match.master.investmentStyle,
-    notable_results_summary: match.master.notableResultsSummary,
-    read_more_url: match.master.readMoreUrl,
-    what_to_learn: match.master.whatToLearn,
-    what_not_to_copy: match.master.whatNotToCopy,
-    asset_path: `profile.assets/masters/${match.master.id}.svg`
-  }));
-}
-function explainMatch(master, vector) {
-  const dimensions = STYLE_DIMENSIONS.map((dimension) => ({
-    label: dimension.label,
-    gap: Math.abs(vector[dimension.id] - master.vector[dimension.id]),
-    score: vector[dimension.id]
-  })).sort((a, b) => a.gap - b.gap).slice(0, 3).map((item) => item.label.toLowerCase());
-  return `Observed candidate vector is closest on ${dimensions.join(", ")}. Treat ${master.displayName} as a learning archetype, not an authority signal.`;
+  return [...new Set(matched)].slice(0, 32);
 }
 function generateInvestorProfile(options = {}) {
   const now = options.now ?? /* @__PURE__ */ new Date();
@@ -8746,6 +8646,7 @@ function generateInvestorProfile(options = {}) {
   const existingInputs = readJson(join(outputDir, "profile_candidate_inputs.json"), null);
   const sources = discoverSources(options);
   buildSourceManifest(sources, outputDir);
+  const priorEvidence = readJson(join(outputDir, "profile_evidence.json"), null);
   if (sources.length === 0) {
     const profile2 = buildNeedsSourcesProfile(now);
     writeJson(join(outputDir, "profile_candidate_inputs.json"), profile2);
@@ -8776,22 +8677,21 @@ function generateInvestorProfile(options = {}) {
       }
     };
     if (!existsSync(join(outputDir, "profile_evidence.json")) || !existsSync(join(outputDir, "profile_synthesis_prompt.md")) || !existsSync(join(outputDir, "profile_report_template.html")) || !existsSync(join(outputDir, "profile_finalization_schema.json"))) {
-      writeProfileSynthesisArtifacts(outputDir, preservedProfile, [], now);
+      writeProfileSynthesisArtifacts(outputDir, preservedProfile, priorEvidence?.candidate_evidence_items ?? [], now);
     }
-    writeCandidateProfileArtifacts(outputDir, preservedProfile, now, "profile");
+    writeCandidateProfileArtifacts(outputDir, preservedProfile, priorEvidence?.candidate_evidence_items ?? [], now, "profile");
     return { profile: preservedProfile, sources, turns: [], spans: [], episodes: [], outputDir };
   }
   const turns = changedSources.flatMap(parseSource);
   const spans = buildCandidateSpans(turns);
   const candidateLedger = collectCandidateEvidenceLedger(spans);
-  const currentEpisodes = classifyDecisionEpisodes(candidateLedger, turns, changedSources);
-  if (changedSources.length) writeSqliteIndex(outputDir, sources, turns, candidateLedger, currentEpisodes);
-  const priorEvidence = readJson(join(outputDir, "profile_evidence.json"), null);
-  const mergedEpisodes = mergeDecisionEpisodes(priorEvidence?.candidate_decision_episodes ?? [], currentEpisodes);
-  const profile = buildProfileFromEpisodes(mergedEpisodes, sources.length, now);
-  writeProfileSynthesisArtifacts(outputDir, profile, mergedEpisodes, now);
-  writeCandidateProfileArtifacts(outputDir, profile, now, "profile");
-  return { profile, sources, turns, spans: candidateLedger, episodes: mergedEpisodes, outputDir };
+  const currentEvidenceItems = buildCandidateEvidenceItems(candidateLedger, turns, changedSources);
+  if (changedSources.length) writeSqliteIndex(outputDir, sources, turns, candidateLedger, []);
+  const mergedEvidenceItems = mergeCandidateEvidenceItems(priorEvidence?.candidate_evidence_items ?? [], currentEvidenceItems);
+  const profile = buildEvidenceWorkspaceProfile(mergedEvidenceItems, sources.length, turns.length, now);
+  writeProfileSynthesisArtifacts(outputDir, profile, mergedEvidenceItems, now);
+  writeCandidateProfileArtifacts(outputDir, profile, mergedEvidenceItems, now, "profile");
+  return { profile, sources, turns, spans: candidateLedger, episodes: [], outputDir };
 }
 function filterSourcesForProfileRun(sources, options, now) {
   if (options.reindex) return sources;
@@ -8814,11 +8714,11 @@ function sinceToDate(since, now) {
   if (Number.isNaN(parsed.getTime())) throw new Error(`Invalid --since value: ${since}`);
   return parsed;
 }
-function mergeDecisionEpisodes(prior, current) {
+function mergeCandidateEvidenceItems(prior, current) {
   const merged = /* @__PURE__ */ new Map();
-  for (const episode of prior) merged.set(episode.episode_id, episode);
-  for (const episode of current) merged.set(episode.episode_id, episode);
-  return [...merged.values()].sort((a, b) => b.confidence - a.confidence || b.date.localeCompare(a.date));
+  for (const item of prior) merged.set(item.evidence_id, item);
+  for (const item of current) merged.set(item.evidence_id, item);
+  return [...merged.values()].sort((a, b) => b.retrieval_score - a.retrieval_score || b.date.localeCompare(a.date));
 }
 function defaultUnknownDimensions() {
   return [
@@ -8841,7 +8741,7 @@ function writeProfileState(outputDir, state, now, reason) {
     candidate_profile_inputs_path: "profile_candidate_inputs.json",
     final_profile_path: "profile.json",
     final_html_path: "profile.html",
-    required_next_action: state === "needs_sources" ? "0 sources discovered. Add --include paths or confirm ~/.codex/sessions / ~/.claude/projects contain transcripts, then re-run /investment-profile-init." : state === "interview_required" ? "Agent/LLM must read profile_evidence.json, perform full evidence analysis, ask 2-5 targeted interview questions, synthesize profile JSON, generate final HTML, then run profile-finalize." : "Profile finalization state recorded.",
+    required_next_action: state === "needs_sources" ? "0 sources discovered. Add --include paths or confirm ~/.codex/sessions / ~/.claude/projects contain transcripts, then re-run /investment-profile-init." : state === "interview_required" ? "Agent/LLM must read profile_evidence.json, perform full evidence analysis, ask 2-5 targeted interview questions, synthesize profile JSON, generate structured final profile content, then run profile-finalize." : "Profile finalization state recorded.",
     transitions,
     finalization_contract: {
       command: 'node scripts/cli.mjs profile-finalize --synthesis synthesized_profile.json --questions interview_questions.json --answers-summary "..." --content profile_model_content.json --output ~/.investment-mirror',
@@ -8875,7 +8775,7 @@ function buildNeedsSourcesProfile(now) {
     best_fit_master_matches: [],
     match_strengths: [],
     recommended_guardrails: [],
-    decision_fingerprint: deriveProfileVector([]),
+    decision_fingerprint: {},
     default_issue: "No local sources were discovered, so no decision patterns could be derived yet.",
     active_guardrails: [],
     source_summary: {
@@ -8894,15 +8794,7 @@ function buildNeedsSourcesProfile(now) {
     ]
   };
 }
-function buildProfileFromEpisodes(episodes, sourceCount, now) {
-  const counts = aggregateDecisionPatterns(episodes);
-  const vector = deriveProfileVector(counts);
-  const matches = matchMasterStyles(vector);
-  const primaryPatterns = counts.slice(0, 5).map(([pattern]) => pattern);
-  if (!primaryPatterns.length) primaryPatterns.push("thesis_first_reasoning", "research_loop_extension");
-  const activeGuardrails = selectGuardrails(primaryPatterns, matches);
-  const investmentEpisodes = episodes.filter((episode) => episode.episode_type === "investment_reasoning");
-  const confidence = confidenceScore(episodes, investmentEpisodes.length, matchScore(matches[0]) ?? 0.5);
+function buildEvidenceWorkspaceProfile(evidenceItems, sourceCount, turnCount, now) {
   return {
     profile_id: `profile_${todayStamp(now).replaceAll("-", "_")}`,
     artifact_kind: "deterministic_profile_inputs",
@@ -8920,38 +8812,35 @@ function buildProfileFromEpisodes(episodes, sourceCount, now) {
     profile_report_template_path: "profile_report_template.html",
     candidate_report_html_path: "profile_candidate_report.html",
     final_rendered_html_path: "profile.html",
-    confidence,
-    primary_patterns: primaryPatterns,
-    best_fit_master_matches: matches.length ? matches : [fallbackMasterMatch()],
-    match_strengths: strengthsFromVector(vector),
-    recommended_guardrails: activeGuardrails.map((guardrail) => ({ guardrail_id: guardrail, reason: guardrailReason(guardrail) })),
-    decision_fingerprint: vector,
-    default_issue: defaultIssue(primaryPatterns),
-    active_guardrails: activeGuardrails,
+    confidence: 0,
+    primary_patterns: [],
+    best_fit_master_matches: [],
+    match_strengths: [],
+    recommended_guardrails: [],
+    decision_fingerprint: {},
+    default_issue: "No deterministic issue generated. The agent/LLM must review the redacted evidence ledger and produce any profile issues or guardrails.",
+    active_guardrails: [],
     source_summary: {
       conversations_scanned: sourceCount,
-      decision_episodes_found: episodes.length,
-      receipts_used: Math.min(episodes.length, 18),
+      decision_episodes_found: 0,
+      candidate_spans_found: evidenceItems.length,
+      redacted_turns_indexed: turnCount,
+      model_review_required: true,
+      receipts_used: 0,
       tier1_investment_episodes: 0,
-      tier2_investment_episodes: investmentEpisodes.length,
-      tier3_general_decision_episodes: episodes.length - investmentEpisodes.length,
-      calibration_recommended: episodes.length < 8 || investmentEpisodes.length < 3 || confidence < 0.62
+      tier2_investment_episodes: 0,
+      tier3_general_decision_episodes: 0,
+      calibration_status: "interview_required"
     },
-    receipts: episodes.slice(0, 18).map((episode) => ({
-      episode_id: episode.episode_id,
-      source_alias: episode.source_alias,
-      date: episode.date,
-      summary: episode.receipt_summary,
-      evidence_tier: episode.evidence_tier
-    })),
+    receipts: [],
     interview_question_count: { min: 2, max: 5 },
-    calibration_question_topics: calibrationQuestionTopics(primaryPatterns, vector, episodes),
+    calibration_question_topics: defaultCalibrationDimensionsToCheck(),
     presentation_next_steps: [
-      "Read profile_evidence.json and profile_synthesis_prompt.md; treat profile_candidate_inputs.json as candidate inputs, not a profile.",
-      "Use the agent/LLM phase, with subagents if needed, to interpret the full candidate ledger and decide which episodes matter.",
+      "Read profile_evidence.json and the redacted candidate_evidence_items; treat all retrieval scores and matched signals as search aids only.",
+      "Use the agent/LLM phase, with subagents if needed, to decide which spans matter and which are false positives.",
+      "Compare the model-reviewed evidence against research/masters/{master_id}/ profile, style notes, and sources before selecting any master lens.",
       "Generate and ask 2-5 targeted interview questions from evidence gaps.",
-      "After the user answers, synthesize profile JSON and structured final profile content, then run profile-finalize to render, validate, and write artifacts.",
-      "Offer to run /investment-decision on one current thesis as the next product step."
+      "After the user answers, synthesize profile JSON and structured final profile content, then run profile-finalize to render, validate, and write artifacts."
     ]
   };
 }
@@ -8969,6 +8858,7 @@ function finalizeProfile(options) {
   if (!finalContent && !hasLegacyFinalHtml(options, synthesized)) {
     throw new Error("profile-finalize requires model-generated final content via --content PATH/final_profile_content, or legacy model-generated final HTML via --html PATH.");
   }
+  validateFinalProfileContent(finalContent, provisional);
   const unknownDimensions = normalizeStringArray(synthesized.unknown_dimensions).length ? normalizeStringArray(synthesized.unknown_dimensions) : provisional ? defaultUnknownDimensions() : [];
   const finalProfile = {
     ...candidateInputs,
@@ -9055,8 +8945,46 @@ function validateFinalizationInput(synthesized, questions, answerSummary, provis
   if (!Array.isArray(synthesized.best_fit_master_matches) || synthesized.best_fit_master_matches.length === 0) {
     throw new Error("profile-finalize requires model-selected best_fit_master_matches; deterministic candidate matches cannot be promoted automatically.");
   }
+  if (!Array.isArray(synthesized.primary_patterns) || synthesized.primary_patterns.length === 0) {
+    throw new Error("profile-finalize requires model-synthesized primary_patterns.");
+  }
+  if (!Array.isArray(synthesized.active_guardrails) || synthesized.active_guardrails.length === 0) {
+    throw new Error("profile-finalize requires model-selected active_guardrails.");
+  }
+  if (!synthesized.decision_fingerprint || typeof synthesized.decision_fingerprint !== "object" || Object.keys(synthesized.decision_fingerprint).length === 0) {
+    throw new Error("profile-finalize requires a model-synthesized decision_fingerprint.");
+  }
+  for (const match of synthesized.best_fit_master_matches) {
+    if (!match || typeof match !== "object" || !("match_confidence" in match)) {
+      throw new Error("Each model-selected master match must include qualitative match_confidence.");
+    }
+    const confidence = match.match_confidence;
+    if (confidence !== "low" && confidence !== "medium" && confidence !== "high") {
+      throw new Error("Each model-selected master match must use match_confidence low, medium, or high.");
+    }
+  }
   for (const field of ["evidence_summary", "interpretation_summary", "risk_preference_summary", "time_horizon_summary", "constraints_summary", "false_match_warning"]) {
     if (!provisional && String(synthesized[field] ?? "").trim().length < 12) throw new Error(`profile-finalize missing synthesized field: ${field}`);
+  }
+}
+function validateFinalProfileContent(content, provisional) {
+  if (!content) return;
+  const requiredStrings = [
+    ["hero.positive_recognition", content.hero?.positive_recognition],
+    ["hero.status_line", content.hero?.status_line],
+    ["evidence.summary", content.evidence?.summary],
+    ["interpretation.summary", content.interpretation?.summary],
+    ["master_lens.why_this_lens", content.master_lens?.why_this_lens],
+    ["interview_calibration.answers_summary", content.interview_calibration?.answers_summary],
+    ["next_process_step", content.next_process_step]
+  ];
+  for (const [field, value] of requiredStrings) {
+    if (!provisional && String(value ?? "").trim().length < 12) {
+      throw new Error(`profile-finalize missing model-generated final content field: ${field}`);
+    }
+  }
+  if (!Array.isArray(content.guardrail_protocols) || content.guardrail_protocols.length === 0) {
+    throw new Error("profile-finalize requires model-generated guardrail_protocols in final content.");
   }
 }
 function validateFinalProfileHtml(html, provisional) {
@@ -9194,28 +9122,35 @@ function normalizeOptionalStringArray(value, fallback) {
   return normalized.length ? normalized : fallback;
 }
 function evidenceSummaryFromInputs(profile) {
-  return `${profile.source_summary.decision_episodes_found} candidate decision episodes across ${profile.source_summary.conversations_scanned} local sources; ${profile.receipts.length} receipt summaries were available to the LLM.`;
+  const spans = profile.source_summary.candidate_spans_found ?? profile.source_summary.decision_episodes_found;
+  return `${spans} redacted candidate evidence spans across ${profile.source_summary.conversations_scanned} local sources were prepared for model review; deterministic tooling made no profile judgment.`;
 }
-function buildProfileEvidencePacket(profile, episodes, now) {
+function masterRecordsToCompare() {
+  return MASTER_RECORDS.map((master) => ({
+    master_id: master.id,
+    display_name: master.displayName,
+    profile_path: `research/masters/${master.id}/profile.md`,
+    style_notes_path: `research/masters/${master.id}/style_notes.md`,
+    sources_path: `research/masters/${master.id}/sources.yaml`
+  }));
+}
+function buildProfileEvidencePacket(profile, evidenceItems, now) {
   return {
     version: "0.2",
     generated_at: iso(now),
-    instructions: "This packet is deterministic evidence preparation only. Codex must synthesize the final Investment Mirror profile with the LLM using the full candidate ledger, receipts, pattern counts, master records, and guardrail rules. Do not treat candidate inputs as a profile draft or final match.",
+    instructions: "This packet is deterministic evidence retrieval only. It contains redacted candidate evidence spans and source metadata. The agent/LLM must decide which spans matter, classify patterns, compare evidence against master records, select any master lens, form guardrails, and synthesize the final profile. Retrieval scores and matched signals are search aids only.",
     artifact_kind: "deterministic_evidence_packet",
     analysis_scope: "full_candidate_ledger",
     source_summary: profile.source_summary,
-    deterministic_profile_inputs: {
-      primary_patterns: profile.primary_patterns,
-      decision_fingerprint: profile.decision_fingerprint,
-      default_issue: profile.default_issue,
-      active_guardrails: profile.active_guardrails,
-      match_strengths: profile.match_strengths
+    deterministic_retrieval_inputs: {
+      candidate_spans_found: evidenceItems.length,
+      redacted_turns_indexed: profile.source_summary.redacted_turns_indexed ?? 0,
+      scoring_version: scoringVersion,
+      note: "Scores and matched signals are retrieval/ranking aids, not content judgments, episodes, patterns, guardrails, or master matches."
     },
-    candidate_master_matches: profile.best_fit_master_matches,
-    candidate_decision_episodes: episodes,
-    pattern_counts: aggregateDecisionPatterns(episodes),
-    receipts: profile.receipts,
-    calibration_question_topics: profile.calibration_question_topics ?? calibrationQuestionTopics(profile.primary_patterns, profile.decision_fingerprint, episodes),
+    candidate_evidence_items: evidenceItems,
+    master_records_to_compare: masterRecordsToCompare(),
+    calibration_dimensions_to_check: profile.calibration_question_topics ?? defaultCalibrationDimensionsToCheck(),
     interview_question_contract: {
       required: true,
       count_min: 2,
@@ -9264,7 +9199,7 @@ function buildProfileEvidencePacket(profile, episodes, now) {
         {
           id: "phase_4_master_and_profile_synthesis",
           owner: "agent_llm",
-          required_output: "Final master match, profile JSON, and final HTML produced by reading evidence plus master records."
+          required_output: "Final master match, profile JSON, and structured final profile content produced by reading evidence plus master records."
         },
         {
           id: "phase_5_artifact_validation_write",
@@ -9279,8 +9214,8 @@ function buildProfileEvidencePacket(profile, episodes, now) {
     }
   };
 }
-function writeProfileSynthesisArtifacts(outputDir, profile, episodes, now) {
-  const packet = buildProfileEvidencePacket(profile, episodes, now);
+function writeProfileSynthesisArtifacts(outputDir, profile, evidenceItems, now) {
+  const packet = buildProfileEvidencePacket(profile, evidenceItems, now);
   writeJson(join(outputDir, "profile_evidence.json"), packet);
   writeFileSync(join(outputDir, "profile_synthesis_prompt.md"), renderProfileSynthesisPrompt(packet), "utf8");
   writeJson(join(outputDir, "profile_finalization_schema.json"), profileFinalizationSchema());
@@ -9289,24 +9224,23 @@ function writeProfileSynthesisArtifacts(outputDir, profile, episodes, now) {
 function renderProfileSynthesisPrompt(packet) {
   return `# Investment Mirror LLM Profile Synthesis Prompt
 
-You are running the model-owned phases of an Investment Mirror profile from a deterministic local evidence packet. The local program has discovered sources, redacted sensitive text, scored the full candidate span ledger, extracted heuristic receipt summaries, counted candidate patterns, and produced candidate master suggestions. Your job is to synthesize the actual user-facing profile using judgment, not to rubber-stamp similarity scores.
+You are running the model-owned phases of an Investment Mirror profile from a deterministic local evidence packet. The local program discovered sources, redacted sensitive text, ranked candidate spans for retrieval, and wrote local indexes. It did not classify episodes, count user patterns, choose guardrails, choose a master lens, or write a profile judgment. Your job is to read the redacted evidence and synthesize the actual user-facing profile using model judgment.
 
 ## Inputs To Read
 
 - \`profile_evidence.json\`
-- \`guardrails.yaml\`
 - \`source_manifest.json\`
-- \`profile_candidate_inputs.json\` as deterministic candidate inputs only
+- \`profile_candidate_inputs.json\` as retrieval/workspace state only
 - \`profile_finalization_schema.json\`
 - \`profile_report_template.html\` as a visual/reference specimen, not a fill-in template
-- \`skills/investment-mirror/src/master_data.ts\` or master registry/research files when choosing the final master lens
+- every relevant \`research/masters/{master_id}/profile.md\`, \`style_notes.md\`, and \`sources.yaml\` file before choosing the final master lens
 
 ## Phase 2: Full Evidence Analysis
 
-1. Read the full candidate ledger and receipts. Do not treat a small subset as sufficient for synthesis.
+1. Read the full \`candidate_evidence_items\` ledger. Retrieval score only orders what to inspect first; it is not a confidence score.
 2. If the ledger is too large for one pass, use subagents to review disjoint source/date groups and return episode interpretations.
-3. Decide which candidate episodes actually matter, which should be ignored, and which evidence tiers are strong enough for profile synthesis.
-4. Keep deterministic pattern labels as hints only; revise or abstain when evidence does not support them.
+3. Decide which candidate spans actually matter, which should be ignored, and which evidence tiers are strong enough for profile synthesis.
+4. Create any pattern labels yourself from the evidence. Do not assume the deterministic tool has identified patterns.
 
 ## Phase 3: Interview Question Formation
 
@@ -9317,8 +9251,8 @@ You are running the model-owned phases of an Investment Mirror profile from a de
 ## Phase 4: Master Match, Profile Synthesis, And Final Content
 
 1. Start with positive recognition of the strongest evidenced decision behavior.
-2. Choose the primary best-fit master match by reading evidence plus master records. Candidate vector matches are only suggestions.
-3. State why the match is useful and what not to copy. Do not carry deterministic similarity scores into the final match.
+2. Choose the primary best-fit master match by comparing model-reviewed evidence against master records. There are no deterministic candidate master suggestions in this packet.
+3. State why the match is useful and what not to copy. Do not use or invent deterministic similarity scores.
 4. Distinguish evidence from interpretation.
 5. Present the required guardrails and why they make the style more investable.
 6. After the user answers, produce a model-synthesized JSON object matching \`profile_finalization_schema.json\`.
@@ -9326,21 +9260,33 @@ You are running the model-owned phases of an Investment Mirror profile from a de
 8. Run \`profile-finalize --synthesis synthesized_profile.json --questions interview_questions.json --answers-summary "..." --content profile_model_content.json\` so the deterministic renderer can produce the final static \`profile.html\`.
 9. Suggest the next step: usually run \`/investment-decision\` on a current thesis.
 
+## User-Facing Content Rules
+
+1. Match the user's language for interview questions, final profile copy, and completion summaries unless the user asks for another language.
+2. Calibrate confidence and wording to evidence strength. If direct public-equity evidence is absent or sparse, say the profile is evidence-light or process-level, keep the master lens tentative/low-confidence unless interview answers strongly support it, and avoid definitive identity-style claims.
+3. Keep direct investment evidence, indirect process evidence, and interview calibration separate. Do not let product/engineering workflow evidence masquerade as investment behavior.
+4. A user-stated drawdown or thesis-deterioration threshold is a review boundary, not proof of broad risk tolerance, allocation comfort, sizing preference, or suitability.
+5. If constraints were not stated, write "no constraints were stated" rather than "the user has no constraints."
+6. Avoid pseudo-precision. Numeric decision-fingerprint values are model orientation signals, not measurements; when evidence is thin, use qualitative bands or explicitly flag uncertainty in the copy.
+
 ## Evidence Packet Summary
 
 \`\`\`json
 ${JSON.stringify({
     source_summary: packet.source_summary,
-    deterministic_profile_inputs: packet.deterministic_profile_inputs,
-    candidate_master_matches: packet.candidate_master_matches.map((match) => ({
-      master_id: match.master_id,
-      display_name: match.display_name,
-      candidate_similarity: matchScore(match),
-      why_match: match.why_match
+    deterministic_retrieval_inputs: packet.deterministic_retrieval_inputs,
+    candidate_evidence_count: packet.candidate_evidence_items.length,
+    first_candidate_evidence_items: packet.candidate_evidence_items.slice(0, 8).map((item) => ({
+      evidence_id: item.evidence_id,
+      source_alias: item.source_alias,
+      source_type: item.source_type,
+      date: item.date,
+      retrieval_score: item.retrieval_score,
+      matched_signals: item.matched_signals.slice(0, 12),
+      text_redacted_preview: item.text_redacted.slice(0, 700)
     })),
-    pattern_counts: packet.pattern_counts,
-    receipt_count: packet.receipts.length,
-    calibration_question_topics: packet.calibration_question_topics,
+    master_records_to_compare: packet.master_records_to_compare,
+    calibration_dimensions_to_check: packet.calibration_dimensions_to_check,
     interview_question_contract: packet.interview_question_contract,
     model_phase_contract: packet.model_phase_contract
   }, null, 2)}
@@ -9352,10 +9298,12 @@ ${JSON.stringify({
 - Do not expose raw transcripts unless explicitly requested.
 - Do not claim the user is a master investor.
 - Do not rank masters by performance.
-- Do not treat candidate similarity as final without interpreting receipts.
+- Do not treat retrieval scores or matched signals as conclusions.
 - Do not put deterministic similarity in \`best_fit_master_matches\`; final matches use model judgment and qualitative confidence.
 - Do not ask the model to hand-write final \`profile.html\`; the model phase must produce structured final profile content, and the finalizer renders HTML.
 - Do not finalize \`profile.json\` or \`profile.html\` until you have asked 2-5 targeted interview questions and incorporated the user's answers, unless the user explicitly declines calibration; in that case mark the report provisional and list unknown dimensions.
+- Do not present process-only evidence as direct investing history.
+- Do not state or imply that absent constraints equal no constraints.
 `;
 }
 function profileFinalizationSchema() {
@@ -9405,96 +9353,39 @@ function profileFinalizationSchema() {
     html_rule: "The agent/LLM produces structured final profile content. The finalizer renders profile.html with deterministic layout/safety rules. profile_report_template.html is a visual reference specimen only, not a fill-in template."
   };
 }
-function calibrationQuestionTopics(patterns, vector, episodes) {
-  const text = episodes.map((episode) => `${episode.summary} ${episode.receipt_summary}`).join(" ").toLowerCase();
-  const topics = [];
-  const add = (dimension, why_needed, agent_instruction) => {
-    topics.push({ dimension, why_needed, agent_instruction });
-  };
-  add(
-    "risk_preference_loss_tolerance",
-    "Logs can reveal reasoning style, but they usually cannot prove how much drawdown, regret, volatility, or opportunity cost the user can tolerate.",
-    "Ask one concrete question about risk preference or loss tolerance, using the user's observed patterns as context."
-  );
-  if (!/\b(1 year|2 years|3 years|5 years|10 years|horizon|months|years|long term|short term)\b/i.test(text) || vector.time_horizon_clarity < 65) {
-    add(
-      "time_horizon",
-      "The evidence does not reliably pin down whether ideas are evaluated on a trading, multi-year, or owner-style horizon.",
-      "Ask the user to choose or describe the default horizon they actually intend for most public-equity decisions."
-    );
-  }
-  if (!/\b(concentrat|position|portfolio|allocation|size|sizing|drawdown|liquidity|cash)\b/i.test(text)) {
-    add(
-      "liquidity_concentration_constraints",
-      "Transcript evidence does not establish portfolio constraints, liquidity needs, or concentration comfort.",
-      "Ask about concentration comfort and any constraints that should shape process guardrails, without asking for or giving position-size advice."
-    );
-  }
-  if (patterns.includes("research_loop_extension") || vector.research_loop_tendency >= 60) {
-    add(
-      "decision_threshold",
-      "The profile shows a possible research-loop tendency, but the logs do not define what evidence is enough to stop researching and make a user-owned decision.",
-      "Ask what two or three variables would normally be enough to move from research to a decision review."
-    );
-  }
-  if (patterns.includes("narrative_to_action_jump") || vector.narrative_sensitivity >= 60) {
-    add(
-      "narrative_vs_price_threshold",
-      "The evidence suggests strong narrative construction, but it does not fully reveal when the user forces price, expectations, and falsification into the thesis.",
-      "Ask what check would slow the user down before a compelling story becomes an action candidate."
-    );
-  }
-  if (vector.contrarian_impulse >= 58) {
-    add(
-      "contrarian_consensus_definition",
-      "A contrarian-looking profile needs a clear definition of consensus, but logs may not show whether the user defines consensus rigorously.",
-      "Ask how the user proves consensus is wrong rather than merely feeling differentiated from consensus."
-    );
-  }
-  add(
-    "personal_non_observable_constraints",
-    "Some required calibration data is personal and cannot be inferred from logs, including tax, liquidity, employment, family, and psychological constraints.",
-    "Ask whether there are non-negotiable constraints the profile must respect, while avoiding financial advice."
-  );
-  return topics.slice(0, 6);
-}
-function selectGuardrails(patterns, matches) {
-  const guardrails = /* @__PURE__ */ new Set();
-  for (const pattern of patterns) {
-    if (patternToGuardrail[pattern]) guardrails.add(patternToGuardrail[pattern]);
-  }
-  for (const match of matches.slice(0, 1)) {
-    const master = MASTER_RECORDS.find((record) => record.id === match.master_id);
-    master?.guardrailRelevance.slice(0, 2).forEach((guardrail) => {
-      if (guardrail in guardrailQuestions) guardrails.add(guardrail);
-      if (guardrail === "valuation_expectation_missing") guardrails.add("reverse_expectation_check_before_thematic_growth");
-      if (guardrail === "value_capture_missing" || guardrail === "product_quality_overweight") guardrails.add("value_capture_check_before_platform_thesis");
-      if (guardrail === "falsification_missing") guardrails.add("falsification_condition_before_position");
-      if (guardrail === "downside_protocol_missing") guardrails.add("user_defined_position_protocol");
-    });
-  }
-  if (!guardrails.size) {
-    guardrails.add("reverse_expectation_check_before_thematic_growth");
-    guardrails.add("falsification_condition_before_position");
-    guardrails.add("value_capture_check_before_platform_thesis");
-  }
-  return [...guardrails].slice(0, 6);
-}
-function confidenceScore(episodes, investmentCount, matchSimilarity) {
-  const episodeScore = Math.min(0.28, episodes.length * 0.018);
-  const investmentScore = Math.min(0.18, investmentCount * 0.04);
-  const matchScore2 = Math.max(0, matchSimilarity - 0.45) * 0.42;
-  return Number(Math.min(0.9, 0.36 + episodeScore + investmentScore + matchScore2).toFixed(2));
-}
-function strengthsFromVector(vector) {
-  const strengths = [];
-  if (vector.narrative_sensitivity >= 60) strengths.push("You are good at forming a coherent business or market thesis before diving into details.");
-  if (vector.research_loop_tendency >= 58) strengths.push("You naturally seek frameworks and evidence before forcing a decision.");
-  if (vector.contrarian_impulse >= 55) strengths.push("You are willing to question consensus instead of treating price as truth.");
-  if (vector.product_founder_bias >= 55) strengths.push("You notice product, founder, and business-quality signals that purely numeric screens can miss.");
-  if (vector.valuation_discipline >= 65) strengths.push("You show a useful instinct for connecting thesis quality to price discipline.");
-  if (!strengths.length) strengths.push("You show enough decision structure to turn recurring patterns into explicit investment guardrails.");
-  return strengths.slice(0, 4);
+function defaultCalibrationDimensionsToCheck() {
+  return [
+    {
+      dimension: "risk_preference_loss_tolerance",
+      why_needed: "Logs can reveal reasoning style, but they cannot reliably prove drawdown tolerance, regret tolerance, volatility tolerance, or opportunity cost tolerance.",
+      agent_instruction: "After reviewing evidence, ask one concrete question about risk preference or loss tolerance if the answer is not directly provided by the user."
+    },
+    {
+      dimension: "time_horizon",
+      why_needed: "Evidence snippets may mention time, but the default intended horizon for public-equity decisions is a user-owned calibration input.",
+      agent_instruction: "Ask the user to define the default horizon they actually intend for most public-equity decisions when evidence does not settle it."
+    },
+    {
+      dimension: "liquidity_concentration_constraints",
+      why_needed: "Personal liquidity needs, tax constraints, employment constraints, and concentration comfort cannot be inferred from transcript evidence.",
+      agent_instruction: "Ask about constraints that should shape process guardrails, without asking for or giving position-size advice."
+    },
+    {
+      dimension: "decision_threshold",
+      why_needed: "The model must know what evidence is enough to move from research to a user-owned decision review.",
+      agent_instruction: "Ask what two or three variables normally need to be true before the user stops researching and starts a decision review."
+    },
+    {
+      dimension: "narrative_vs_price_threshold",
+      why_needed: "A compelling story is not automatically an investable security; the user must calibrate how price, expectations, and falsification enter the process.",
+      agent_instruction: "Ask what check should slow the user down before a strong story becomes an action candidate."
+    },
+    {
+      dimension: "personal_non_observable_constraints",
+      why_needed: "Some required calibration data is personal and non-observable, including tax, liquidity, employment, family, and psychological constraints.",
+      agent_instruction: "Ask whether there are non-negotiable constraints the profile must respect, while avoiding financial advice."
+    }
+  ];
 }
 function guardrailReason(guardrail) {
   const reasons = {
@@ -9509,67 +9400,24 @@ function guardrailReason(guardrail) {
   };
   return reasons[guardrail] ?? "Maps a recurring profile pattern to a repeatable decision-process check.";
 }
-function defaultIssue(patterns) {
-  if (patterns.includes("narrative_to_action_jump")) return "You often move from a correct worldview to an investable security before defining price, timing, and falsification thresholds.";
-  if (patterns.includes("research_loop_extension")) return "You often extend research before defining the three variables that would change the decision.";
-  if (patterns.includes("product_quality_overweight")) return "You often notice real product quality before proving shareholder value capture and price expectations.";
-  return "Your strongest ideas become more investable when thesis, evidence, valuation, and falsification are written before action.";
-}
-function fallbackMasterMatch() {
-  const master = MASTER_RECORDS.find((record) => record.id === "philip_fisher");
-  return {
-    rank: 1,
-    master_id: master.id,
-    display_name: master.displayName,
-    similarity: 0.58,
-    candidate_similarity: 0.58,
-    why_match: "Default provisional learning archetype because evidence is currently thin. Run calibration or add investment notes for a stronger match.",
-    bio_summary: master.bioSummary,
-    investment_style: master.investmentStyle,
-    notable_results_summary: master.notableResultsSummary,
-    read_more_url: master.readMoreUrl,
-    what_to_learn: master.whatToLearn,
-    what_not_to_copy: master.whatNotToCopy,
-    asset_path: `profile.assets/masters/${master.id}.svg`
-  };
-}
 function profileUpdate(options = {}) {
   const now = options.now ?? /* @__PURE__ */ new Date();
   const outputDir = defaultOutput(options.output);
   const finalProfile = readJson(join(outputDir, "profile.json"), null);
   const previousInputs = readJson(join(outputDir, "profile_candidate_inputs.json"), null);
-  const existing = finalProfile ?? previousInputs;
   const result = generateInvestorProfile({ ...options, output: outputDir, now });
-  const previousPatterns = new Set(existing?.primary_patterns ?? []);
-  const currentPatterns = new Set(result.profile.primary_patterns);
-  const strengthened = [...currentPatterns].filter((pattern) => previousPatterns.has(pattern));
-  const newlyDetected = [...currentPatterns].filter((pattern) => !previousPatterns.has(pattern));
-  const weakened = [...previousPatterns].filter((pattern) => !currentPatterns.has(pattern));
-  const previousMatch = existing?.best_fit_master_matches?.[0] ?? null;
-  const currentCandidateMatch = result.profile.best_fit_master_matches[0] ?? null;
-  const previousCandidateMatch = previousInputs?.best_fit_master_matches?.[0] ?? null;
-  const previousScore = previousCandidateMatch?.master_id === previousMatch?.master_id ? matchScore(previousCandidateMatch) : null;
-  const currentScore = matchScore(currentCandidateMatch);
-  const similarityDelta = previousScore !== null && currentScore !== null ? Number((currentScore - previousScore).toFixed(3)) : null;
-  const candidateMatchChanged = previousMatch && currentCandidateMatch && previousMatch.master_id !== currentCandidateMatch.master_id;
-  const enoughEvidenceForReview = result.profile.source_summary.receipts_used >= 5 && Math.abs(similarityDelta ?? 0) >= 0.04;
+  const previousSpanCount = previousInputs?.source_summary.candidate_spans_found ?? previousInputs?.source_summary.decision_episodes_found ?? 0;
+  const currentSpanCount = result.profile.source_summary.candidate_spans_found ?? 0;
   const update = {
     generated_at: iso(now),
-    artifact_kind: "candidate_profile_update_requires_llm_review",
+    artifact_kind: "evidence_update_requires_llm_review",
     since: options.since ?? null,
     final_profile_preserved: Boolean(finalProfile),
-    newly_detected_patterns: newlyDetected,
-    strengthened_patterns: strengthened,
-    weakened_patterns: weakened,
-    guardrails_triggered_most_often: result.profile.active_guardrails,
-    candidate_master_suggestion_review: candidateMatchChanged && enoughEvidenceForReview ? [
-      {
-        previous: previousMatch.master_id,
-        candidate: currentCandidateMatch.master_id,
-        similarity_delta: similarityDelta,
-        evidence_requirement: "LLM must inspect profile_evidence.json receipts before changing final profile master match."
-      }
-    ] : [],
+    previous_candidate_spans_found: previousSpanCount,
+    current_candidate_spans_found: currentSpanCount,
+    candidate_spans_delta: currentSpanCount - previousSpanCount,
+    model_review_required: true,
+    model_review_instruction: "Read profile_evidence.json candidate_evidence_items and compare against the existing final profile plus master records before changing profile.json or profile.html.",
     candidate_inputs_path: join(outputDir, "profile_candidate_inputs.json"),
     candidate_report_path: join(outputDir, "profile_candidate_report.html"),
     final_profile_path: existsSync(join(outputDir, "profile.json")) ? join(outputDir, "profile.json") : null,
@@ -9837,21 +9685,22 @@ function collectMemoryEvidence(outputDir, profile, candidateInputs, decisions) {
     });
   }
   if (candidateInputs) {
+    const spans = candidateInputs.source_summary.candidate_spans_found ?? 0;
     evidence.push({
       id: `candidate:${candidateInputs.profile_id}`,
       kind: "candidate_profile_inputs",
       source: "profile_candidate_inputs.json",
-      summary: `Candidate inputs ${candidateInputs.profile_id}; patterns=${candidateInputs.primary_patterns.join(", ")}; candidate_guardrails=${candidateInputs.active_guardrails.join(", ")}; candidate_masters=${candidateInputs.best_fit_master_matches.map((match) => match.master_id).join(", ")}.`,
+      summary: `Candidate retrieval workspace ${candidateInputs.profile_id}; candidate_spans_found=${spans}; model_review_required=${candidateInputs.source_summary.model_review_required === true}. No deterministic patterns, guardrails, or master matches are selected.`,
       matched_terms: []
     });
   }
   const packet = readJson(join(outputDir, "profile_evidence.json"), null);
-  for (const receipt of packet?.receipts ?? []) {
+  for (const item of packet?.candidate_evidence_items ?? []) {
     evidence.push({
-      id: `receipt:${receipt.episode_id}`,
-      kind: "profile_receipt",
-      source: `${receipt.source_alias} (${receipt.evidence_tier})`,
-      summary: receipt.summary,
+      id: `evidence:${item.evidence_id}`,
+      kind: "candidate_evidence",
+      source: `${item.source_alias} (${item.source_type})`,
+      summary: `Candidate evidence metadata; retrieval_score=${item.retrieval_score}; matched_signals=${item.matched_signals.slice(0, 8).join(", ")}. Redacted text is not exposed in default memory answers.`,
       matched_terms: []
     });
   }
@@ -9938,24 +9787,23 @@ function queryRedactedTurnEvidence(outputDir, terms) {
     return [];
   }
 }
-function writeCandidateProfileArtifacts(outputDir, profile, now, kind) {
+function writeCandidateProfileArtifacts(outputDir, profile, evidenceItems, now, kind) {
   writeJson(join(outputDir, "profile_candidate_inputs.json"), profile);
   writeJson(join(outputDir, "profile_history", `${todayStamp(now)}-${kind}-candidate-inputs.json`), profile);
   writeProfileState(outputDir, "interview_required", now, "Deterministic evidence compilation completed; agent/LLM interview and synthesis are required before final profile files can be written.");
   writeFileSync(join(outputDir, "guardrails.yaml"), import_yaml.default.stringify({
     version: "0.2",
-    artifact_kind: "candidate_guardrails_requires_llm_synthesis",
-    active_guardrails: profile.active_guardrails.map((guardrail) => ({
+    artifact_kind: "guardrail_selection_requires_llm_synthesis",
+    instruction: "No guardrails are selected by deterministic profile-init. The agent/LLM must read profile_evidence.json, compare evidence with the guardrail catalog, and write final active_guardrails plus guardrail_protocols during profile-finalize.",
+    available_guardrail_catalog: Object.keys(guardrailQuestions).map((guardrail) => ({
       guardrail_id: guardrail,
       name: guardrailName(guardrail),
-      trigger: guardrailReason(guardrail),
-      required_questions: guardrailQuestions[guardrail] ?? [],
-      appears_in_decision: "Generated as P0/P1/P2 issue language in /investment-decision."
+      reference_questions: guardrailQuestions[guardrail]
     }))
   }), "utf8");
   writeFileSync(join(outputDir, "prompt_pack.md"), renderPromptPack(profile), "utf8");
   writeFileSync(join(outputDir, "InvestmentMirror.md"), renderInvestmentMirror(profile), "utf8");
-  const html = renderProfileCandidateReportHtml(profile, outputDir);
+  const html = renderProfileCandidateReportHtml(profile, evidenceItems, outputDir);
   writeFileSync(join(outputDir, "profile_candidate_report.html"), html, "utf8");
   writeFileSync(join(outputDir, "profile_history", `${todayStamp(now)}-${kind}-candidate-report.html`), html, "utf8");
 }
@@ -10034,8 +9882,9 @@ function masterInitials(name) {
   return name.split(/\s+/).filter(Boolean).slice(0, 2).map((part) => part[0]?.toUpperCase() ?? "").join("");
 }
 function renderPromptPack(profile) {
-  const master = profile.best_fit_master_matches[0];
   return `# Investment Mirror Prompt Pack
+
+This prompt pack is generic until \`profile-finalize\` writes a model-synthesized profile. It is not personalized by deterministic profile-init.
 
 ## Anti-narrative Prompt
 
@@ -10067,10 +9916,10 @@ Review this logged decision without judging the outcome. Which assumptions were 
 
 ## Best-fit Master Learning Prompt
 
-I am attracted to this investment idea. Based on my Investment Mirror candidate evidence packet, one candidate master learning lens is ${master.display_name}.
+I am attracted to this investment idea. Read my finalized Investment Mirror profile if available; otherwise read \`profile_evidence.json\` and relevant \`research/masters/{master_id}\` records before selecting any learning lens.
 
 First explain what is strong about how I am approaching this thesis. Then help me make the thesis more investable using:
-1. the strengths of ${master.display_name}-style research;
+1. a model-selected learning lens grounded in evidence, not deterministic similarity;
 2. a valuation expectation check;
 3. a good-company-bad-stock check;
 4. a falsification condition;
@@ -10080,24 +9929,24 @@ Do not tell me whether to buy. Turn my thesis into issues, questions, and guardr
 `;
 }
 function renderInvestmentMirror(profile) {
+  const spans = profile.source_summary.candidate_spans_found ?? 0;
   return `# Investment Mirror
 
-## Candidate Evidence Workspace
+## Evidence Workspace
 
-This file was generated from deterministic local evidence preparation. It is not a finalized profile. The agent/LLM must interpret the full candidate ledger, ask calibration questions, synthesize profile JSON, generate final HTML, then run profile-finalize to validate and write profile.json and profile.html.
+This file was generated from deterministic local evidence preparation. It is not a finalized profile. The agent/LLM must read \`profile_evidence.json\`, decide which evidence matters, compare against master records, ask calibration questions, synthesize profile JSON and structured profile content, then run profile-finalize to validate and write profile.json and profile.html.
 
-Candidate patterns: ${profile.primary_patterns.join(", ")}.
-Candidate default issue: ${profile.default_issue}
+Prepared redacted candidate evidence spans: ${spans}.
+Sources scanned: ${profile.source_summary.conversations_scanned}.
 
-## Candidate Master Suggestion
+## Model-Owned Phases
 
-Candidate suggestion: ${profile.best_fit_master_matches[0].display_name}
-Why: ${profile.best_fit_master_matches[0].why_match}
-Candidate guardrails: ${profile.active_guardrails.join("; ")}.
-
-## Active Guardrails
-
-${profile.active_guardrails.map((guardrail, index) => `${index + 1}. ${guardrailName(guardrail)}.`).join("\n")}
+1. Interpret the redacted candidate evidence ledger.
+2. Decide which spans are true decision evidence and which are false positives.
+3. Compare evidence with \`research/masters/{master_id}\` records before choosing any master lens.
+4. Ask 2-5 targeted calibration questions.
+5. Write \`synthesized_profile.json\` and \`profile_model_content.json\`.
+6. Run \`profile-finalize\`.
 
 ## Decision Log Index
 
@@ -10106,7 +9955,7 @@ ${profile.active_guardrails.map((guardrail, index) => `${index + 1}. ${guardrail
 
 ## Open Follow-ups
 
-- After finalization, apply ${guardrailName(profile.active_guardrails[0])} to the next thesis before recording a decision.
+- Complete model synthesis and finalization before using personalized guardrails.
 `;
 }
 function renderDecisionMarkdown(review) {
@@ -10152,6 +10001,22 @@ function renderProfileReportTemplate(profile, outputDir) {
     const label = STYLE_DIMENSIONS.find((dimension) => dimension.id === key)?.label ?? key;
     return `<div class="fingerprint-row"><span>${escapeHtml(label)}</span><strong>${Math.round(value)}</strong><i style="--v:${Math.round(value)}"></i></div>`;
   }).join("");
+  const masterReferenceCard = primary ? `<article class="master-card primary">
+        ${masterPortraitImg(primary.master_id, primary.display_name, outputDir)}
+        <div>
+          <p class="label">Model-owned master lens</p>
+          <h2>${escapeHtml(primary.display_name)}</h2>
+          <p>Use candidate matches only as suggestions. The final report must explain why the model chose the master after reading evidence and master records.</p>
+          <a href="${escapeHtml(primary.read_more_url)}">Read more</a>
+        </div>
+      </article>` : `<article class="master-card primary">
+        <div class="master-portrait-fallback" role="img" aria-label="Model-selected master lens pending"><span>AI</span></div>
+        <div>
+          <p class="label">Model-owned master lens</p>
+          <h2>Selected after evidence review</h2>
+          <p>The final report must choose a master lens only after the agent/LLM reads redacted evidence and compares it with master profile, style notes, and sources.</p>
+        </div>
+      </article>`;
   return `<!doctype html>
 <html lang="en">
 <head>
@@ -10164,8 +10029,9 @@ function renderProfileReportTemplate(profile, outputDir) {
   <!--
     Investment Mirror AI HTML reference.
     This is not a fill-in template and must not be copied with placeholder text.
-    The agent/LLM must generate the final static profile.html after full evidence analysis,
-    interview calibration, and model-owned master/profile synthesis.
+    The agent/LLM must generate structured final profile content after full
+    evidence analysis, interview calibration, and model-owned master/profile
+    synthesis. The finalizer renders canonical profile.html.
   -->
   <main class="page-shell model-template" data-reference="investment-mirror-profile-html-reference-v0.2">
     <section class="candidate-banner">
@@ -10180,15 +10046,7 @@ function renderProfileReportTemplate(profile, outputDir) {
         <p class="lead">The final model report should open with positive recognition, then quickly anchor the best-fit master lens and the guardrails that make the style more investable.</p>
         <div class="confidence"><span>Required status language</span><strong>Finalized or Provisional</strong></div>
       </div>
-      <article class="master-card primary">
-        ${masterPortraitImg(primary.master_id, primary.display_name, outputDir)}
-        <div>
-          <p class="label">Model-owned master lens</p>
-          <h2>${escapeHtml(primary.display_name)}</h2>
-          <p>Use candidate matches only as suggestions. The final report must explain why the model chose the master after reading evidence and master records.</p>
-          <a href="${escapeHtml(primary.read_more_url)}">Read more</a>
-        </div>
-      </article>
+      ${masterReferenceCard}
     </section>
 
     <section class="report-stack">
@@ -10226,14 +10084,14 @@ function renderProfileReportTemplate(profile, outputDir) {
 
     <section>
       <h2>Master Lens Reference Cards</h2>
-      ${renderMasterCard(primary, outputDir)}
+      ${primary ? renderMasterCard(primary, outputDir) : "<p>The model must compare evidence against master records before rendering final master cards.</p>"}
       ${secondary ? renderMasterCard(secondary, outputDir) : ""}
     </section>
 
     <section>
       <h2>Guardrail Protocol Reference</h2>
       <div class="guardrails">
-        ${profile.active_guardrails.map((guardrail, index) => `<article><span>Protocol ${index + 1}</span><h3>${escapeHtml(guardrailName(guardrail))}</h3><p>Explain why this protocol improves the user's process, using model interpretation rather than deterministic counts.</p><ul>${(guardrailQuestions[guardrail] ?? []).map((question) => `<li>${escapeHtml(question)}</li>`).join("")}</ul></article>`).join("")}
+        ${(profile.active_guardrails.length ? profile.active_guardrails : ["model_selected_guardrail"]).map((guardrail, index) => `<article><span>Protocol ${index + 1}</span><h3>${escapeHtml(guardrail === "model_selected_guardrail" ? "Model-selected guardrail" : guardrailName(guardrail))}</h3><p>Explain why this protocol improves the user's process, using model interpretation rather than deterministic counts.</p><ul>${(guardrailQuestions[guardrail] ?? ["Write the model-selected check in user-specific process language."]).map((question) => `<li>${escapeHtml(question)}</li>`).join("")}</ul></article>`).join("")}
       </div>
     </section>
 
@@ -10396,13 +10254,8 @@ function renderFinalProfileHtml(profile, content, outputDir) {
 </body>
 </html>`;
 }
-function renderProfileCandidateReportHtml(profile, outputDir) {
-  const primary = profile.best_fit_master_matches[0];
-  const secondary = profile.best_fit_master_matches[1];
-  const bars = Object.entries(profile.decision_fingerprint).map(([key, value]) => {
-    const label = STYLE_DIMENSIONS.find((dimension) => dimension.id === key)?.label ?? key;
-    return `<div class="fingerprint-row"><span>${escapeHtml(label)}</span><strong>${Math.round(value)}</strong><i style="--v:${Math.round(value)}"></i></div>`;
-  }).join("");
+function renderProfileCandidateReportHtml(profile, evidenceItems, outputDir) {
+  const topItems = evidenceItems.slice(0, 40);
   return `<!doctype html>
 <html lang="en">
 <head>
@@ -10414,61 +10267,68 @@ function renderProfileCandidateReportHtml(profile, outputDir) {
 <body>
   <main class="page-shell">
     <section class="candidate-banner">
-      <p class="kicker">Candidate evidence report</p>
-      <p>This artifact was generated by local tooling for source discovery, redaction, full candidate span ledger extraction, heuristic pattern counts, and candidate master suggestions. It is not a profile draft. The agent/LLM must run the later phases: full evidence interpretation, interview question formation, master/profile synthesis, and structured final content generation.</p>
+      <p class="kicker">Evidence workbench</p>
+      <p>This artifact was generated by deterministic local tooling for source discovery, redaction, retrieval scoring, and full candidate evidence extraction. It is not a profile draft, pattern judgment, guardrail selection, or master match. The agent/LLM must read the evidence, reject false positives, compare against master records, form questions, and synthesize the final profile.</p>
     </section>
     <section class="hero-grid">
       <div>
         <p class="kicker">Investment Mirror</p>
-        <h1>Evidence is ready for model synthesis.</h1>
-        <p class="lead">${profile.source_summary.decision_episodes_found} candidate decision episodes were prepared for agent/LLM review. Candidate matches and patterns are search aids, not judgments.</p>
-        <div class="confidence"><span>Analysis scope</span><strong>Full candidate ledger</strong></div>
+        <h1>Redacted evidence is ready for model review.</h1>
+        <p class="lead">${evidenceItems.length} candidate evidence spans were prepared for agent/LLM review. Retrieval scores and matched signals are search aids only.</p>
+        <div class="confidence"><span>Analysis scope</span><strong>Full candidate evidence ledger</strong></div>
       </div>
       <article class="master-card primary">
-        ${masterPortraitImg(primary.master_id, primary.display_name, outputDir)}
+        <div class="master-portrait-fallback" role="img" aria-label="Model analysis pending"><span>LLM</span></div>
         <div>
-        <p class="label">Candidate master suggestion</p>
-          <h2>${escapeHtml(primary.display_name)}</h2>
-          <p>${escapeHtml(primary.why_match)}</p>
-          <a href="${escapeHtml(primary.read_more_url)}">Read more</a>
+          <p class="label">Model-owned judgment pending</p>
+          <h2>No deterministic master match</h2>
+          <p>The model must compare reviewed evidence with master records before selecting any learning lens.</p>
         </div>
       </article>
     </section>
 
     <section class="report-stack">
       <article class="sheet">
-        <h2>Candidate Evidence Signals</h2>
-        ${profile.match_strengths.map((strength) => `<p>${escapeHtml(strength)}</p>`).join("")}
+        <h2>Source Coverage</h2>
+        <dl>
+          <div><dt>Sources scanned</dt><dd>${profile.source_summary.conversations_scanned}</dd></div>
+          <div><dt>Redacted turns indexed</dt><dd>${profile.source_summary.redacted_turns_indexed ?? 0}</dd></div>
+          <div><dt>Candidate evidence spans</dt><dd>${evidenceItems.length}</dd></div>
+        </dl>
       </article>
       <article class="sheet offset">
-        <h2>Candidate Master Lenses</h2>
-        ${renderMasterCard(primary, outputDir)}
-        ${secondary ? renderMasterCard(secondary, outputDir) : ""}
+        <h2>Retrieval Contract</h2>
+        <p>Matched signals explain why a span was retrieved. They do not classify the user's style, select a master, or choose guardrails.</p>
       </article>
     </section>
 
     <section class="section-grid">
       <article>
-        <h2>Decision Fingerprint</h2>
-        <div class="fingerprint">${bars}</div>
+        <h2>Model Must Decide</h2>
+        <ol>
+          <li>Which spans are true decision evidence.</li>
+          <li>Which patterns are actually supported.</li>
+          <li>Which master lens is useful after reading master records.</li>
+          <li>Which guardrails fit the user after calibration.</li>
+        </ol>
       </article>
       <article>
-        <h2>Heuristic Pattern Map</h2>
-        ${profile.primary_patterns.map((pattern) => `<div class="pattern"><strong>${escapeHtml(humanize(pattern))}</strong><p>${escapeHtml(patternInterpretation(pattern))}</p></div>`).join("")}
+        <h2>Calibration Dimensions</h2>
+        ${(profile.calibration_question_topics ?? defaultCalibrationDimensionsToCheck()).map((topic) => `<div class="pattern"><strong>${escapeHtml(humanize(topic.dimension))}</strong><p>${escapeHtml(topic.agent_instruction)}</p></div>`).join("")}
       </article>
     </section>
 
     <section>
-      <h2>Candidate Episode Ledger</h2>
+      <h2>Redacted Candidate Evidence Ledger</h2>
       <div class="receipts">
-        ${profile.receipts.map((receipt) => `<details><summary>${escapeHtml(receipt.source_alias)} \xB7 ${escapeHtml(receipt.date)} \xB7 ${escapeHtml(receipt.evidence_tier)}</summary><p>${escapeHtml(receipt.summary)}</p></details>`).join("")}
+        ${topItems.map((item) => `<details><summary>${escapeHtml(item.evidence_id)} \xB7 ${escapeHtml(item.source_alias)} \xB7 score ${item.retrieval_score.toFixed(2)}</summary><p><strong>Matched signals:</strong> ${escapeHtml(item.matched_signals.slice(0, 12).join(", ") || "none")}</p><pre>${escapeHtml(item.text_redacted)}</pre></details>`).join("")}
       </div>
     </section>
 
     <section>
-      <h2>Candidate Guardrail Inputs</h2>
+      <h2>Master Records To Compare</h2>
       <div class="guardrails">
-        ${profile.active_guardrails.map((guardrail) => `<article><span>${escapeHtml(guardrailName(guardrail))}</span><p>${escapeHtml(guardrailReason(guardrail))}</p><ul>${(guardrailQuestions[guardrail] ?? []).map((question) => `<li>${escapeHtml(question)}</li>`).join("")}</ul></article>`).join("")}
+        ${masterRecordsToCompare().slice(0, 8).map((master) => `<article><span>${escapeHtml(master.display_name)}</span><p>${escapeHtml(master.profile_path)}</p><p>${escapeHtml(master.style_notes_path)}</p></article>`).join("")}
       </div>
     </section>
 
@@ -10480,15 +10340,15 @@ function renderProfileCandidateReportHtml(profile, outputDir) {
           <li>Interpret full candidate ledger</li>
           <li>Create 2-5 interview questions</li>
           <li>Choose master lens by judgment</li>
-          <li>Generate final profile HTML</li>
+          <li>Generate structured profile content for deterministic rendering</li>
         </ol>
       </article>
       <article>
         <h2>Local Evidence Initialized</h2>
         <dl>
           <div><dt>Memory file</dt><dd>InvestmentMirror.md</dd></div>
-          <div><dt>Decision episodes</dt><dd>${profile.source_summary.decision_episodes_found}</dd></div>
-          <div><dt>Active guardrails</dt><dd>${profile.active_guardrails.length}</dd></div>
+          <div><dt>Candidate spans</dt><dd>${evidenceItems.length}</dd></div>
+          <div><dt>Active guardrails</dt><dd>model-owned</dd></div>
         </dl>
       </article>
     </section>
@@ -10645,26 +10505,11 @@ function sourceAlias(path) {
   const rel = relative(homedir(), path);
   return rel.startsWith("..") ? basename(path) : `~/${rel.split("/").slice(0, 5).join("/")}`;
 }
-function clamp(value) {
-  return Math.max(0, Math.min(100, Number(value.toFixed(1))));
-}
 function guardrailName(id) {
   return humanize(id.replace(/_before_.+$/, ""));
 }
 function humanize(id) {
   return id.replaceAll("_", " ").replace(/\b\w/g, (char) => char.toUpperCase());
-}
-function patternInterpretation(pattern) {
-  const interpretations = {
-    thesis_first_reasoning: "Strength: you can form coherent theses. Guardrail: define evidence and valuation before action.",
-    narrative_to_action_jump: "Strength: you see important trends early. Guardrail: prove valuation and value capture.",
-    research_loop_extension: "Strength: you seek depth. Guardrail: turn research into three decision variables.",
-    contrarian_impulse: "Strength: you question consensus. Guardrail: define the exact consensus gap.",
-    product_quality_overweight: "Strength: you notice product quality. Guardrail: test shareholder value capture.",
-    macro_story_overreach: "Strength: you see regimes. Guardrail: connect macro to asset-level sensitivity.",
-    authority_anchor: "Strength: you learn from strong investors. Guardrail: rewrite the thesis independently."
-  };
-  return interpretations[pattern] ?? "Turn this recurring pattern into a concrete process check before action.";
 }
 function escapeHtml(value) {
   return value.replace(/[&<>"']/g, (char) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[char]);
@@ -10741,9 +10586,9 @@ Commands:
       prompt_pack_path: `${result.outputDir}/prompt_pack.md`,
       source_index_path: `${result.outputDir}/source_index.sqlite`,
       source_count: result.sources.length,
-      decision_episodes_found: result.profile.source_summary.decision_episodes_found,
-      candidate_master_suggestions: result.profile.best_fit_master_matches.map((match) => ({ master_id: match.master_id, candidate_similarity: match.candidate_similarity ?? match.similarity })),
-      calibration_recommended: result.profile.source_summary.calibration_recommended,
+      candidate_spans_found: result.profile.source_summary.candidate_spans_found ?? 0,
+      deterministic_profile_judgments: false,
+      model_review_required: result.profile.source_summary.model_review_required ?? true,
       required_interview_questions: result.profile.interview_question_count ?? { min: 2, max: 5 },
       calibration_question_topics: result.profile.calibration_question_topics ?? [],
       presentation_next_steps: result.profile.presentation_next_steps ?? []

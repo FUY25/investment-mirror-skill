@@ -19,9 +19,7 @@ type ExtractionEval = {
   fixtures: Array<{
     name: string;
     text: string;
-    expected_candidate_patterns: string[];
-    expected_episode_type: string;
-    expected_evidence_tier: string;
+    expected_matched_signals: string[];
     expected_abstentions: string[];
   }>;
 };
@@ -60,19 +58,38 @@ function finalizeFixture(output: string) {
     output,
     synthesizedProfile: {
       profile_id: candidate.profile_id,
-      evidence_summary: "Local evidence shows repeated candidate issues around AI narratives, valuation expectations, value capture, and falsification.",
+      evidence_summary: "Model-reviewed local evidence shows repeated candidate issues around AI narratives, valuation expectations, value capture, and falsification.",
       interpretation_summary: "The model interprets the evidence as thesis-first reasoning that needs explicit guardrails before a user-owned decision.",
-      primary_patterns: candidate.primary_patterns,
-      best_fit_master_matches: candidate.best_fit_master_matches.slice(0, 1).map((match: any) => ({
-        ...match,
+      primary_patterns: ["narrative_to_action_jump", "valuation_avoidance", "falsification_avoidance"],
+      best_fit_master_matches: [
+        {
+          master_id: "philip_fisher",
+          why_match: "Model-selected learning lens after comparing reviewed evidence with master profile, style notes, and sources.",
         match_confidence: "medium",
         selection_basis: "model_selected_from_evidence_interview_and_master_records"
-      })),
-      match_strengths: candidate.match_strengths,
-      active_guardrails: candidate.active_guardrails,
-      recommended_guardrails: candidate.recommended_guardrails,
-      decision_fingerprint: candidate.decision_fingerprint,
-      default_issue: candidate.default_issue,
+        }
+      ],
+      match_strengths: ["The model found thesis construction evidence that benefits from explicit review protocols."],
+      active_guardrails: [
+        "reverse_expectation_check_before_thematic_growth",
+        "value_capture_check_before_platform_thesis",
+        "falsification_condition_before_position"
+      ],
+      recommended_guardrails: [
+        { guardrail_id: "reverse_expectation_check_before_thematic_growth", reason: "Model-selected after evidence review." },
+        { guardrail_id: "value_capture_check_before_platform_thesis", reason: "Model-selected after evidence review." },
+        { guardrail_id: "falsification_condition_before_position", reason: "Model-selected after evidence review." }
+      ],
+      decision_fingerprint: {
+        narrative_sensitivity: 72,
+        valuation_discipline: 48,
+        evidence_threshold: 64,
+        falsifiability_discipline: 46,
+        time_horizon_clarity: 67,
+        research_loop_tendency: 58,
+        value_capture_clarity: 50
+      },
+      default_issue: "The model-selected issue is to connect narrative quality to price expectations, value capture, and falsification before action.",
       source_summary: candidate.source_summary,
       receipts: candidate.receipts,
       risk_preference_summary: "Risk preference is represented as process review triggers, not inferred allocation or sizing advice.",
@@ -87,7 +104,7 @@ function finalizeFixture(output: string) {
         status_line: "Final profile rendered from model structured content."
       },
       evidence: {
-        summary: "Local receipt summaries and source IDs support the profile."
+        summary: "Model-reviewed evidence summaries and source IDs support the profile."
       },
       interpretation: {
         summary: "The model interpretation separates evidence from judgment."
@@ -167,13 +184,12 @@ for (const item of extractionEval.fixtures) {
     now: new Date("2026-06-13T12:00:00Z")
   });
   const packet = JSON.parse(readFileSync(join(fixtureOutput, "profile_evidence.json"), "utf8"));
-  const episodes = packet.candidate_decision_episodes ?? [];
-  const patterns = new Set(episodes.flatMap((episode: any) => episode.patterns ?? []));
-  const hasPatterns = item.expected_candidate_patterns.every((pattern) => patterns.has(pattern));
-  const hasEpisodeType = episodes.some((episode: any) => episode.episode_type === item.expected_episode_type);
-  const hasTier = episodes.some((episode: any) => episode.evidence_tier === item.expected_evidence_tier);
+  const evidenceItems = packet.candidate_evidence_items ?? [];
+  const signals = new Set(evidenceItems.flatMap((evidence: any) => evidence.matched_signals ?? []));
+  const hasSignals = item.expected_matched_signals.every((signal) => signals.has(signal));
+  const hasRedactedText = evidenceItems.some((evidence: any) => String(evidence.text_redacted ?? "").includes(item.text.slice(0, 40)));
   const abstainsFromFinal = !existsSync(join(fixtureOutput, "profile.json")) && !existsSync(join(fixtureOutput, "profile.html"));
-  results.push(check("extraction", item.name, hasPatterns && hasEpisodeType && hasTier && abstainsFromFinal && result.profile.synthesis_mode === "evidence_only_requires_llm", `patterns=${[...patterns].join(",")}; episodes=${episodes.length}; abstains=${abstainsFromFinal}`));
+  results.push(check("extraction", item.name, hasSignals && hasRedactedText && abstainsFromFinal && result.profile.synthesis_mode === "evidence_only_requires_llm", `signals=${[...signals].join(",")}; evidence_items=${evidenceItems.length}; abstains=${abstainsFromFinal}`));
 }
 
 results.push(check("lifecycle", "candidate_inputs_not_final_profile", existsSync(join(output, "profile_candidate_inputs.json")) && existsSync(join(output, "profile.json")) && profileResult.profile.synthesis_mode === "evidence_only_requires_llm", "candidate inputs and final profile are separate artifacts"));

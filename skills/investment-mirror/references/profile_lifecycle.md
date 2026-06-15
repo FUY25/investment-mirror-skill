@@ -31,7 +31,7 @@ Only `profile-finalize` may write:
 - `profile.json`
 - `profile.html`
 
-`profile-finalize` is an artifact validator/renderer/writer, not the model judgment phase. The agent/LLM must already have synthesized the profile JSON and generated structured final profile content before this command runs.
+`profile-finalize` is an artifact validator/renderer/writer, not the model judgment phase. The agent/LLM must already have read the redacted evidence ledger, compared it against master records, synthesized the profile JSON, and generated structured final profile content before this command runs.
 
 ## Finalization Contract
 
@@ -53,6 +53,7 @@ The final profile must include:
 - interpretation summary;
 - one primary master match and at most one secondary affinity;
 - guardrail rationale;
+- model-synthesized primary patterns, decision fingerprint, and active guardrails;
 - interview questions and answer summary;
 - risk preference summary;
 - time horizon summary;

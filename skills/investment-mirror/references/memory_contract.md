@@ -7,8 +7,8 @@
 Default answers may search:
 
 - `profile.json` when finalized;
-- `profile_candidate_inputs.json` as candidate inputs, clearly labeled;
-- `profile_evidence.json` receipt summaries and candidate episode summaries;
+- `profile_candidate_inputs.json` as retrieval/workflow state, clearly labeled;
+- `profile_evidence.json` candidate evidence metadata and redacted evidence summaries, clearly labeled as retrieval material rather than model interpretation;
 - `decision_log.jsonl`;
 - `decisions/*.json`;
 - `profile_history/*.json`;
@@ -41,7 +41,7 @@ Use local IDs such as:
 
 - `profile:{profile_id}`
 - `candidate:{profile_id}`
-- `receipt:{episode_id}`
+- `evidence:{evidence_id}`
 - `decision:{decision_id}`
 - `source:{source_id}`
 - `history:{file}`

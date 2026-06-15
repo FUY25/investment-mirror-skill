@@ -93,9 +93,9 @@ Commands:
       prompt_pack_path: `${result.outputDir}/prompt_pack.md`,
       source_index_path: `${result.outputDir}/source_index.sqlite`,
       source_count: result.sources.length,
-      decision_episodes_found: result.profile.source_summary.decision_episodes_found,
-      candidate_master_suggestions: result.profile.best_fit_master_matches.map((match) => ({ master_id: match.master_id, candidate_similarity: match.candidate_similarity ?? match.similarity })),
-      calibration_recommended: result.profile.source_summary.calibration_recommended,
+      candidate_spans_found: result.profile.source_summary.candidate_spans_found ?? 0,
+      deterministic_profile_judgments: false,
+      model_review_required: result.profile.source_summary.model_review_required ?? true,
       required_interview_questions: result.profile.interview_question_count ?? { min: 2, max: 5 },
       calibration_question_topics: result.profile.calibration_question_topics ?? [],
       presentation_next_steps: result.profile.presentation_next_steps ?? []

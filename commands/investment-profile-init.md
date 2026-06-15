@@ -32,13 +32,13 @@ node "${CLAUDE_PLUGIN_ROOT}/skills/investment-mirror/scripts/cli.mjs" profile-in
 5. Score spans locally for high-recall search. This is not classification.
 6. Downweight code-heavy and tool-output-heavy spans.
 7. Include decision-language variants such as `decision`, `decisions`, `decide`, `decides`, `decided`, `deciding`, `option`, `options`, and `optional`.
-8. Build the full candidate span ledger. Do not reduce it to a subset as the final profile basis.
-9. As the agent/LLM, analyze the full ledger and receipts; use subagents when the ledger is too large for one pass.
-10. As the agent/LLM, decide which candidate episodes matter, which are false positives, and what evidence tier each deserves.
-11. Let deterministic scripts write heuristic pattern counts, candidate guardrails, candidate master suggestions, schema, reference HTML, candidate report, state, guardrails, prompt pack, and source index.
+8. Build the full redacted candidate evidence ledger. Do not reduce it to a subset as the final profile basis.
+9. Let deterministic scripts write retrieval/workflow artifacts only: redacted evidence items, source/index files, schema, reference HTML, evidence workbench report, state, guardrail catalog/selection contract, prompt pack, and source index.
+10. As the agent/LLM, analyze the full ledger; use subagents when the ledger is too large for one pass.
+11. As the agent/LLM, decide which spans matter, which are false positives, which patterns are supported, and what evidence tier each span deserves.
 12. As the agent/LLM, generate 2-5 targeted interview questions from evidence gaps. This is not a fixed limited questionnaire.
 13. Ask those questions before finalization unless the user explicitly declines.
-14. As the agent/LLM, choose the final master lens by reading evidence plus master records; vectors are only suggestions.
+14. As the agent/LLM, choose the final master lens by reading evidence plus `research/masters/{master_id}/profile.md`, `style_notes.md`, and `sources.yaml`; there are no deterministic candidate master suggestions.
 15. Produce a model-synthesized profile JSON matching `profile_finalization_schema.json`.
 16. Produce `profile_model_content.json` as structured user-facing final content. Do not hand-write raw HTML.
 17. Run `/investment-profile-finalize --content profile_model_content.json` so the finalizer can render, validate, and write final `profile.json` and `profile.html`.
@@ -52,7 +52,7 @@ If discovery reports **0 sources**, the command returns a `needs_sources` state 
 - `profile_synthesis_prompt.md`
 - `profile_finalization_schema.json`
 - `profile_report_template.html` as an AI visual reference specimen, not a fill-in template
-- `profile_candidate_report.html`
+- `profile_candidate_report.html` as an evidence workbench, not a profile draft
 - `profile_state.json`
 - `guardrails.yaml`
 - `prompt_pack.md`
@@ -69,7 +69,7 @@ Not written by this command:
 
 ## Artifact Rules
 
-The candidate report must say it is not a profile draft. It can show candidate patterns, candidate master suggestions, candidate guardrails, and receipts.
+The candidate report must say it is not a profile draft. It can show source coverage, retrieval scores, matched retrieval signals, and redacted candidate evidence snippets. It must not show deterministic profile patterns, candidate master suggestions, selected guardrails, confidence, or final profile interpretation.
 
 The agent/LLM final profile must distinguish:
 

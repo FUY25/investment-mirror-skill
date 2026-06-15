@@ -27,13 +27,13 @@ node "${CLAUDE_PLUGIN_ROOT}/skills/investment-mirror/scripts/cli.mjs" profile-up
 1. Load final `profile.json` if present, plus `profile_candidate_inputs.json`, `profile_evidence.json`, `guardrails.yaml`, and `decision_log.jsonl`.
 2. Re-run source discovery and manifest comparison.
 3. Process new or changed sources only unless `--reindex` is supplied.
-4. Extract new full-ledger candidate spans and heuristic decision episodes.
-5. Compare recent pattern evidence with historical profile evidence.
-6. Produce candidate profile-confidence and candidate master-suggestion review signals only when evidence supports review.
+4. Extract new full-ledger redacted candidate evidence spans.
+5. Merge new candidate evidence items with historical `profile_evidence.json`.
+6. Report evidence count deltas and preserve model-owned interpretation until the agent/LLM reviews the updated evidence.
 7. Preserve final `profile.json` and `profile.html` in place.
 8. As the agent/LLM, read the updated evidence packet and distinguish local evidence from model interpretation.
 9. If the update exposes unresolved dimensions such as risk preference, horizon, or constraints, ask 2-5 targeted interview questions before changing the final model profile.
-10. Generate an update report that lists newly detected, strengthened, and weakened patterns.
+10. Generate an update report that lists candidate evidence span count changes and the model review requirement.
 11. If the final profile changes, synthesize updated JSON and structured final content in the model phase, then run `/investment-profile-finalize --content profile_model_content.json`.
 
 ## Outputs
@@ -53,14 +53,12 @@ node "${CLAUDE_PLUGIN_ROOT}/skills/investment-mirror/scripts/cli.mjs" profile-up
 
 Show:
 
-- newly detected patterns;
-- strengthened patterns;
-- weakened patterns;
-- guardrails triggered most often;
-- candidate master-suggestion changes requiring LLM review;
-- areas improving;
-- areas needing attention.
+- previous candidate evidence span count;
+- current candidate evidence span count;
+- candidate evidence span delta;
+- whether a final profile already exists and was preserved;
+- that model review is required before changing interpretation, master lens, or guardrails.
 
 Use process language only. Do not turn profile updates into investment recommendations.
 
-Do not accept a deterministic similarity-score change as a real master-match change until the model has checked the receipts and explained why the new lens is more useful than the prior one. Run `/investment-profile-finalize --content profile_model_content.json` only after the agent/LLM has synthesized updated JSON and generated updated structured final content.
+Do not accept retrieval-score changes as profile changes. Run `/investment-profile-finalize --content profile_model_content.json` only after the agent/LLM has reviewed updated evidence, compared master records, synthesized updated JSON, and generated updated structured final content.

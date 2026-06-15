@@ -20,16 +20,16 @@ YAML files under `skills/investment-mirror/config/` and research files under `re
 - display names match runtime records;
 - each master has `profile.md`, `sources.yaml`, and `style_notes.md`;
 - each source has URL, source type, source-quality label, and source-quality tier;
-- root and skill master SVG assets exist and use imagegen line-art metadata;
+- root master SVG assets exist and use imagegen line-art metadata;
 - no unsupported annualized return claims or performance rankings are added unless supported by source files.
 
-## Matching Semantics
+## Master Lens Semantics
 
-Candidate master suggestion is a learning-lens search over style vectors. It is not identity classification, final matching, or authority endorsement.
+Master records are comparison material for the agent/LLM, not deterministic profile output. `profile-init` must not choose candidate or final master matches. The model may choose a master lens only after reading reviewed evidence plus the relevant master `profile.md`, `style_notes.md`, and `sources.yaml`.
 
 The agent/LLM must:
 
-- pick one primary master match only after reading receipts;
+- pick one primary master match only after reading model-reviewed evidence and master records;
 - add at most one secondary affinity;
 - explain why the lens is useful;
 - explain what not to copy;

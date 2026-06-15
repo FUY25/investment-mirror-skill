@@ -33,7 +33,7 @@ Default scope:
 - `decision_log.jsonl`
 - `decisions/*.json`
 - `profile_history/*.json`
-- source summaries and receipt summaries
+- source summaries and candidate evidence metadata
 
 Do not search or expose raw transcript text by default. If the user explicitly requests raw local evidence, raw transcript, original text, redacted turns, `原始证据`, `原文`, or `转录`, query redacted snippets from `source_index.sqlite` and cite `turn_id`/`source_id`.
 

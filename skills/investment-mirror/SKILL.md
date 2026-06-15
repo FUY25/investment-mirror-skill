@@ -5,9 +5,9 @@ description: Local-first investment decision profiling and thesis-linting skill.
 
 # Investment Mirror
 
-Investment Mirror is a local-first investment decision skill. Deterministic scripts are fast evidence tools only: source discovery, manifest/hash, redaction, grep/FTS search, heuristic span scoring, full candidate ledger extraction, candidate pattern counts, candidate master suggestions, schema validation, and artifact scaffolding.
+Investment Mirror is a local-first investment decision skill. Deterministic scripts are fast evidence tools only: source discovery, manifest/hash, redaction, grep/FTS search, heuristic span scoring for retrieval, full redacted candidate evidence ledger extraction, schema validation, safety validation, deterministic HTML rendering from model-owned structured content, and artifact scaffolding.
 
-The deterministic program must not write a profile draft, final profile judgment, final master match, or final profile synthesis. It writes `profile_candidate_inputs.json`, `profile_evidence.json`, `profile_synthesis_prompt.md`, `profile_finalization_schema.json`, `profile_report_template.html`, `profile_candidate_report.html`, and `profile_state.json`. Final `profile.json` and `profile.html` are written only by the finalizer after the agent/LLM has produced synthesized JSON and structured final profile content. The finalizer renders `profile.html` from that model-owned content using deterministic layout and safety rules.
+The deterministic program must not write a profile draft, pattern judgment, guardrail selection, final profile judgment, final master match, or final profile synthesis. It writes `profile_candidate_inputs.json`, `profile_evidence.json`, `profile_synthesis_prompt.md`, `profile_finalization_schema.json`, `profile_report_template.html`, `profile_candidate_report.html`, and `profile_state.json` as evidence/workflow artifacts only. Final `profile.json` and `profile.html` are written only by the finalizer after the agent/LLM has produced synthesized JSON and structured final profile content. The finalizer renders `profile.html` from that model-owned content using deterministic layout and safety rules.
 
 Investment Mirror must not provide investment, legal, tax, or financial advice. Never recommend buy, sell, hold, allocation, suitability, or position size. Use process statuses, P0/P1/P2 issues, guardrails, and research questions.
 
@@ -44,13 +44,20 @@ Inside a Claude Code plugin command, reference the bundle via
 
 - Start final profile presentations with positive recognition and the best-fit master match.
 - Use one primary master match by default; add one secondary affinity only when evidence supports it.
-- Treat deterministic master suggestions as candidate inputs until the agent/LLM interprets receipts and master records.
+- Match the user's language for user-facing questions, summaries, and final profile copy unless the user asks for another language.
+- Calibrate confidence and tone to evidence strength. If direct investment evidence is absent or sparse, say the profile is evidence-light or process-level, keep the master lens tentative/low-confidence unless interview answers strongly support it, and avoid definitive identity-style claims.
+- Treat direct public-equity evidence, indirect process evidence, and interview calibration as separate inputs. Do not let product/engineering workflow evidence masquerade as investment behavior.
+- Do not convert a stated drawdown/review trigger into a broad risk-tolerance claim. Phrase it as a user-stated review boundary, not allocation, sizing, suitability, or general volatility comfort.
+- If constraints were not stated, write "no constraints were stated" rather than "the user has no constraints."
+- Avoid pseudo-precision. Numeric decision-fingerprint values are model calibration aids, not measurements; when evidence is thin, use qualitative bands or explicitly flag uncertainty in the copy.
+- `/investment-profile-init` must not output deterministic master suggestions, deterministic profile patterns, or deterministic guardrail selections.
+- The agent/LLM must compare `profile_evidence.json` redacted candidate evidence with `research/masters/{master_id}/` profile, style notes, and sources before selecting a master lens.
 - `/investment-profile-init` is a multi-phase workflow: deterministic evidence compilation first, then model-owned evidence analysis/question formation/master-profile synthesis/content writing, then `/investment-profile-finalize` validation/render/write.
 - Generate 2-5 targeted interview questions from evidence gaps; do not use a fixed limited questionnaire.
 - If the user declines interview calibration, finalization must be provisional and list unknown dimensions.
-- Do not expose raw transcripts by default; use receipt summaries and local source aliases.
+- Do not expose raw transcripts by default; use final profile summaries, decision summaries, candidate evidence metadata, and local source aliases.
 - `/investment-mirror-ask` uses local JSON/SQLite/grep-style retrieval, not RAG or embeddings.
-- Default memory answers search profile, decision, source, and receipt summaries only.
+- Default memory answers search profile, decision, source, and candidate evidence metadata only.
 - Raw/redacted turn retrieval is allowed only when the user explicitly requests raw local evidence.
 - Distinguish evidence from interpretation.
 - Keep future masters excluded from the v0.2 completion gate.
@@ -67,7 +74,7 @@ Runtime user memory lives under the output directory, normally `~/.investment-mi
 - `profile_candidate_report.html`
 - `profile_state.json`
 - `profile.json` and `profile.html` only after `profile-finalize`
-- `guardrails.yaml`
+- `guardrails.yaml` (guardrail selection contract/catalog, not selected user guardrails before finalization)
 - `prompt_pack.md`
 - `InvestmentMirror.md`
 - `source_index.sqlite`

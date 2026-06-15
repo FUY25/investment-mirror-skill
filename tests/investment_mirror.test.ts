@@ -50,33 +50,10 @@ function resetFixture() {
 
 function finalizeFixture(output: string) {
   const candidate = JSON.parse(readFileSync(join(output, "profile_candidate_inputs.json"), "utf8"));
-  const finalContent = modelGeneratedProfileContent(candidate.best_fit_master_matches[0]?.display_name ?? "Model-selected master");
+  const finalContent = modelGeneratedProfileContent("Philip Fisher");
   return finalizeProfile({
     output,
-    synthesizedProfile: {
-      profile_id: candidate.profile_id,
-      evidence_summary: "The local evidence shows recurring investment reasoning around thesis quality, valuation checks, value capture, and falsification.",
-      interpretation_summary: "The model interprets the evidence as a style that can form strong narratives but needs explicit price, capture, and disconfirmation protocols.",
-      primary_patterns: candidate.primary_patterns,
-      best_fit_master_matches: candidate.best_fit_master_matches.slice(0, 1).map((match: any) => ({
-        ...match,
-        why_match: "Model-selected learning lens after reviewing evidence, interview answers, and master records.",
-        match_confidence: "medium",
-        selection_basis: "model_selected_from_evidence_interview_and_master_records"
-      })),
-      match_strengths: candidate.match_strengths,
-      active_guardrails: candidate.active_guardrails,
-      recommended_guardrails: candidate.recommended_guardrails,
-      decision_fingerprint: candidate.decision_fingerprint,
-      default_issue: candidate.default_issue,
-      source_summary: candidate.source_summary,
-      receipts: candidate.receipts,
-      risk_preference_summary: "The user prefers process-defined risk checks over inferred tolerance; drawdown tolerance remains bounded by user-owned review rules.",
-      time_horizon_summary: "The calibration answer points to multi-year thesis review when evidence, valuation, and falsification are explicit.",
-      constraints_summary: "No personal liquidity, tax, or suitability constraints are inferred; the profile keeps them outside deterministic evidence.",
-      false_match_warning: "The master match is a learning lens only and must not be copied as authority or identity.",
-      unknown_dimensions: []
-    },
+    synthesizedProfile: modelSynthesizedProfile(candidate),
     finalContent,
     agentQuestions: [
       "What drawdown or thesis deterioration would make you stop and review?",
@@ -88,6 +65,52 @@ function finalizeFixture(output: string) {
   });
 }
 
+function modelSynthesizedProfile(candidate: any, overrides: Record<string, unknown> = {}) {
+  return {
+    profile_id: candidate.profile_id,
+    evidence_summary: "The model-reviewed evidence shows recurring investment reasoning around thesis quality, valuation checks, value capture, and falsification.",
+    interpretation_summary: "The model interprets the reviewed evidence as a style that can form strong narratives but needs explicit price, capture, and disconfirmation protocols.",
+    primary_patterns: ["narrative_to_action_jump", "valuation_avoidance", "falsification_avoidance"],
+    best_fit_master_matches: [
+      {
+        master_id: "philip_fisher",
+        why_match: "Model-selected learning lens after comparing reviewed evidence with master profile, style notes, and sources.",
+        match_confidence: "medium",
+        selection_basis: "model_selected_from_evidence_interview_and_master_records"
+      }
+    ],
+    match_strengths: ["The model found evidence of thesis construction that benefits from stronger validation and falsification checks."],
+    active_guardrails: [
+      "reverse_expectation_check_before_thematic_growth",
+      "value_capture_check_before_platform_thesis",
+      "falsification_condition_before_position"
+    ],
+    recommended_guardrails: [
+      { guardrail_id: "reverse_expectation_check_before_thematic_growth", reason: "Model-selected after reviewing narrative-to-action evidence." },
+      { guardrail_id: "value_capture_check_before_platform_thesis", reason: "Model-selected after reviewing value-capture gaps." },
+      { guardrail_id: "falsification_condition_before_position", reason: "Model-selected after reviewing falsification gaps." }
+    ],
+    decision_fingerprint: {
+      narrative_sensitivity: 72,
+      valuation_discipline: 48,
+      evidence_threshold: 64,
+      falsifiability_discipline: 46,
+      time_horizon_clarity: 67,
+      research_loop_tendency: 58,
+      value_capture_clarity: 50
+    },
+    default_issue: "The model-selected issue is to connect narrative quality to price expectations, value capture, and falsification before action.",
+    source_summary: candidate.source_summary,
+    receipts: [],
+    risk_preference_summary: "The user prefers process-defined risk checks over inferred tolerance; drawdown tolerance remains bounded by user-owned review rules.",
+    time_horizon_summary: "The calibration answer points to multi-year thesis review when evidence, valuation, and falsification are explicit.",
+    constraints_summary: "No personal liquidity, tax, or suitability constraints are inferred; the profile keeps them outside deterministic evidence.",
+    false_match_warning: "The master match is a learning lens only and must not be copied as authority or identity.",
+    unknown_dimensions: [],
+    ...overrides
+  };
+}
+
 function modelGeneratedProfileContent(masterName: string) {
   return {
     hero: {
@@ -95,7 +118,7 @@ function modelGeneratedProfileContent(masterName: string) {
       status_line: "Final profile rendered from model structured content."
     },
     evidence: {
-      summary: "Local receipt summaries and source IDs support the profile; raw transcript text is not exposed."
+      summary: "Model-reviewed evidence summaries and source IDs support the profile; raw transcript text is not exposed."
     },
     interpretation: {
       summary: "The model interpretation separates evidence from judgment and explains which signals mattered.",
@@ -160,8 +183,12 @@ test("generates local candidate inputs without writing final profile artifacts",
     reindex: true,
     now: new Date("2026-06-13T12:00:00Z")
   });
-  assert.ok(result.profile.best_fit_master_matches.length >= 1);
-  assert.ok(result.profile.best_fit_master_matches.length <= 2);
+  assert.equal(result.profile.best_fit_master_matches.length, 0);
+  assert.deepEqual(result.profile.primary_patterns, []);
+  assert.deepEqual(result.profile.active_guardrails, []);
+  assert.equal(result.profile.confidence, 0);
+  assert.ok((result.profile.source_summary.candidate_spans_found ?? 0) > 0);
+  assert.equal(result.profile.source_summary.model_review_required, true);
   assert.equal(result.profile.synthesis_mode, "evidence_only_requires_llm");
   assert.equal(result.profile.artifact_kind, "deterministic_profile_inputs");
   assert.equal(result.profile.profile_state, "interview_required");
@@ -182,9 +209,16 @@ test("generates local candidate inputs without writing final profile artifacts",
   assert.equal(existsSync(join(output, "profile.html")), false);
   assert.ok(existsSync(join(output, "source_index.sqlite")));
   assert.equal(existsSync(join(output, ".sqlite_payload.json")), false);
+  const evidence = JSON.parse(readFileSync(join(output, "profile_evidence.json"), "utf8"));
+  assert.ok(evidence.candidate_evidence_items.length > 0);
+  assert.equal(evidence.candidate_master_matches, undefined);
+  assert.match(evidence.deterministic_retrieval_inputs.note, /retrieval\/ranking aids/i);
+  assert.ok(evidence.master_records_to_compare.length >= 30);
   const prompt = readFileSync(join(output, "profile_synthesis_prompt.md"), "utf8");
   assert.match(prompt, /Generate 2-5 interview questions/i);
   assert.match(prompt, /--content profile_model_content\.json/);
+  assert.match(prompt, /candidate_evidence_items/);
+  assert.match(prompt, /master_records_to_compare/);
   assert.match(prompt, /profile_report_template\.html/);
   assert.match(prompt, /profile-finalize/);
   const template = readFileSync(join(output, "profile_report_template.html"), "utf8");
@@ -192,9 +226,11 @@ test("generates local candidate inputs without writing final profile artifacts",
   assert.match(template, /not a fill-in template/i);
   assert.doesNotMatch(template, /\{\{[^}]+\}\}/);
   const html = readFileSync(join(output, "profile_candidate_report.html"), "utf8");
-  assert.match(html, /Candidate evidence report/);
-  assert.match(html, /Full candidate ledger/);
-  assert.match(html, /Candidate Guardrail Inputs/);
+  assert.match(html, /Evidence workbench/);
+  assert.match(html, /Full candidate evidence ledger/);
+  assert.match(html, /No deterministic master match/);
+  assert.doesNotMatch(html, /Candidate Guardrail Inputs/);
+  assert.doesNotMatch(html, /Candidate Master Lenses/);
   assert.doesNotMatch(html, /Finalized model profile/);
   assert.doesNotMatch(html.slice(0, 1200), /P0|blocker|flaw/i);
 });
@@ -212,25 +248,7 @@ test("profile finalize refuses to write final artifacts without model-generated 
   const candidate = JSON.parse(readFileSync(join(output, "profile_candidate_inputs.json"), "utf8"));
   assert.throws(() => finalizeProfile({
     output,
-    synthesizedProfile: {
-      profile_id: candidate.profile_id,
-      evidence_summary: "The local evidence shows repeated candidate episodes and model-reviewed source receipts.",
-      interpretation_summary: "The model interprets the receipts as a process profile requiring explicit guardrails.",
-      primary_patterns: candidate.primary_patterns,
-      best_fit_master_matches: candidate.best_fit_master_matches.slice(0, 1),
-      match_strengths: candidate.match_strengths,
-      active_guardrails: candidate.active_guardrails,
-      recommended_guardrails: candidate.recommended_guardrails,
-      decision_fingerprint: candidate.decision_fingerprint,
-      default_issue: candidate.default_issue,
-      source_summary: candidate.source_summary,
-      receipts: candidate.receipts,
-      risk_preference_summary: "Risk preference is represented by user-owned review triggers.",
-      time_horizon_summary: "The user clarified a multi-year default horizon.",
-      constraints_summary: "No personal constraints are inferred from local logs.",
-      false_match_warning: "The master match is a learning lens only.",
-      unknown_dimensions: []
-    },
+    synthesizedProfile: modelSynthesizedProfile(candidate),
     agentQuestions: [
       "What would make you stop and review?",
       "What horizon should most ideas use?"
@@ -279,27 +297,17 @@ test("provisional finalization caps confidence and strips deterministic source f
   const candidate = JSON.parse(readFileSync(join(output, "profile_candidate_inputs.json"), "utf8"));
   const result = finalizeProfile({
     output,
-    synthesizedProfile: {
-      profile_id: candidate.profile_id,
+    synthesizedProfile: modelSynthesizedProfile(candidate, {
       confidence: 0.9,
-      evidence_summary: "The local evidence shows process behavior but limited direct public-equity history.",
+      evidence_summary: "The model-reviewed evidence shows process behavior but limited direct public-equity history.",
       interpretation_summary: "The model interpretation is provisional because some calibration dimensions remain unknown.",
-      primary_patterns: candidate.primary_patterns,
-      best_fit_master_matches: candidate.best_fit_master_matches.slice(0, 1),
-      match_strengths: candidate.match_strengths,
-      active_guardrails: candidate.active_guardrails,
-      recommended_guardrails: candidate.recommended_guardrails,
-      decision_fingerprint: candidate.decision_fingerprint,
-      default_issue: candidate.default_issue,
       source_summary: { ...candidate.source_summary, calibration_recommended: false },
-      receipts: candidate.receipts,
       risk_preference_summary: "Risk preference remains partially unknown.",
       time_horizon_summary: "The user has not fully calibrated horizon.",
       constraints_summary: "No suitability, allocation, or position-size conclusion is inferred.",
-      false_match_warning: "The master match is a learning lens only.",
       unknown_dimensions: ["minimum_evidence_package_for_decision_review"]
-    },
-    finalContent: modelGeneratedProfileContent(candidate.best_fit_master_matches[0]?.display_name ?? "Model-selected master"),
+    }),
+    finalContent: modelGeneratedProfileContent("Philip Fisher"),
     agentQuestions: [
       "What evidence package is enough for review?",
       "What risk trigger should govern review?"
@@ -325,16 +333,16 @@ test("profile init is idempotent when all sources are unchanged", () => {
     reindex: true,
     now: new Date("2026-06-13T12:00:00Z")
   });
-  assert.ok(first.profile.source_summary.decision_episodes_found > 0);
+  assert.ok((first.profile.source_summary.candidate_spans_found ?? 0) > 0);
   const second = generateInvestorProfile({
     output,
     include: [join(root, ".codex", "sessions"), join(root, ".claude", "projects")],
     exclude: [join(process.env.HOME ?? "", ".codex"), join(process.env.HOME ?? "", ".claude")],
     now: new Date("2026-06-13T13:00:00Z")
   });
-  assert.equal(second.profile.source_summary.decision_episodes_found, first.profile.source_summary.decision_episodes_found);
-  assert.deepEqual(second.profile.primary_patterns, first.profile.primary_patterns);
-  assert.equal(second.profile.best_fit_master_matches[0].master_id, first.profile.best_fit_master_matches[0].master_id);
+  assert.equal(second.profile.source_summary.candidate_spans_found, first.profile.source_summary.candidate_spans_found);
+  assert.deepEqual(second.profile.primary_patterns, []);
+  assert.equal(second.profile.best_fit_master_matches.length, 0);
   assert.ok(existsSync(join(output, "profile_evidence.json")));
   assert.ok(existsSync(join(output, "profile_report_template.html")));
   assert.equal(existsSync(join(output, "profile.json")), false);
@@ -393,8 +401,9 @@ test("profile update merges historical candidate evidence and preserves final pr
     since: "2000-01-01",
     now: new Date("2026-06-13T15:00:00Z")
   });
-  assert.ok(updated.profile.source_summary.decision_episodes_found >= initial.profile.source_summary.decision_episodes_found);
+  assert.ok((updated.profile.source_summary.candidate_spans_found ?? 0) >= (initial.profile.source_summary.candidate_spans_found ?? 0));
   assert.equal(updated.update.final_profile_preserved, true);
+  assert.equal(updated.update.model_review_required, true);
   assert.ok(existsSync(join(output, "profile.json")));
   assert.ok(existsSync(join(output, "profile_candidate_inputs.json")));
 });
