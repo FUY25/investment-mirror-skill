@@ -310,8 +310,12 @@ test("profile finalize is the only writer of final profile json and html", () =>
   assert.ok(existsSync(join(output, "profile.json")));
   assert.ok(existsSync(join(output, "profile.html")));
   const html = readFileSync(join(output, "profile.html"), "utf8");
-  assert.match(html, /Final profile rendered from model structured content/);
-  assert.match(html, /Decision Pattern/);
+  assert.match(html, /Investment Decision Profile/);
+  assert.match(html, /Evidence Boundary/);
+  assert.match(html, /Six-Dimension Decision Profile/);
+  assert.match(html, /What to learn from Philip Fisher/);
+  assert.match(html, /Pre-Investment Guardrail/);
+  assert.match(html, /\/investment-decision/);
   assert.doesNotMatch(html, /you should buy|you should sell|strong buy|strong sell/i);
 });
 

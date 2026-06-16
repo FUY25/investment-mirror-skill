@@ -46,11 +46,11 @@ Legacy compatibility: `--html` is accepted only as an escape hatch for existing 
 `profile_model_content.json` must structure the user-facing report around:
 
 - hero copy with the user's investment decision style and why it resembles the selected master lens;
-- compact evidence-scanned summary and table rows, with interview calibration as one evidence source;
+- evidence boundary data: keep compact evidence rows in JSON for auditability, but render the final HTML as a short evidence-boundary section with key counts and lightweight evidence signals inside the six dimensions;
 - six decision-pattern dimensions: philosophy, decision-making process, research process, buy/sell discipline, risk process, and repeatability;
-- master learning lens: what to learn and what not to copy;
+- master learning lens reframed as what the user can learn from the selected master and what investment style/watch-outs fit the user's process;
 - 1-5 concise guardrail protocols/questions;
-- a `/investment-decision` command scaffold for the next concrete thesis review.
+- a `/investment-decision` command scaffold for the next concrete thesis review, without generic prompt chips or buy/sell/allocation fields.
 
 ## What The Finalizer Validates
 
@@ -87,7 +87,7 @@ Legacy compatibility: `--html` is accepted only as an escape hatch for existing 
 8. Do not include investment advice.
 9. Match the completed interview answers' dominant language for user-facing questions, summaries, final profile copy, and rendered HTML chrome unless the user requests another language. If interview-answer language conflicts with earlier chat or transcript language, the interview-answer language wins. Master names, file paths, IDs, and technical field names may stay in their canonical form.
 10. Write interpretation through the six investment-process dimensions, not through a single-thesis checklist.
-11. Keep evidence strength visible: if direct investment evidence is sparse, describe the profile as process-level or evidence-light and keep master confidence conservative.
+11. Keep evidence strength visible without overexplaining it in the UI: if direct investment evidence is sparse, describe the profile as process-level or evidence-light in structured content and use concise evidence-boundary metrics plus dimension-level evidence signals in the rendered report.
 12. Do not turn review triggers into broad risk-tolerance claims, and do not turn "no constraints stated" into "no constraints."
 13. Avoid pseudo-precision in final copy; numeric fingerprint values are orientation signals, not measurements.
 14. Connect the final CTA to `/investment-decision`; do not write a generic prompt that bypasses the skill-family decision review.

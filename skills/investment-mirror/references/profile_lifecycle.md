@@ -50,7 +50,8 @@ Legacy `--html PATH` is accepted only for compatibility. The normal product path
 The final profile must include:
 
 - evidence summary;
-- compact evidence-scanned table, with interview calibration as one evidence source row rather than a standalone section;
+- structured evidence rows in `profile_model_content.json`, with interview calibration represented as one evidence source in the data contract rather than a standalone final-report section;
+- a compact rendered evidence-boundary section that shows key counts and keeps detailed evidence interpretation inside the six-dimension reads;
 - six-dimension investment-process interpretation: philosophy, decision-making process, research process, buy/sell discipline, risk process, and repeatability;
 - one primary master match and at most one secondary affinity;
 - guardrail rationale;

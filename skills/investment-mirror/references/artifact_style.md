@@ -21,14 +21,14 @@ Generated HTML artifacts are static-first reports with light interactions only.
 
 Final `profile.html` must:
 
-- start with positive recognition;
-- show final/provisional state;
-- place best-fit master match near the top;
+- start with the user's decision style and why that style resembles the selected master lens;
+- keep final/provisional state available in artifact metadata rather than as low-information visible chrome;
+- place a large best-fit master portrait and short master bio near the top;
 - separate evidence from interpretation;
-- include interview calibration;
+- include interview calibration in the structured evidence contract and, when useful, in dimension-level evidence signals rather than as a standalone section;
 - show unknown dimensions when provisional;
-- include a false-match warning;
-- show guardrails as protocols that make the style more investable.
+- keep master-match caveats in structured content and visible watch-outs, not as repetitive self-justifying warnings;
+- show guardrails as pre-investment questions that make the style more investable.
 
 `profile_report_template.html` is an AI visual reference specimen. It shows required sections, tone, and visual rhythm. It is not a fill-in template. The agent/LLM must generate structured final profile content, not hand-written raw HTML. The finalizer renders the canonical `profile.html` from that content using deterministic layout and safety rules.
 
